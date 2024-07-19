@@ -22,8 +22,7 @@ class PasswordScreen extends StatefulWidget {
   State<PasswordScreen> createState() => _PasswordScreenState();
 }
 
-class _PasswordScreenState extends State<PasswordScreen>
-    with RouteAware, DatadogRouteAwareMixin {
+class _PasswordScreenState extends State<PasswordScreen> {
   late OverlayProvider overlayProvider;
   late UserProvider userProvider;
   late Auth0UserApi auth0UserApi;
@@ -34,9 +33,9 @@ class _PasswordScreenState extends State<PasswordScreen>
   String newPassword = '';
   String passwordMatch = '';
 
-  bool viewPassword = false;
-  bool viewNewPassword = false;
-  bool viewPasswordMatch = false;
+  bool isPasswordVisible = false;
+  bool isNewPasswordVisible = false;
+  bool IsPasswordMatchVisible = false;
 
   late bool _isButtonDisabled = true;
 
@@ -50,8 +49,7 @@ class _PasswordScreenState extends State<PasswordScreen>
     auth0UserApi = widget.auth0UserApi;
   }
 
-  @override
-  RumViewInfo get rumViewInfo => RumViewInfo(name: 'Password Screen');
+
 
   void submitRequest() {
     if (newPassword == passwordMatch) {
@@ -102,10 +100,27 @@ class _PasswordScreenState extends State<PasswordScreen>
     overlayProvider = context.watch<OverlayProvider>();
     userProvider = context.watch<UserProvider>();
 
+    RumViewInfo? infoExtractor(Route<dynamic> route) {
+      // var name = route.settings.name;
+      // if (name == 'my_named_route') {
+      return RumViewInfo(
+        name: 'Profile View',
+        attributes: {'extra_attribute': 'attribute_value'},
+      );
+      // }
+      //
+      // return defaultViewInfoExtractor(route);
+    }
+
+    DatadogNavigationObserver(
+      datadogSdk: DatadogSdk.instance,
+      viewInfoExtractor: infoExtractor,
+    );
+
     return ListView(
       children: [
         TextFormField(
-          obscureText: !viewPassword,
+          obscureText: !isPasswordVisible,
           autocorrect: false,
           key: const Key('old_password'),
           enableSuggestions: false,
@@ -117,19 +132,27 @@ class _PasswordScreenState extends State<PasswordScreen>
             return null;
           },
           decoration: InputDecoration(
-            border: const OutlineInputBorder(),
-            labelText: 'Current Password',
-            suffixIcon: IconButton(
-              key: const Key('toggle_old_password'),
-              onPressed: () {
-                setState(() {
-                  viewPassword = !viewPassword;
-                });
-              },
-              icon: Icon(
-                viewPassword ? Icons.visibility_off : Icons.visibility
-              )
-            )
+            // border: const OutlineInputBorder(),
+            // labelText: 'Current Password',
+            label: const Text('Current Password'),
+            suffixIcon: TextButton.icon(onPressed: () {
+              setState(() {
+                isPasswordVisible = !isPasswordVisible;
+              });
+            }, label: Text(isPasswordVisible ? 'Hide' : 'Show'),
+              icon: Icon(isPasswordVisible ? Icons.visibility_off : Icons.visibility))
+            // suffixIcon: IconButton(
+            //   key: const Key('toggle_old_password'),
+            //   tooltip: '${isPasswordVisible ? 'Hide' : 'Show'} password',
+            //   onPressed: () {
+            //     setState(() {
+            //       isPasswordVisible = !isPasswordVisible;
+            //     });
+            //   },
+            //   icon: Icon(
+            //     isPasswordVisible ? Icons.visibility_off : Icons.visibility
+            //   )
+            // )
           ),
           onChanged: (final value) {
             setState(() {
@@ -140,7 +163,7 @@ class _PasswordScreenState extends State<PasswordScreen>
         ),
         const SizedBox(height: 10.0),
         TextFormField(
-          obscureText: !viewNewPassword,
+          obscureText: !isNewPasswordVisible,
           autocorrect: false,
           key: const Key('new_password'),
           enableSuggestions: false,
@@ -162,13 +185,14 @@ class _PasswordScreenState extends State<PasswordScreen>
             labelText: 'New Password',
             suffixIcon: IconButton(
               key: const Key('toggle_new_password'),
+              tooltip: '${isNewPasswordVisible ? 'Hide' : 'Show'} new password',
               onPressed: () {
                 setState(() {
-                  viewNewPassword = !viewNewPassword;
+                  isNewPasswordVisible = !isNewPasswordVisible;
                 });
               },
               icon: Icon(
-                viewNewPassword ? Icons.visibility_off : Icons.visibility
+                isNewPasswordVisible ? Icons.visibility_off : Icons.visibility
               )
             )
           ),
@@ -199,7 +223,7 @@ class _PasswordScreenState extends State<PasswordScreen>
         ),
         const SizedBox(height: 10.0),
         TextFormField(
-          obscureText: !viewPasswordMatch,
+          obscureText: !IsPasswordMatchVisible,
           autocorrect: false,
           key: const Key('match_password'),
           enableSuggestions: false,
@@ -215,18 +239,21 @@ class _PasswordScreenState extends State<PasswordScreen>
           },
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
-            labelText: 'Confirm New Password',
+            // labelText: 'Confirm New Password',
+            label: const Text('Confirm New Password'),
             suffixIcon: IconButton(
               key: const Key('toggle_match_password'),
+              tooltip: '${IsPasswordMatchVisible ? 'Hide' : 'Show'} new password confirmation',
               onPressed: () {
                 setState(() {
-                  viewPasswordMatch = !viewPasswordMatch;
+                  IsPasswordMatchVisible = !IsPasswordMatchVisible;
                 });
               },
               icon: Icon(
-                viewPasswordMatch ? Icons.visibility_off : Icons.visibility
+                IsPasswordMatchVisible ? Icons.visibility_off : Icons.visibility
               )
-            )
+            ),
+
           ),
           onChanged: (final value) {
             setState(() {

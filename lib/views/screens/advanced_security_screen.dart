@@ -26,8 +26,7 @@ class AdvancedSecurityScreen extends StatefulWidget {
   State<AdvancedSecurityScreen> createState() => _AdvancedSecurityState();
 }
 
-class _AdvancedSecurityState extends State<AdvancedSecurityScreen>
-    with RouteAware, DatadogRouteAwareMixin {
+class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
 
   late Auth0UserApi auth0UserApi;
   late UserProvider userProvider;

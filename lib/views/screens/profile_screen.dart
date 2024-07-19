@@ -22,8 +22,7 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen>
-  with RouteAware, DatadogRouteAwareMixin {
+class _ProfileScreenState extends State<ProfileScreen> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   late Auth0UserApi auth0UserApi;
   late OverlayProvider overlayProvider;
