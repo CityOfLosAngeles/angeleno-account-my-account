@@ -13,7 +13,7 @@ This repository is a Flutter based web-app that interfaces with Auth0 to handle 
 The development branch is our main branch you can use to work on your own work/issues. To start development you'll `git clone` this repo; after cloning you'll by default be on the development branch. When opening the pull request for your work, make sure the branch is being merged into `development` branch as well.
 
 ### Minimum Requirements
-- [Flutter](https://docs.flutter.dev/get-started/install) >= 3.16.0
+- [Flutter](https://docs.flutter.dev/get-started/install) >= 3.22.0
 - [Node](https://nodejs.org/en/download)
 - [Firebase Local Emulator Suite](https://firebase.google.com/docs/emulator-suite)
 - [Google Cloud Account](https://cloud.google.com/)
@@ -33,6 +33,9 @@ The development branch is our main branch you can use to work on your own work/i
 
 
 ## Development
+
+
+
 
 ### Flutter Environment
 After downloading the [Flutter SDK](https://docs.flutter.dev/get-started/install), you'll be able to run
@@ -67,3 +70,13 @@ Needed for syntax:
 
 Needed for running Unit Tests:
 - flutter test
+
+
+
+### Potential Issues
+- Invalid project id: DEFAULT_PROJECT.
+  - Change the "projects->default" to the actual Google Project in the .firebaserc file located in the root
+
+
+- To get this code working you might need to run 
+  - flutter pub upgrade web
