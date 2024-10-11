@@ -290,23 +290,23 @@ void main() {
     expect(find.byKey(const Key('enableSMS')), findsOneWidget);
     expect(find.byKey(const Key('disableVoice')), findsOneWidget);
 
-    // await tester.tap(find.byKey(const Key('disconnect_123')));
-    // await tester.pumpAndSettle();
-    //
-    // expect(find.byType(AlertDialog), findsOneWidget);
-    //
-    // await tester.tap(find.text('Cancel'));
-    // await tester.pumpAndSettle();
-    //
-    // expect(find.byType(AlertDialog), findsNothing);
-    //
-    // await tester.tap(find.byKey(const Key('disconnect_123')));
-    // await tester.pumpAndSettle();
-    //
-    // await tester.tap(find.text('Ok'));
-    // await tester.pumpAndSettle();
-    //
-    // expect(find.byType(SnackBar), findsOneWidget);
-    // expect(find.byKey(const Key('disconnect_123')), findsNothing);
+    await tester.tap(find.byKey(const Key('disconnect_123')));
+    await tester.pumpAndSettle();
+    
+    expect(find.byType(AlertDialog), findsOneWidget);
+    
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    
+    expect(find.byType(AlertDialog), findsNothing);
+    
+    await tester.tap(find.byKey(const Key('disconnect_123')));
+    await tester.pumpAndSettle();
+    
+    await tester.tap(find.text('Ok'));
+    await tester.pumpAndSettle();
+    
+    expect(find.byType(SnackBar), findsOneWidget);
+    expect(find.byKey(const Key('disconnect_123')), findsNothing);
   });
 }

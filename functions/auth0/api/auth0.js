@@ -172,11 +172,11 @@ export const authMethods = onRequest(async (req, res) => {
 
     const request = await axios.request(config);
 
-//    const applications = await getConnectedServices(userId);
+   const applications = await getConnectedServices(userId);
 
     const response = {
       mfaMethods: request.data,
-//      services: applications.filter((e) => e !== null)
+      services: applications.filter((e) => e !== null)
     }
 
     res.status(200).send(response);
