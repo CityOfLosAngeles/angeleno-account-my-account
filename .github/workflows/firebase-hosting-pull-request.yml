@@ -14,9 +14,9 @@ jobs:
     if: '${{ github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.draft == false }}'
     runs-on: ubuntu-latest
-    environment: development
+    environment: sandbox
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
        # https://github.com/marketplace/actions/flutter-action
       - name: Setup Flutter
          # SHA for v2.16.0
@@ -49,6 +49,6 @@ jobs:
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_MY_ACCOUNT_DEV_402917 }}'
-          projectId: my-account-dev-402917
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MY_ACCOUNT_SANDBOX_422814 }}
+          projectId: my-account-sandbox-422814
 

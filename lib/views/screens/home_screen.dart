@@ -24,7 +24,6 @@ class _MyHomePageState extends State<MyHomePage> {
   late User user;
   late OverlayProvider overlayProvider;
   int _selectedIndex = 0;
-  final currentYear = DateTime.now().year;
 
   @override
   void initState() {
@@ -128,6 +127,19 @@ class _MyHomePageState extends State<MyHomePage> {
       child: Scaffold(
         key: scaffoldKey,
         appBar: AppBar(
+          leadingWidth: 75,
+          leading:  TextButton(
+            key: const Key('menuButton'),
+            style: TextButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(0)
+              ),
+            ),
+            onPressed: () { scaffoldKey.currentState!.openDrawer(); },
+            child: const Text('Menu', style: TextStyle(
+              fontSize: 16,
+            ),)
+          ),
           title: const Text('Angeleno Account',
             style: TextStyle(fontWeight: FontWeight.bold),
           )
@@ -217,13 +229,36 @@ class _MyHomePageState extends State<MyHomePage> {
           padding: const EdgeInsets.all(16.0),
           child: Wrap(
             alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              Text(
-                '© Copyright $currentYear City of Los Angeles. '
-                    'All rights reserved. Disclaimer | Privacy Policy',
-                textDirection: TextDirection.ltr,
-                textAlign: TextAlign.center,
-              )
+              const Text(
+                'City of Los Angeles. '
+              ),
+              TextButton(
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  overlayColor: Colors.transparent
+                ),
+                onPressed: () async {
+                  await launchUrl(
+                    Uri.parse('https://disclaimer.lacity.org/disclaimer.htm')
+                  );
+                },
+                child: const Text('Disclaimer')
+              ),
+              const Text(' | '),
+              TextButton(
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  overlayColor: Colors.transparent
+                ),
+                onPressed: () async {
+                  await launchUrl(
+                    Uri.parse('https://disclaimer.lacity.org/privacy.htm')
+                  );
+                },
+                child: const Text('Privacy Policy')
+              ),
             ],
           )
         )

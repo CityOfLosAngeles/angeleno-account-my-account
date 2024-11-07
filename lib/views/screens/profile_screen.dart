@@ -97,6 +97,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: ElevatedButton(
+                onPressed: (editMode &&
+                    ((user.phone!.isNotEmpty && !validPhoneNumber) ||
+                        !isFormValid) && isNotTestMode
+                ) ? null : () {
+                  if (editMode) {
+                    updateUser();
+                  }
+                  setState(() {
+                    userProvider.toggleEditing();
+                  });
+                },
+                child: Text(
+                    editMode ? 'Save' : 'Edit'
+                ),
+              )
+            )
+          ]
+        ),
         Expanded(
           child: SingleChildScrollView(
             child: Padding(
@@ -109,27 +134,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     autovalidateMode: AutovalidateMode.disabled,
                     child: Column(
                       children: [
-                        const SizedBox(height: 10.0),
-                        Row(mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              ElevatedButton(
-                                onPressed: (editMode &&
-                                    ((user.phone!.isNotEmpty && !validPhoneNumber) ||
-                                        !isFormValid) && isNotTestMode
-                                ) ? null : () {
-                                  if (editMode) {
-                                    updateUser();
-                                  }
-                                  setState(() {
-                                    userProvider.toggleEditing();
-                                  });
-                                },
-                                child: Text(
-                                    editMode ? 'Save' : 'Edit'
-                                ),
-                              )
-                            ]
-                        ),
                         const SizedBox(height: 25.0),
                         TextFormField(
                           enabled: editMode,

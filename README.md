@@ -32,6 +32,7 @@ The development branch is our main branch you can use to work on your own work/i
     - Regular Web App for handling transactions with Auth0's API's (MFA, password changes, and writing user updates to Auth0)   
 
 
+
 ## Development
 
 ### Flutter Environment
@@ -42,9 +43,11 @@ Making updates to `.dart` files will require you to run `flutter build web` so t
 
 After building, you can use `flutter run -d chrome` to run on Chrome. You can add additional devices (browsers) for cross-browser testing.
 
+
 If you need to specify a web port to run the app on, you can append the argument `--web-port=####` to the above - this will be helpful when testing redirects from external apps as it'll allow us to control a designated port.
 
 In order for the code to pick your environment variables, you'll have to append `--dart-define-from-file=.env` to your flutter run command.
+
 
 On windows, you can run `.\tests.bat`, which will run both `dart analyze` to check linting and `flutter test` to run unit tests.
 
@@ -55,15 +58,5 @@ In Auth0, you'll want to create a Single Page Application to get the appropriate
 
 If you're using a cloud function without authorization, you will not need the Service Account variables, but the code will have to be modified.
 
+
 The cloud functions being used can be found in the `functions` directory. To run them locally, you can find instructions [here](https://firebase.google.com/docs/functions/local-emulator). Once you have the functions running locally, you'll have to update the code in the locations (e.g. [here](/lib/controllers/api_implementation.dart#L88)) where the request is sent so that it points to your emulator.
-
-#### Commands
-Needed for running project:
-- flutter run -d chrome --web-port=#### --dart-define-from-file=.env
-- firebase emulators:start --only functions
-
-Needed for syntax:
-- dart analyze
-
-Needed for running Unit Tests:
-- flutter test
