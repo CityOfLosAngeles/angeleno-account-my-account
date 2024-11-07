@@ -5,6 +5,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../controllers/auth0_user_api_implementation.dart';
 import '../../controllers/user_provider.dart';
+import '../../utils/BaseMFADialogState.dart';
 import '../../utils/constants.dart';
 
 class AuthenticatorDialog extends StatefulWidget {
@@ -21,22 +22,15 @@ class AuthenticatorDialog extends StatefulWidget {
   State<AuthenticatorDialog> createState() => _AuthenticatorDialogState();
 }
 
-class _AuthenticatorDialogState extends State<AuthenticatorDialog> {
-
-  final passwordField = TextEditingController();
+class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
 
   late UserProvider userProvider;
   late Auth0UserApi auth0UserApi;
 
-  int _pageIndex = 0;
-  String errMsg = '';
   String totpQrCode = '';
   String totpCode = '';
   String qrCodeAltString = '';
   String mfaToken = '';
-
-  bool obscurePassword = true;
-  late bool _isSmallScreen;
 
   @override
   void initState() {
@@ -56,6 +50,7 @@ class _AuthenticatorDialogState extends State<AuthenticatorDialog> {
     super.dispose();
   }
 
+  @override
   List<Widget> get dialogNext => [
     TextButton(
       onPressed: passwordField.text.isEmpty ? null : () {
@@ -65,7 +60,7 @@ class _AuthenticatorDialogState extends State<AuthenticatorDialog> {
     ),
     TextButton(
       onPressed: () {
-        _navigateToNextPage();
+        navigateToNextPage();
       },
       child: const Text('Continue'),
     ),
@@ -76,33 +71,6 @@ class _AuthenticatorDialogState extends State<AuthenticatorDialog> {
       child: const Text('Finish'),
     )
   ];
-
-  void _navigateToNextPage() {
-    if (_pageIndex <= 2) {
-      setState(() {
-        _pageIndex += 1;
-      });
-    } else {
-      Navigator.pop(context);
-    }
-  }
-
-  Widget get dialogClose => IconButton(
-    alignment: Alignment.centerLeft,
-    onPressed: () {
-      Navigator.pop(context);
-    },
-    icon: const Icon( Icons.close)
-  );
-
-  Widget get dialogBack => TextButton(
-    onPressed: () {
-      setState(() {
-        _pageIndex -= 1;
-      });
-    },
-    child: const Text('Back'),
-  );
 
   void enrollTOTP() async {
 
@@ -128,7 +96,7 @@ class _AuthenticatorDialogState extends State<AuthenticatorDialog> {
           mfaToken = response['token'] as String;
           qrCodeAltString = response['barcode_string'] as String;
         });
-        _navigateToNextPage();
+        navigateToNextPage();
       } else {
         setState(() {
           errMsg = response['body'] as String;
@@ -168,24 +136,6 @@ class _AuthenticatorDialogState extends State<AuthenticatorDialog> {
     });
   }
 
-  Widget modalBody(final Widget body)  => Column(
-    mainAxisSize: MainAxisSize.min,
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      dialogClose,
-      _isSmallScreen ? Expanded(
-        child: body,
-      ) : body,
-      if(_isSmallScreen)
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: _pageIndex == 0 ? [dialogNext[_pageIndex]]
-              : [dialogBack, dialogNext[_pageIndex]],
-        )
-
-    ],
-  );
-
   Widget get passwordPrompt => modalBody(
     Align(
       child:  Column(
@@ -194,7 +144,7 @@ class _AuthenticatorDialogState extends State<AuthenticatorDialog> {
           const Text(
             'Set up Multi-Factor Authentication (MFA). Continue MFA '
                 'setup to add an additional layer of security when signing '
-                'in to your account. \n Please enter your password:',
+                'in to your account. \n\n Please enter your password:',
             textAlign: TextAlign.center,
             softWrap: true,
           ),
@@ -281,39 +231,42 @@ class _AuthenticatorDialogState extends State<AuthenticatorDialog> {
   );
 
   Widget get confirmationScreen => modalBody(
-  Align(
-          child:  Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text('Enter code displayed from the application:',
-                  textAlign: TextAlign.center,
-                  softWrap: true
-              ),
-              SizedBox(
-                  width: 250,
-                  child: TextFormField(
-                    key: const Key('totpCode'),
-                    autofocus: true,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    validator: (final value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Code is required';
-                      }
-                      return null;
-                    },
-                    onChanged: (final val) {
-                      setState(() {
-                        totpCode = val;
-                      });
-                    },
-                  )
-              ),
-              const SizedBox(height: 15),
-              if (errMsg.isNotEmpty)
-                Text(errMsg, style: TextStyle(color: colorScheme.error))
-            ],
-          )
+Align(
+      child:  Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text('Enter code displayed from the application:',
+              textAlign: TextAlign.center,
+              softWrap: true
+          ),
+          SizedBox(
+              width: 250,
+              child: TextFormField(
+                key: const Key('totpCode'),
+                autofocus: true,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                onFieldSubmitted: (final value) {
+                  confirmTOTP();
+                },
+                validator: (final value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Code is required';
+                  }
+                  return null;
+                },
+                onChanged: (final val) {
+                  setState(() {
+                    totpCode = val;
+                  });
+                },
+              )
+          ),
+          const SizedBox(height: 15),
+          if (errMsg.isNotEmpty)
+            Text(errMsg, style: TextStyle(color: colorScheme.error))
+        ],
       )
+    )
   );
 
   List<Widget> get screens => [
@@ -322,27 +275,8 @@ class _AuthenticatorDialogState extends State<AuthenticatorDialog> {
     confirmationScreen
   ];
 
-  Widget get dialogBody => Container(
-      child: screens[_pageIndex]
-  );
-
   @override
-  Widget build(final BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
-    final bool isSmallScreen = screenWidth < smallScreen;
-
-    _isSmallScreen = isSmallScreen;
-
-    return isSmallScreen ?
-      Dialog.fullscreen(
-        child: dialogBody
-      )
-      :
-      AlertDialog(
-        content: dialogBody,
-        actionsAlignment: MainAxisAlignment.end,
-        actions: _pageIndex == 0 ? [dialogNext[_pageIndex]]
-            : [dialogBack, dialogNext[_pageIndex]],
-      );
-  }
+  Widget get dialogBody => Container(
+    child: screens[pageIndex]
+  );
 }

@@ -112,11 +112,27 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
     }).then((final response) {
       final bool success = response.statusCode == HttpStatus.ok;
       if (success) {
+
+        String authMethod;
+        switch (method) {
+          case 'totp':
+            authMethod = 'Authenticator App';
+            break;
+          case 'sms':
+            authMethod = 'SMS';
+            break;
+          case 'voice':
+            authMethod = 'Voice';
+            break;
+          default:
+            authMethod = 'Unknown';
+        }
+
         Navigator.pop(context, response.statusCode);
-        ScaffoldMessenger.of(context).showSnackBar( const SnackBar(
+        ScaffoldMessenger.of(context).showSnackBar( SnackBar(
           behavior: SnackBarBehavior.floating,
           width: 280.0,
-          content: Text('Authenticator app has been removed.')
+          content: Text('$authMethod app has been removed.')
         ));
         setState(() {
           switch(method) {
@@ -326,7 +342,43 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                         voiceEnabled ?
                         FilledButton.tonal(
                           key: const Key('disableVoice'),
-                          onPressed: () => {},
+                          onPressed: () => showDialog<int>(
+                              context: context,
+                              builder: (final BuildContext context) => AlertDialog(
+                                title: const Text('Remove Voice MFA?'),
+                                content: const SingleChildScrollView(
+                                    child: ListBody(
+                                      children: <Widget>[
+                                        // ignore: avoid_escaping_inner_quotes
+                                        Text('Do you confirm to remove Voice Calls? This'
+                                            ' action is irreversible. If you want to use this'
+                                            ' factor again you will need to enroll the'
+                                            ' factor again.')
+                                      ],
+                                    )
+                                ),
+                                actions: <Widget>[
+                                  TextButton(
+                                    child: const Text('Cancel'),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                  TextButton(
+                                    child: const Text('Ok'),
+                                    onPressed: () {
+                                      disableMFA(voiceAuthId, 'voice');
+                                    },
+                                  )
+                                ],
+                              )
+                          ).then((final value) {
+                            if (value != null && value == HttpStatus.ok) {
+                              setState(() {
+                                smsEnabled = false;
+                              });
+                            }
+                          }),
                           child: const Text('Disable'),
                         )
                             :
