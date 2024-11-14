@@ -26,6 +26,7 @@ class MobileDialog extends StatefulWidget {
 
 class _MobileDialogState extends BaseDialogState<MobileDialog> {
 
+  final passwordField = TextEditingController();
   final phoneField = TextEditingController();
 
   late UserProvider userProvider;

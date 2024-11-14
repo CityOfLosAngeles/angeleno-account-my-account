@@ -4,19 +4,12 @@ import 'constants.dart';
 
 abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
   
-  final passwordField = TextEditingController();
   List<Widget> get dialogNext => [];
   Widget get dialogBody;
   int pageIndex = 0;
   String errMsg = '';
   bool obscurePassword = true;
   late bool _isSmallScreen;
-
-  @override
-  void dispose() {
-    passwordField.dispose();
-    super.dispose();
-  }
 
   Widget get dialogClose => IconButton(
     alignment: Alignment.centerLeft,

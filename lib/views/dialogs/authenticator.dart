@@ -27,6 +27,8 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
   late UserProvider userProvider;
   late Auth0UserApi auth0UserApi;
 
+  final passwordField = TextEditingController();
+
   String totpQrCode = '';
   String totpCode = '';
   String qrCodeAltString = '';
