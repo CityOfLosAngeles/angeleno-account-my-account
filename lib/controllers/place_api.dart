@@ -5,21 +5,13 @@
 // nvm ls
 // nvm use VERSION
 
-//import 'dart:html';
-
-//import 'package:dio/dio.dart';
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
-//import 'dart:io';
 import 'dart:convert';
 import '../models/autofill_place.dart';
 import '../models/autofill_suggestion.dart';
 import '../utils/constants.dart';
 
-//import 'package:mockito/annotations.dart';
-//import 'package:mockito/mockito.dart';
-
-//@GenerateNiceMocks([MockSpec<PlaceAPI>()])
 class PlaceAPI {
   Client client = Client();
   String sessionToken;
@@ -42,7 +34,7 @@ class PlaceAPI {
     final request =
         'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input&types=address&language=$lang&key=$apiKey&sessiontoken=$sessionToken';
 
-    String CORSproxy = '$fetchSuggestionsAPIFirebaseURL$request';
+    String corsProxy = '$fetchSuggestionsAPIFirebaseURL$request';
 
     Response? response;
 
@@ -52,7 +44,7 @@ class PlaceAPI {
 
     try {
       if (isTestingLocally) {
-        response = await http.get(Uri.parse(CORSproxy), headers: headers);
+        response = await http.get(Uri.parse(corsProxy), headers: headers);
       } else {
         response = await http.get(Uri.parse(request), headers: headers);
       }
@@ -102,6 +94,7 @@ class PlaceAPI {
       Response? response;
       //If we are testing locally, then let's use the Firebase URL, otherwise let's use te normal request url
       if (isTestingLocally) {
+        print("we are testing LOCALLY!!!");
         response = await client.get(Uri.parse(CORSproxy));
       } else {
         response = await client.get(Uri.parse(request));
@@ -110,6 +103,7 @@ class PlaceAPI {
 
       if (response.statusCode == 200) {
         final result = json.decode(response.body);
+        print(result);
         if (result['status'] == 'OK') {
           try {
             final components =

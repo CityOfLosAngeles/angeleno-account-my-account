@@ -1,22 +1,22 @@
-const { onRequest } = require("firebase-functions/v2/https");
-const admin = require("firebase-admin");
-const axios = require("axios");
-const express = require("express");
+const {onRequest} = require("firebase-functions/v2/https");
+const admin = require('firebase-admin');
+const express = require('express');
+
+
 
 admin.initializeApp();
 const app = express();
 
+const {
+    corsProxyAutofill,
+    corsProxyPlaceDetails
+   
+} = require('./api/maps.js');
+
 app.use(express.json());
 
-const corsProxyAutofill = onRequest(async (req, res) => {
- 
-});
+app.get('/corsProxyAutofill', corsProxyAutofill);
+app.get('/corsProxyPlaceDetails', corsProxyPlaceDetails);
 
-const corsProxyPlaceDetails = onRequest(async (req, res) => {
- 
-});
-
-app.get("/maps/corsProxyPlaceDetails", corsProxyPlaceDetails);
-app.get("/maps/corsProxyAutofill", corsProxyAutofill);
-
+//export const maps = onRequest(app);
 exports.maps = onRequest(app);

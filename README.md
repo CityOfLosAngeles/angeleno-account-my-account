@@ -33,7 +33,10 @@ The development branch is our main branch you can use to work on your own work/i
 
 
 ## Development
-
+Always get the latest while development
+ - git fetch development; git pull development
+ - checkout your local development branch
+ - git merge development
 
 
 
@@ -42,6 +45,7 @@ After downloading the [Flutter SDK](https://docs.flutter.dev/get-started/install
 `flutter doctor` which will give you details on anything you need to develop the application. As this app is only web-based for now you can safely ignore warnings around developing for Windows, Android, iOS, etc.
 
 Making updates to `.dart` files will require you to run `flutter build web` so that the web app can recompile.
+
 
 After building, you can use `flutter run -d chrome` to run on Chrome. You can add additional devices (browsers) for cross-browser testing.
 
@@ -58,18 +62,26 @@ In Auth0, you'll want to create a Single Page Application to get the appropriate
 
 If you're using a cloud function without authorization, you will not need the Service Account variables, but the code will have to be modified.
 
-The cloud functions being used can be found in the `functions` directory. To run them locally, you can find instructions [here](https://firebase.google.com/docs/functions/local-emulator). Once you have the functions running locally, you'll have to update the code in the locations (e.g. [here](/lib/controllers/api_implementation.dart#L88)) where the request is sent so that it points to your emulator.
+The cloud functions being used can be found in the `functions` directory. To run them locally, you can find instructions [here](https://firebase.google.com/docs/functions/local-emulator). Once you have the functions running locally, you'll have to update the code in the locations (e.g. [here](/lib/controllers/api_implementation.dart#L88)) where the request is sent so that it points to your emulator. You will need to run the "Needed for firebase functions" steps below to get this up and running
 
 #### Commands
-Needed for running project:
+##### Needed for running project:
 - flutter run -d chrome --web-port=#### --dart-define-from-file=.env
 - firebase emulators:start --only functions
 
-Needed for syntax:
+##### Needed for firebase functions
+After downloading the project, you can run the following
+- run npm i (From  `functions/maps`)
+- run npm i (From  `functions/auth0`)
+
+##### Needed for syntax:
 - dart analyze
 
-Needed for running Unit Tests:
-- flutter test
+##### Needed for running Unit Tests:
+- flutter test test/<filename.dart>
+
+
+
 
 
 

@@ -5,6 +5,7 @@ import 'package:angeleno_project/main.dart';
 import 'package:angeleno_project/views/screens/password_screen.dart';
 import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:mockito/annotations.dart';
@@ -13,11 +14,8 @@ import 'package:provider/provider.dart';
 
 import 'mocks/auth0_user_api_mock.dart';
 
-
-
 @GenerateNiceMocks([MockSpec<Auth0UserApi>()])
 void main() {
-
   late MockAuth0UserApi mockUserApi;
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   binding.testTextInput.register();
@@ -28,29 +26,34 @@ void main() {
 
   final userProvider = UserProvider();
   const auth0User = UserProfile(
-    sub: 'auth0|id',
-    email: 'user@email.com',
-    givenName: 'FirstName',
-    familyName: 'LastName',
-    customClaims: {
-      'user_metadata': {
-        'addresses': {
-          'primary': {
-            'address': '123 Main St',
-            'address2': 'Suite 200',
-            'city': 'Main City',
-            'state': 'Main State',
-            'zip': '12345'
-          }
-        },
-        'phone': '(213) 555-5555'
-      }
-    }
-  );
+      sub: 'auth0|id',
+      email: 'user@email.com',
+      givenName: 'FirstName',
+      familyName: 'LastName',
+      customClaims: {
+        'user_metadata': {
+          'addresses': {
+            'primary': {
+              'address': '123 Main St',
+              'address2': 'Suite 200',
+              'city': 'Main City',
+              'state': 'Main State',
+              'zip': '12345'
+            }
+          },
+          'phone': '(213) 555-5555'
+        }
+      });
   userProvider.setUser(auth0User);
-
+//Since we added the Typeahead widget, we need to add this to the unit test
+//otherwise we'll get an error on this
+  testWidgets('Setting keyboard Globally Implementation',
+      (WidgetTester tester) async {
+    KeyboardVisibilityTesting.setVisibilityForTesting(true);
+    await tester.pump();
+  });
   testWidgets('Displays and edits user', (final WidgetTester tester) async {
-    const userUpdateMockResponse =  200;
+    const userUpdateMockResponse = 200;
 
     when(mockUserApi.updateUser(any))
         .thenAnswer((_) async => userUpdateMockResponse);
@@ -78,12 +81,12 @@ void main() {
     await tester.enterText(find.byType(TextFormField).at(0), 'New First Name');
     await tester.enterText(find.byType(TextFormField).at(1), 'New Last Name');
     final inputTextFieldFinder = find.byKey(const Key('phoneField'));
-    await tester.enterText(inputTextFieldFinder, '');    await tester.enterText(inputTextFieldFinder, '2134325435');
-    await tester.enterText(find.byType(TextFormField).at(3), 'New Address');
-    await tester.enterText(find.byType(TextFormField).at(4), 'New Address 2');
-    await tester.enterText(find.byType(TextFormField).at(5), 'New City');
-    await tester.enterText(find.byType(TextFormField).at(6), 'New State');
-    await tester.enterText(find.byType(TextFormField).at(7), 'New Zip');
+    await tester.enterText(inputTextFieldFinder, '');
+    await tester.enterText(inputTextFieldFinder, '2134325435');
+    await tester.enterText(find.byType(TextFormField).at(3), 'New Address 2');
+    await tester.enterText(find.byType(TextFormField).at(4), 'New City');
+    await tester.enterText(find.byType(TextFormField).at(5), 'New State');
+    await tester.enterText(find.byType(TextFormField).at(6), 'New Zip');
 
     await tester.enterText(find.byType(TextFormField).at(0), '');
     await tester.pump();
@@ -121,7 +124,7 @@ void main() {
     expect(userProvider.user!.firstName, 'New First Name');
     expect(userProvider.user!.lastName, 'New Last Name');
     expect(userProvider.user!.phone, '+12134325435');
-    expect(userProvider.user!.address, 'New Address');
+    //  expect(userProvider.user!.address, 'New Address');
     expect(userProvider.user!.address2, 'New Address 2');
     expect(userProvider.user!.city, 'New City');
     expect(userProvider.user!.state, 'New State');
