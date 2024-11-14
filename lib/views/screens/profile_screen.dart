@@ -180,14 +180,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       print('user is null');
     } else {
       user = userProvider.user!;
-      try {
-        //usrFNameTextController.text = user.firstName!;
-        //usrLNameTextController.text = user.lastName!;
-        //usrPhoneTextController.text = user.phone!;
-      } catch (e) {
-        print('Cannot load address $e');
-      }
-
       if (!autoFilled) {
         loadAddress();
       }
@@ -394,7 +386,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     }
                                   },
                                   builder: (context, controller, focusNode) =>
-                                      TextFormField(
+                                      TextField(
                                         enabled: userProvider.isEditing,
                                         controller: controller,
                                         focusNode: focusNode,
