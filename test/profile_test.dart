@@ -103,7 +103,7 @@ void main() {
     await tester.pump();
 
     // Dialog preventing user from leaving while editing
-    await tester.tap(find.byIcon(Icons.menu));
+    await tester.tap(find.byKey(const Key('menuButton')));
     await tester.pumpAndSettle(const Duration(seconds: 5));
     await tester.ensureVisible(find.byIcon(Icons.password));
     await tester.tap(find.byIcon(Icons.password));
@@ -134,7 +134,7 @@ void main() {
     await tester.pump();
 
     // Dialog with user intention of leaving while editing
-    await tester.tap(find.byIcon(Icons.menu));
+    await tester.tap(find.byKey(const Key('menuButton')));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.byIcon(Icons.password));
     await tester.tap(find.byIcon(Icons.password));

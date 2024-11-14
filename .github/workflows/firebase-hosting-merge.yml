@@ -3,19 +3,19 @@
 # Flutter and .env config was not auto-generated
 
 name: Deploy to Firebase Hosting on merge
-'on':
+on:
   push:
     branches:
-      - development
+      - sandbox
 jobs:
   build_and_deploy:
-    environment: development
+    environment: sandbox
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       # https://github.com/marketplace/actions/flutter-action
       - name: Setup Flutter
-      # SHA for v2.16.0
+        # SHA for v2.16.0
         uses: subosito/flutter-action@44ac965b96f18d999802d4b807e3256d5a3f9fa1
         with:
           flutter-version: '3.22.2'
@@ -24,14 +24,14 @@ jobs:
       - run: flutter pub get
       - run: flutter config --enable-web
       - run: |
-           touch .env
-             echo AUTH0_DOMAIN=${{ secrets.AUTH0_DOMAIN }} >> .env
-             echo CLIENT_ID=${{ secrets.CLIENT_ID }} >> .env
-             echo REDIRECT_URI=${{ secrets.REDIRECT_URI }} >> .env
-             echo CLOUD_FUNCTIONS_URL=${{ secrets.CLOUD_FUNCTIONS_URL }} >> .env
-             echo SA_EMAIL=${{ secrets.SA_EMAIL }} >> .env
-             echo SA_SECRET_KEY="${{ secrets.SA_SECRET_KEY }}" >> .env
-             echo ENVIRONMENT="${{ secrets.ENVIRONMENT }}" >> .env
+          touch .env
+            echo AUTH0_DOMAIN=${{ secrets.AUTH0_DOMAIN }} >> .env
+            echo CLIENT_ID=${{ secrets.CLIENT_ID }} >> .env
+            echo REDIRECT_URI=${{ secrets.REDIRECT_URI }} >> .env
+            echo CLOUD_FUNCTIONS_URL=${{ secrets.CLOUD_FUNCTIONS_URL }} >> .env
+            echo SA_EMAIL=${{ secrets.SA_EMAIL }} >> .env
+            echo SA_SECRET_KEY="${{ secrets.SA_SECRET_KEY }}" >> .env
+            echo ENVIRONMENT="${{ secrets.ENVIRONMENT }}" >> .env
       - run: flutter build web --dart-define-from-file=.env
       - name: Update .firebaserc
         run: |
@@ -44,8 +44,7 @@ jobs:
           sed -i "s/$old_hosting/$new_hosting/g" .firebaserc
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_MY_ACCOUNT_DEV_402917 }}'
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MY_ACCOUNT_SANDBOX_422814 }}
           channelId: live
-          projectId: my-account-dev-402917
-          target: angeleno-my-account-dev-402917
+          projectId: my-account-sandbox-422814

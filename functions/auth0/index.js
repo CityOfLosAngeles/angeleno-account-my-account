@@ -3,6 +3,9 @@ import admin from 'firebase-admin';
 import express from 'express';
 
 admin.initializeApp();
+setGlobalOptions({
+  region: 'us-west1'
+})
 const app = express();
 
 import {
@@ -14,6 +17,7 @@ import {
   unenrollMFA,
   removeConnection
 } from './api/auth0.js';
+import { setGlobalOptions } from 'firebase-functions/v2';
 
 app.use(express.json());
 
