@@ -198,6 +198,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (formKey.currentState != null) {
       isFormValid = formKey.currentState!.validate();
     }
+
     if (userProvider.user == null) {
       return const LinearProgressIndicator();
     } else {
@@ -285,6 +286,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   if (val == null || val.trim().isEmpty) {
                                     return 'Please enter a last name';
                                   }
+
 
                                   if (!nameRegEx.hasMatch(val)) {
                                     return 'Invalid characters in last name';

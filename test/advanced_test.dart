@@ -308,5 +308,6 @@ void main() {
     
     expect(find.byType(SnackBar), findsOneWidget);
     expect(find.byKey(const Key('disconnect_123')), findsNothing);
+
   });
 }

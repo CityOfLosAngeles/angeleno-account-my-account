@@ -126,7 +126,7 @@ export const updatePassword = onRequest(async (req, res) => {
       },
       data: {
         password: newPassword,
-        connection: 'Username-Password-Authentication',
+        connection: 'Angeleno-Users-Default',
       },
     };
 
@@ -171,6 +171,7 @@ export const authMethods = onRequest(async (req, res) => {
     };
 
     const request = await axios.request(config);
+
 
    const applications = await getConnectedServices(userId);
 
