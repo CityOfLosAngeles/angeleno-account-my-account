@@ -70,12 +70,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
       [
         TextButton(
           onPressed: !validPhoneNumber && isNotTestMode ? null : () {
-            try {
-              if (!validPhoneNumber && isNotTestMode) {
-                return;
-              }
-              navigateToNextPage();
-            } catch (e) {}
+            navigateToNextPage();
           },
           child: const Text('Continue'),
         ),
@@ -86,10 +81,10 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
           child: const Text('Continue'),
         ),
         TextButton(
-            onPressed: codeProvided.isEmpty ? null : () {
-              confirmCode();
-            },
-            child: const Text('Continue')
+          onPressed: codeProvided.isEmpty ? null : () {
+           confirmCode();
+          },
+          child: const Text('Continue')
         )
       ];
 
@@ -108,7 +103,6 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
       'mfaFactor': 'oob',
       'channel': channel,
       'number': phoneNumber
-      // 'accessToken': await userProvider.getAccessToken()
     };
 
     api.enrollMFA(body).then((final response) {
@@ -117,6 +111,10 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
         oobCode = response['oobCode'] as String;
         mfaToken = response['token'] as String;
         navigateToNextPage();
+      } else {
+        setState(() {
+          errMsg = (response['body'] ?? 'An error occurred') as String;
+        });
       }
     });
   }
@@ -163,9 +161,9 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
               width: 500,
               child: InternationalPhoneNumberInput(
                 selectorConfig: const SelectorConfig(
-                    selectorType: PhoneInputSelectorType.DIALOG,
-                    setSelectorButtonAsPrefixIcon: true,
-                    leadingPadding: 20.0
+                  selectorType: PhoneInputSelectorType.DIALOG,
+                  setSelectorButtonAsPrefixIcon: true,
+                  leadingPadding: 20.0
                 ),
                 key: const Key('phoneField'),
                 onInputChanged: (final PhoneNumber number) {
@@ -180,14 +178,14 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
                   navigateToNextPage();
                 },
                 autoValidateMode: isNotTestMode ?
-                AutovalidateMode.onUserInteraction
-                    : AutovalidateMode.disabled,
+                  AutovalidateMode.onUserInteraction
+                  : AutovalidateMode.disabled,
                 selectorTextStyle: const TextStyle(color: Colors.black),
                 initialValue: number,
                 textFieldController: phoneField,
                 keyboardType: const TextInputType.numberWithOptions(
-                    signed: true,
-                    decimal: true
+                  signed: true,
+                  decimal: true
                 ),
                 inputBorder: const OutlineInputBorder(),
               ),
@@ -210,9 +208,9 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
                 ),
                 const SizedBox(height: 15),
                 SizedBox(
-                  key: const Key('passwordField'),
                   width: 250,
                   child: TextFormField(
+                    key: const Key('passwordField'),
                     autofocus: true,
                     controller: passwordField,
                     obscureText: obscurePassword,
@@ -231,18 +229,18 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
                       return null;
                     },
                     decoration: InputDecoration(
-                        suffixIcon: IconButton(
-                          key: const Key('toggle_password'),
-                          onPressed: () {
-                            setState(() {
-                              obscurePassword = !obscurePassword;
-                            });
-                          },
-                          icon: Icon(
-                              obscurePassword ? Icons.visibility : Icons
-                                  .visibility_off
-                          ),
-                        )
+                      suffixIcon: IconButton(
+                        key: const Key('toggle_password'),
+                        onPressed: () {
+                          setState(() {
+                            obscurePassword = !obscurePassword;
+                          });
+                        },
+                        icon: Icon(
+                            obscurePassword ? Icons.visibility : Icons
+                                .visibility_off
+                        ),
+                      )
                     ),
                   ),
                 ),

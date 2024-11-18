@@ -38,7 +38,7 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
     }
   }
 
-  Widget modalBody(Widget body) => Column(
+  Widget modalBody(final Widget body) => Column(
     mainAxisSize: MainAxisSize.min,
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -53,7 +53,7 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
   );
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool isSmallScreen = screenWidth < smallScreen;
 

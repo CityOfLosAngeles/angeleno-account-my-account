@@ -39,7 +39,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
   late String voiceAuthId = '';
 
   late Future<void> _authMethods;
-  final List<Service> _connectedServices = [];
+  late List<Service> _connectedServices;
 
   @override
   void initState() {
@@ -56,6 +56,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
   }
 
   Future<void> getAuthenticationMethods() async {
+    _connectedServices = [];
     await auth0UserApi.getAuthenticationMethods(userProvider.user!.userId)
       .then((final response) {
         final bool success = response.statusCode == HttpStatus.ok;
@@ -132,7 +133,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
         ScaffoldMessenger.of(context).showSnackBar( SnackBar(
           behavior: SnackBarBehavior.floating,
           width: 280.0,
-          content: Text('$authMethod app has been removed.')
+          content: Text('$authMethod has been removed.')
         ));
         setState(() {
           switch(method) {
@@ -141,6 +142,9 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
               break;
             case 'sms':
               smsEnabled = false;
+              break;
+            case 'voice':
+              voiceEnabled = false;
               break;
           }
         });
@@ -314,17 +318,15 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                             onPressed: () {
                               showDialog<int>(
                                   context: context,
-                                  builder: (
-                                      final BuildContext context) => MobileDialog(
-                                    userProvider: userProvider,
-                                    userApi: auth0UserApi,
-                                    channel: 'sms',
+                                  builder: (final BuildContext context) =>
+                                    MobileDialog(
+                                      userProvider: userProvider,
+                                      userApi: auth0UserApi,
+                                      channel: 'sms',
                                   )
                               ).then((final value) {
-                                if (value != null && value == HttpStatus.ok) {
-                                  setState(() {
-                                    smsEnabled = true;
-                                  });
+                                if (value != null && value == HttpStatus.ok){
+                                  _triggerAuthMethods();
                                 }
                               });
                             },
@@ -394,10 +396,8 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                                     channel: 'voice',
                                   )
                               ).then((final value) {
-                                if (value != null && value == HttpStatus.ok) {
-                                  setState(() {
-                                    voiceEnabled = true;
-                                  });
+                                if (value != null && value == HttpStatus.ok){
+                                  _triggerAuthMethods();
                                 }
                               });
                             },
