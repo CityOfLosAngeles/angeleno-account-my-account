@@ -88,8 +88,6 @@ class Auth0UserApi extends Api {
 
       final body = json.encode(user);
 
-      // String corsProxy =
-      //'$fetchSuggestionsAPIFirebaseURL$updateUserAPIFirebaseURL';
       Response? response;
       try {
         if (isTestingLocally) {
