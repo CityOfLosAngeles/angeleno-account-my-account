@@ -1,8 +1,11 @@
+import 'package:angeleno_project/controllers/place_api.dart';
 import 'package:angeleno_project/models/autofill_suggestion.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'mocks/maps_autofill_api_test.mocks.dart';
 
+@GenerateMocks([PlaceAPI])
 void main() {
 //1)Let's forst simulate logging in to the screen
   late MockPlaceAPI mockPlaceAPI;
