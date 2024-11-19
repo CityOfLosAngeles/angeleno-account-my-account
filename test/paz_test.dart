@@ -123,11 +123,11 @@ void main() {
     print(tester.takeException());
 
     // Check the widget tree after pumpAndSettle to see if the suggestions have been rendered
-    final suggestionText =
-        '333'; // Replace with the text you expect to be shown
-    final suggestionFinder = find.text(suggestionText);
+    //final suggestionText =
+    // '333'; // Replace with the text you expect to be shown
+    //final suggestionFinder = find.text(suggestionText);
 
-    print('Checking for suggestions...');
+    // print('Checking for suggestions...');
     // expect(
     //   suggestionFinder, findsOneWidget); // Ensure the suggestion is visible
 
