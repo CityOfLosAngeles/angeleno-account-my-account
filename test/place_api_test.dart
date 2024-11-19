@@ -1,20 +1,6 @@
-import 'package:angeleno_project/controllers/auth0_user_api_implementation.dart';
-import 'package:angeleno_project/controllers/overlay_provider.dart';
-import 'package:angeleno_project/controllers/user_provider.dart';
-import 'package:angeleno_project/main.dart';
 import 'package:angeleno_project/models/autofill_suggestion.dart';
-import 'package:angeleno_project/views/screens/profile_screen.dart';
-import 'package:auth0_flutter/auth0_flutter.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-//import 'package:integration_test/integration_test.dart';
-import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:provider/provider.dart';
-
-import 'mocks/auth0_user_api_mock.dart';
 import 'mocks/maps_autofill_api_test.mocks.dart';
 
 void main() {
