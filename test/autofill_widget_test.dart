@@ -101,6 +101,7 @@ void main() {
 
     // Verify that the TyepAheadField search field is present
     expect(find.byType(TypeAheadField<AutofillSuggestion>), findsOneWidget);
+
 /*
     // Enter '333' into the input field (simulate typing)
     final inputTextFieldFinder = find.byKey(const Key('AutofillWidget'));
@@ -115,13 +116,6 @@ void main() {
         find.byType(TypeAheadField(
             itemBuilder: _, onSelected: _, suggestionsCallback: places)),
         '333');*/
-
-
-
-
-
-
-
 
     // Verify that the suggestions contain only relevant items
     //  expect(find.text('333 S Hope St'), findsOneWidget); // Should match '333 S'

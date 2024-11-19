@@ -287,7 +287,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     return 'Please enter a last name';
                                   }
 
-
                                   if (!nameRegEx.hasMatch(val)) {
                                     return 'Invalid characters in last name';
                                   }
@@ -357,7 +356,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),*/
 
                               TypeAheadField<AutofillSuggestion>(
-                                  key: const Key('AutofillWidget'),
+                                  key: const Key('AddressAutofillWidget'),
                                   controller: usrAddressTextController,
                                   // suggestionsCallback: (search) => CityService.of(context).find(search),
                                   debounceDuration:
@@ -368,6 +367,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     //At initial, if the widget is called, it show suggestions but we should avoid at ommit, so...
                                     bool isInitial = user.address ==
                                         usrAddressTextController.text;
+                                    print(
+                                        'TypeAhead suggestionCallback called!!');
                                     try {
                                       if (search.isEmpty ||
                                           autoFilled ||
