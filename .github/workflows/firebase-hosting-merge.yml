@@ -6,10 +6,10 @@ name: Deploy to Firebase Hosting on merge
 on:
   push:
     branches:
-      - sandbox
+      - development
 jobs:
   build_and_deploy:
-    environment: sandbox
+    environment: development
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -45,6 +45,6 @@ jobs:
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MY_ACCOUNT_SANDBOX_422814 }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MY_ACCOUNT_DEV_402917 }}
           channelId: live
-          projectId: my-account-sandbox-422814
+          projectId: my-account-dev-402917

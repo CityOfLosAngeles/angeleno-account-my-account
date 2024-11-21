@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "target": "angeleno-my-account-sandbox-422814",
+    "target": "angeleno-my-account-dev-402917",
     "public": "build/web",
     "ignore": [
       "firebase.json",
