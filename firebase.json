@@ -11,12 +11,12 @@
       {
         "source": "/maps/**",
         "function": "maps",
-        "region": "us-west1"
+        "region": "us-central1"
       },
       {
         "source": "/auth0/**",
         "function": "auth0",
-        "region": "us-west1"
+        "region": "us-central1"
       }
     ]
   },
