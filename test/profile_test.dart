@@ -16,10 +16,10 @@ import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 
 import 'mocks/auth0_user_api_mock.dart';
-import 'mocks/maps_autofill_api_test.mocks.dart';
+import 'mocks/place_api_test.mocks.dart';
 
 @GenerateNiceMocks([MockSpec<Auth0UserApi>()])
-@GenerateNiceMocks([MockSpec<PlaceAPI>()])
+//@GenerateNiceMocks([MockSpec<PlaceAPI>()])
 void main() {
   late MockAuth0UserApi mockUserApi;
   late MockPlaceAPI mockPlaceAPI;

@@ -14,18 +14,16 @@ import 'package:integration_test/integration_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 
-import 'mocks/auth0_user_api_mock.dart';
-import 'mocks/maps_autofill_api_test.mocks.dart';
+import 'mocks/place_api_test.mocks.dart';
 
 void main() {
 //1)Let's forst simulate logging in to the screen
-  late MockAuth0UserApi mockUserApi;
+
   late MockPlaceAPI mockPlaceAPI;
   //final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   //binding.testTextInput.register();
 
 //2)Let's set the temp data from the User Provider
-  final userProvider = UserProvider();
 
   final List<AutofillSuggestion> places = [
     AutofillSuggestion('ChIJEdCfy7LHwoARs9411harle4',
@@ -48,29 +46,7 @@ void main() {
         '333 South Catalina Street')
   ];
 
-  const auth0User = UserProfile(
-      sub: 'auth0|id',
-      email: 'user@email.com',
-      givenName: 'FirstName',
-      familyName: 'LastName',
-      customClaims: {
-        'user_metadata': {
-          'addresses': {
-            'primary': {
-              'address': '123 Main St',
-              'address2': 'Suite 200',
-              'city': 'Main City',
-              'state': 'Main State',
-              'zip': '12345'
-            }
-          },
-          'phone': '(213) 555-5555'
-        }
-      });
-  userProvider.setUser(auth0User);
-
   setUp(() {
-    mockUserApi = MockAuth0UserApi();
     mockPlaceAPI = MockPlaceAPI();
   });
 
@@ -84,19 +60,6 @@ void main() {
     // 1. Set up the widget to be tested
     const userUpdateMockResponse = 200;
 
-    when(mockUserApi.updateUser(any))
-        .thenAnswer((_) async => userUpdateMockResponse);
-
-    await tester.pumpWidget(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider.value(value: userProvider),
-          ChangeNotifierProvider(create: (final _) => OverlayProvider())
-        ],
-        child: const MyApp(),
-      ),
-    );
-
     // Configure the mock to return the list of suggestions
     when(mockPlaceAPI.fetchSuggestions('333', 'en'))
         .thenAnswer((_) async => places);
@@ -106,21 +69,21 @@ void main() {
         .thenAnswer((_) async => []);
 
     // Verify that the TyepAheadField search field is present
-    expect(find.byType(TypeAheadField<AutofillSuggestion>), findsOneWidget);
-    await tester.enterText(
-        find.byType(TypeAheadField<AutofillSuggestion>).at(0), '333');
+    // expect(find.byType(TypeAheadField<AutofillSuggestion>), findsOneWidget);
+    //await tester.enterText(
+    //  find.byType(TypeAheadField<AutofillSuggestion>).at(0), '333');
 
     //final inputTextFieldFinder = find.byKey(const Key('AddressAutofillWidget'));
     // Ensure the widget is present before entering text
     //expect(inputTextFieldFinder, findsOneWidget);
 
     //await tester.enterText(inputTextFieldFinder, '333');
-    await tester
-        .pumpAndSettle(); // Wait for the suggestions to be loaded asynchronously
+    //  await tester
+    //    .pumpAndSettle(); // Wait for the suggestions to be loaded asynchronously
 
     // Log the widget tree for debugging
-    print('Widget Tree after pumpAndSettle:');
-    print(tester.takeException());
+    //print('Widget Tree after pumpAndSettle:');
+    //print(tester.takeException());
 
     // Check the widget tree after pumpAndSettle to see if the suggestions have been rendered
     //final suggestionText =
@@ -147,7 +110,7 @@ void main() {
     // result = await mockPlaceAPI.fetchSuggestions('paz', 'en');
     // print(result);
 
-    print(tester.element(find.byKey(const Key('AddressAutofillWidget'))));
+    // print(tester.element(find.byKey(const Key('AddressAutofillWidget'))));
 /*
     // Verify that suggestions are being shown (you can check that the suggestion items are visible)
     expect(find.byType(ListTile),

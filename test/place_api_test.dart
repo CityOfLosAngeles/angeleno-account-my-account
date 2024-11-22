@@ -1,9 +1,14 @@
 import 'package:angeleno_project/controllers/place_api.dart';
 import 'package:angeleno_project/models/autofill_suggestion.dart';
-import 'package:flutter_test/flutter_test.dart';
+//import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'mocks/maps_autofill_api_test.mocks.dart';
+import 'package:test/test.dart';
+
+import 'mocks/profile_test.mocks.dart';
+
+//dart run build_runner clean
+//dart run build_runner build
 
 @GenerateMocks([PlaceAPI])
 void main() {
@@ -35,7 +40,7 @@ void main() {
     mockPlaceAPI = MockPlaceAPI();
   });
 
-  test('YourClass widget test', () async {
+  test('Counter value should be incremented', () async {
     // Configure the mock to return the list of suggestions
     when(mockPlaceAPI.fetchSuggestions('333', 'en'))
         .thenAnswer((_) async => places);
