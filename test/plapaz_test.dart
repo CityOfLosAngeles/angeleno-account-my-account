@@ -68,32 +68,6 @@ void main() {
     when(mockPlaceAPI.fetchSuggestions('paz', 'en'))
         .thenAnswer((_) async => []);
 
-    // Verify that the TyepAheadField search field is present
-    // expect(find.byType(TypeAheadField<AutofillSuggestion>), findsOneWidget);
-    //await tester.enterText(
-    //  find.byType(TypeAheadField<AutofillSuggestion>).at(0), '333');
-
-    //final inputTextFieldFinder = find.byKey(const Key('AddressAutofillWidget'));
-    // Ensure the widget is present before entering text
-    //expect(inputTextFieldFinder, findsOneWidget);
-
-    //await tester.enterText(inputTextFieldFinder, '333');
-    //  await tester
-    //    .pumpAndSettle(); // Wait for the suggestions to be loaded asynchronously
-
-    // Log the widget tree for debugging
-    //print('Widget Tree after pumpAndSettle:');
-    //print(tester.takeException());
-
-    // Check the widget tree after pumpAndSettle to see if the suggestions have been rendered
-    //final suggestionText =
-    // '333'; // Replace with the text you expect to be shown
-    //final suggestionFinder = find.text(suggestionText);
-
-    // print('Checking for suggestions...');
-    // expect(
-    //   suggestionFinder, findsOneWidget); // Ensure the suggestion is visible
-
     // 1. Call the fetchSuggestions method
     List<AutofillSuggestion> result =
         await mockPlaceAPI.fetchSuggestions('333', 'en');
@@ -105,42 +79,5 @@ void main() {
     expect(
         result[1].description, //Confirm the description for 1 of them
         '333 South Beaudry Avenue, Los Angeles, CA, USA');
-
-//Test for empty
-    // result = await mockPlaceAPI.fetchSuggestions('paz', 'en');
-    // print(result);
-
-    // print(tester.element(find.byKey(const Key('AddressAutofillWidget'))));
-/*
-    // Verify that suggestions are being shown (you can check that the suggestion items are visible)
-    expect(find.byType(ListTile),
-        findsWidgets); // Ensure that suggestions are present
-
-    // Simulate tapping on the first suggestion item (e.g., ListTile)
-    final firstSuggestionFinder = find.byType(ListTile).first;
-    await tester.tap(firstSuggestionFinder);
-    // Pump again to settle the tap event
-    await tester.pumpAndSettle();
-*/
-/*
-    // Find the ListTile corresponding to the suggestion you want to tap
-    final suggestionFinder = find
-        .descendant(
-          of: inputTextFieldFinder,
-          matching: find.byType(ListTile),
-        )
-        .first; // Assuming you want to tap the first suggestion
-
-    // Tap on the suggestion
-    await tester.tap(suggestionFinder);
-    await tester.pumpAndSettle();*/
-
-    // 3. Tap on the first suggestion
-    // await tester.tap(find.text('333 S Hope St'));
-    // await tester.pumpAndSettle(); // Wait for any UI updates to complete
-
-    // 5. Verify that suggestions are displayed
-    //expect(find.byType(ListTile),
-    //  findsNWidgets(5)); // Assuming ListTile is used to display suggestions
   });
 }
