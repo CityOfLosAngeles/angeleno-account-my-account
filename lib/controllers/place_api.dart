@@ -16,9 +16,13 @@ class PlaceAPI {
   Client client = Client();
   String sessionToken;
   //PlaceAPI(this.sessionToken);
-
+/*
   PlaceAPI(this.sessionToken, {final http.Client? client})
       : client = client ?? Client(); //Added for facilitating test
+*/
+  PlaceAPI(this.sessionToken, {http.Client? client})
+      : client = client ??
+            http.Client(); // Use the provided client or the default one
 
   int count = 0;
 

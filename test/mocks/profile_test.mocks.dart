@@ -3,19 +3,15 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i7;
+import 'dart:async' as _i5;
 
 import 'package:angeleno_project/controllers/auth0_user_api_implementation.dart'
-    as _i5;
-import 'package:angeleno_project/controllers/place_api.dart' as _i10;
+    as _i3;
 import 'package:angeleno_project/models/api_response.dart' as _i2;
-import 'package:angeleno_project/models/autofill_place.dart' as _i4;
-import 'package:angeleno_project/models/autofill_suggestion.dart' as _i11;
-import 'package:angeleno_project/models/password_reset.dart' as _i9;
-import 'package:angeleno_project/models/user.dart' as _i8;
-import 'package:http/http.dart' as _i3;
+import 'package:angeleno_project/models/password_reset.dart' as _i7;
+import 'package:angeleno_project/models/user.dart' as _i6;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i6;
+import 'package:mockito/src/dummies.dart' as _i4;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -40,38 +36,18 @@ class _FakeApiResponse_0 extends _i1.SmartFake implements _i2.ApiResponse {
         );
 }
 
-class _FakeClient_1 extends _i1.SmartFake implements _i3.Client {
-  _FakeClient_1(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeAutofillPlace_2 extends _i1.SmartFake implements _i4.AutofillPlace {
-  _FakeAutofillPlace_2(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
 /// A class which mocks [Auth0UserApi].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockAuth0UserApi extends _i1.Mock implements _i5.Auth0UserApi {
+class MockAuth0UserApi extends _i1.Mock implements _i3.Auth0UserApi {
   @override
   String get authToken => (super.noSuchMethod(
         Invocation.getter(#authToken),
-        returnValue: _i6.dummyValue<String>(
+        returnValue: _i4.dummyValue<String>(
           this,
           Invocation.getter(#authToken),
         ),
-        returnValueForMissingStub: _i6.dummyValue<String>(
+        returnValueForMissingStub: _i4.dummyValue<String>(
           this,
           Invocation.getter(#authToken),
         ),
@@ -89,11 +65,11 @@ class MockAuth0UserApi extends _i1.Mock implements _i5.Auth0UserApi {
   @override
   String get baseUrl => (super.noSuchMethod(
         Invocation.getter(#baseUrl),
-        returnValue: _i6.dummyValue<String>(
+        returnValue: _i4.dummyValue<String>(
           this,
           Invocation.getter(#baseUrl),
         ),
-        returnValueForMissingStub: _i6.dummyValue<String>(
+        returnValueForMissingStub: _i4.dummyValue<String>(
           this,
           Invocation.getter(#baseUrl),
         ),
@@ -105,14 +81,14 @@ class MockAuth0UserApi extends _i1.Mock implements _i5.Auth0UserApi {
           #createJwt,
           [],
         ),
-        returnValue: _i6.dummyValue<String>(
+        returnValue: _i4.dummyValue<String>(
           this,
           Invocation.method(
             #createJwt,
             [],
           ),
         ),
-        returnValueForMissingStub: _i6.dummyValue<String>(
+        returnValueForMissingStub: _i4.dummyValue<String>(
           this,
           Invocation.method(
             #createJwt,
@@ -122,12 +98,12 @@ class MockAuth0UserApi extends _i1.Mock implements _i5.Auth0UserApi {
       ) as String);
 
   @override
-  _i7.Future<String> getOAuthToken() => (super.noSuchMethod(
+  _i5.Future<String> getOAuthToken() => (super.noSuchMethod(
         Invocation.method(
           #getOAuthToken,
           [],
         ),
-        returnValue: _i7.Future<String>.value(_i6.dummyValue<String>(
+        returnValue: _i5.Future<String>.value(_i4.dummyValue<String>(
           this,
           Invocation.method(
             #getOAuthToken,
@@ -135,46 +111,46 @@ class MockAuth0UserApi extends _i1.Mock implements _i5.Auth0UserApi {
           ),
         )),
         returnValueForMissingStub:
-            _i7.Future<String>.value(_i6.dummyValue<String>(
+            _i5.Future<String>.value(_i4.dummyValue<String>(
           this,
           Invocation.method(
             #getOAuthToken,
             [],
           ),
         )),
-      ) as _i7.Future<String>);
+      ) as _i5.Future<String>);
 
   @override
-  _i7.Future<int> updateUser(_i8.User? user) => (super.noSuchMethod(
+  _i5.Future<int> updateUser(_i6.User? user) => (super.noSuchMethod(
         Invocation.method(
           #updateUser,
           [user],
         ),
-        returnValue: _i7.Future<int>.value(0),
-        returnValueForMissingStub: _i7.Future<int>.value(0),
-      ) as _i7.Future<int>);
+        returnValue: _i5.Future<int>.value(0),
+        returnValueForMissingStub: _i5.Future<int>.value(0),
+      ) as _i5.Future<int>);
 
   @override
-  _i7.Future<Map<String, dynamic>> updatePassword(_i9.PasswordBody? body) =>
+  _i5.Future<Map<String, dynamic>> updatePassword(_i7.PasswordBody? body) =>
       (super.noSuchMethod(
         Invocation.method(
           #updatePassword,
           [body],
         ),
         returnValue:
-            _i7.Future<Map<String, dynamic>>.value(<String, dynamic>{}),
+            _i5.Future<Map<String, dynamic>>.value(<String, dynamic>{}),
         returnValueForMissingStub:
-            _i7.Future<Map<String, dynamic>>.value(<String, dynamic>{}),
-      ) as _i7.Future<Map<String, dynamic>>);
+            _i5.Future<Map<String, dynamic>>.value(<String, dynamic>{}),
+      ) as _i5.Future<Map<String, dynamic>>);
 
   @override
-  _i7.Future<_i2.ApiResponse> getAuthenticationMethods(String? userId) =>
+  _i5.Future<_i2.ApiResponse> getAuthenticationMethods(String? userId) =>
       (super.noSuchMethod(
         Invocation.method(
           #getAuthenticationMethods,
           [userId],
         ),
-        returnValue: _i7.Future<_i2.ApiResponse>.value(_FakeApiResponse_0(
+        returnValue: _i5.Future<_i2.ApiResponse>.value(_FakeApiResponse_0(
           this,
           Invocation.method(
             #getAuthenticationMethods,
@@ -182,36 +158,36 @@ class MockAuth0UserApi extends _i1.Mock implements _i5.Auth0UserApi {
           ),
         )),
         returnValueForMissingStub:
-            _i7.Future<_i2.ApiResponse>.value(_FakeApiResponse_0(
+            _i5.Future<_i2.ApiResponse>.value(_FakeApiResponse_0(
           this,
           Invocation.method(
             #getAuthenticationMethods,
             [userId],
           ),
         )),
-      ) as _i7.Future<_i2.ApiResponse>);
+      ) as _i5.Future<_i2.ApiResponse>);
 
   @override
-  _i7.Future<Map<String, dynamic>> enrollMFA(Map<String, String>? body) =>
+  _i5.Future<Map<String, dynamic>> enrollMFA(Map<String, String>? body) =>
       (super.noSuchMethod(
         Invocation.method(
           #enrollMFA,
           [body],
         ),
         returnValue:
-            _i7.Future<Map<String, dynamic>>.value(<String, dynamic>{}),
+            _i5.Future<Map<String, dynamic>>.value(<String, dynamic>{}),
         returnValueForMissingStub:
-            _i7.Future<Map<String, dynamic>>.value(<String, dynamic>{}),
-      ) as _i7.Future<Map<String, dynamic>>);
+            _i5.Future<Map<String, dynamic>>.value(<String, dynamic>{}),
+      ) as _i5.Future<Map<String, dynamic>>);
 
   @override
-  _i7.Future<_i2.ApiResponse> confirmMFA(Map<String, String>? body) =>
+  _i5.Future<_i2.ApiResponse> confirmMFA(Map<String, String>? body) =>
       (super.noSuchMethod(
         Invocation.method(
           #confirmMFA,
           [body],
         ),
-        returnValue: _i7.Future<_i2.ApiResponse>.value(_FakeApiResponse_0(
+        returnValue: _i5.Future<_i2.ApiResponse>.value(_FakeApiResponse_0(
           this,
           Invocation.method(
             #confirmMFA,
@@ -219,23 +195,23 @@ class MockAuth0UserApi extends _i1.Mock implements _i5.Auth0UserApi {
           ),
         )),
         returnValueForMissingStub:
-            _i7.Future<_i2.ApiResponse>.value(_FakeApiResponse_0(
+            _i5.Future<_i2.ApiResponse>.value(_FakeApiResponse_0(
           this,
           Invocation.method(
             #confirmMFA,
             [body],
           ),
         )),
-      ) as _i7.Future<_i2.ApiResponse>);
+      ) as _i5.Future<_i2.ApiResponse>);
 
   @override
-  _i7.Future<_i2.ApiResponse> unenrollMFA(Map<String, String>? body) =>
+  _i5.Future<_i2.ApiResponse> unenrollMFA(Map<String, String>? body) =>
       (super.noSuchMethod(
         Invocation.method(
           #unenrollMFA,
           [body],
         ),
-        returnValue: _i7.Future<_i2.ApiResponse>.value(_FakeApiResponse_0(
+        returnValue: _i5.Future<_i2.ApiResponse>.value(_FakeApiResponse_0(
           this,
           Invocation.method(
             #unenrollMFA,
@@ -243,23 +219,23 @@ class MockAuth0UserApi extends _i1.Mock implements _i5.Auth0UserApi {
           ),
         )),
         returnValueForMissingStub:
-            _i7.Future<_i2.ApiResponse>.value(_FakeApiResponse_0(
+            _i5.Future<_i2.ApiResponse>.value(_FakeApiResponse_0(
           this,
           Invocation.method(
             #unenrollMFA,
             [body],
           ),
         )),
-      ) as _i7.Future<_i2.ApiResponse>);
+      ) as _i5.Future<_i2.ApiResponse>);
 
   @override
-  _i7.Future<_i2.ApiResponse> removeConnection(String? connectionId) =>
+  _i5.Future<_i2.ApiResponse> removeConnection(String? connectionId) =>
       (super.noSuchMethod(
         Invocation.method(
           #removeConnection,
           [connectionId],
         ),
-        returnValue: _i7.Future<_i2.ApiResponse>.value(_FakeApiResponse_0(
+        returnValue: _i5.Future<_i2.ApiResponse>.value(_FakeApiResponse_0(
           this,
           Invocation.method(
             #removeConnection,
@@ -267,134 +243,12 @@ class MockAuth0UserApi extends _i1.Mock implements _i5.Auth0UserApi {
           ),
         )),
         returnValueForMissingStub:
-            _i7.Future<_i2.ApiResponse>.value(_FakeApiResponse_0(
+            _i5.Future<_i2.ApiResponse>.value(_FakeApiResponse_0(
           this,
           Invocation.method(
             #removeConnection,
             [connectionId],
           ),
         )),
-      ) as _i7.Future<_i2.ApiResponse>);
-}
-
-/// A class which mocks [PlaceAPI].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockPlaceAPI extends _i1.Mock implements _i10.PlaceAPI {
-  @override
-  _i3.Client get client => (super.noSuchMethod(
-        Invocation.getter(#client),
-        returnValue: _FakeClient_1(
-          this,
-          Invocation.getter(#client),
-        ),
-        returnValueForMissingStub: _FakeClient_1(
-          this,
-          Invocation.getter(#client),
-        ),
-      ) as _i3.Client);
-
-  @override
-  set client(_i3.Client? _client) => super.noSuchMethod(
-        Invocation.setter(
-          #client,
-          _client,
-        ),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  String get sessionToken => (super.noSuchMethod(
-        Invocation.getter(#sessionToken),
-        returnValue: _i6.dummyValue<String>(
-          this,
-          Invocation.getter(#sessionToken),
-        ),
-        returnValueForMissingStub: _i6.dummyValue<String>(
-          this,
-          Invocation.getter(#sessionToken),
-        ),
-      ) as String);
-
-  @override
-  set sessionToken(String? _sessionToken) => super.noSuchMethod(
-        Invocation.setter(
-          #sessionToken,
-          _sessionToken,
-        ),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  int get count => (super.noSuchMethod(
-        Invocation.getter(#count),
-        returnValue: 0,
-        returnValueForMissingStub: 0,
-      ) as int);
-
-  @override
-  set count(int? _count) => super.noSuchMethod(
-        Invocation.setter(
-          #count,
-          _count,
-        ),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  String get apiKey => (super.noSuchMethod(
-        Invocation.getter(#apiKey),
-        returnValue: _i6.dummyValue<String>(
-          this,
-          Invocation.getter(#apiKey),
-        ),
-        returnValueForMissingStub: _i6.dummyValue<String>(
-          this,
-          Invocation.getter(#apiKey),
-        ),
-      ) as String);
-
-  @override
-  _i7.Future<List<_i11.AutofillSuggestion>> fetchSuggestions(
-    String? input,
-    String? lang,
-  ) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #fetchSuggestions,
-          [
-            input,
-            lang,
-          ],
-        ),
-        returnValue: _i7.Future<List<_i11.AutofillSuggestion>>.value(
-            <_i11.AutofillSuggestion>[]),
-        returnValueForMissingStub:
-            _i7.Future<List<_i11.AutofillSuggestion>>.value(
-                <_i11.AutofillSuggestion>[]),
-      ) as _i7.Future<List<_i11.AutofillSuggestion>>);
-
-  @override
-  _i7.Future<_i4.AutofillPlace> getPlaceDetailFromId(String? placeId) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #getPlaceDetailFromId,
-          [placeId],
-        ),
-        returnValue: _i7.Future<_i4.AutofillPlace>.value(_FakeAutofillPlace_2(
-          this,
-          Invocation.method(
-            #getPlaceDetailFromId,
-            [placeId],
-          ),
-        )),
-        returnValueForMissingStub:
-            _i7.Future<_i4.AutofillPlace>.value(_FakeAutofillPlace_2(
-          this,
-          Invocation.method(
-            #getPlaceDetailFromId,
-            [placeId],
-          ),
-        )),
-      ) as _i7.Future<_i4.AutofillPlace>);
+      ) as _i5.Future<_i2.ApiResponse>);
 }
