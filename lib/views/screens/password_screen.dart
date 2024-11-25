@@ -99,6 +99,17 @@ class _PasswordScreenState extends State<PasswordScreen> {
 
     return ListView(
       children: [
+        Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Semantics(
+                header: true,
+                child: const Text(
+                    'Password Reset',
+                    textAlign: TextAlign.left,
+                    style: headerStyle
+                )
+            )
+        ),
         TextFormField(
           obscureText: !viewPassword,
           autocorrect: false,
