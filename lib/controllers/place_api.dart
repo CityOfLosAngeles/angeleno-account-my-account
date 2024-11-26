@@ -13,16 +13,19 @@ import '../models/autofill_suggestion.dart';
 import '../utils/constants.dart';
 
 class PlaceAPI {
-  Client client = Client();
+  http.Client client; // = Client();
   String sessionToken;
   //PlaceAPI(this.sessionToken);
 /*
   PlaceAPI(this.sessionToken, {final http.Client? client})
       : client = client ?? Client(); //Added for facilitating test
 */
+/*
   PlaceAPI(this.sessionToken, {http.Client? client})
-      : client = client ??
-            http.Client(); // Use the provided client or the default one
+      : client = client ?? http.Client();
+      */
+
+  PlaceAPI(this.sessionToken, this.client);
 
   int count = 0;
 
@@ -48,9 +51,9 @@ class PlaceAPI {
 
     try {
       if (isTestingLocally) {
-        response = await http.get(Uri.parse(corsProxy), headers: headers);
+        response = await client.get(Uri.parse(corsProxy), headers: headers);
       } else {
-        response = await http.get(Uri.parse(request), headers: headers);
+        response = await client.get(Uri.parse(request), headers: headers);
       }
       // response = await http.get(Uri.parse(CORSproxy), headers: headers);
     } catch (e) {

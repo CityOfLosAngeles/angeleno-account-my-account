@@ -16,8 +16,8 @@ import 'mocks/place_api_test.mocks.dart';
 //import 'place_api_test.mocks.dart'
 
 // Create new instances of this class in each test.
-@GenerateMocks([http.Client])
-@GenerateMocks([PlaceAPI])
+@GenerateMocks([http.Client, PlaceAPI])
+//@GenerateMocks([PlaceAPI])
 void main() {
   late MockPlaceAPI mockPlaceAPI;
   late MockClient mockHttpClient;
