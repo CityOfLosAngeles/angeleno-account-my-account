@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:angeleno_project/controllers/place_api.dart';
 import 'package:angeleno_project/models/autofill_suggestion.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -51,19 +53,19 @@ void main() {
     test('returns a list of predictions', () async {
       // Mock a successful response
       final response = http.Response('''
-  {
-    "status": "OK",
-    "predictions": [
-      {
-        "place_id": "123",
-        "description": "Test Location",
-        "structured_formatting": {
-          "main_text": "Main Text"
+        {
+          "status": "OK",
+          "predictions": [
+            {
+              "place_id": "123",
+              "description": "Test Location",
+              "structured_formatting": {
+                "main_text": "Main Text"
+              }
+            }
+          ]
         }
-      }
-    ]
-  }
-''', 200);
+      ''', 200);
       final placesAPI = 'ddd';
 
       // Construct the expected Uri for the given input and language
@@ -88,6 +90,14 @@ void main() {
           .get(expectedUri, headers: {'Content-Type': 'application/json'});
       expect(httpResponse.statusCode, 200);
 
+      final jsonParsed = jsonDecode(httpResponse.body);
+      print(jsonParsed);
+      expect(jsonParsed['status'], 'OK');
+      final placesParsed = jsonParsed['predictions'];
+
+      expect(placesParsed[0]['place_id'].toString(), '123');
+      expect(placesParsed[0]['description'], 'Test Location');
+
       // Configure the mock to return the list of suggestions
       when(mockPlaceAPI.fetchSuggestions('paz', 'en'))
           .thenAnswer((_) async => places);
@@ -98,19 +108,7 @@ void main() {
       expect(result, isA<List<AutofillSuggestion>>());
       expect(result.length, 5);
       expect(result[0].placeId, 'ChIJEdCfy7LHwoARs9411harle4');
-      //expect(result[0].description, 'Test Location');
-
-/*
-      when(mockHttpClient.get(any, headers: anyNamed('headers')))
-          .thenAnswer((_) async => response);
-
-      final result = await mockPlaceAPI.fetchSuggestions('paz', 'en');
-
-      expect(result, isA<List<AutofillSuggestion>>());
-      expect(result.length, 1);
-      expect(result[0].placeId, '123');
-      expect(result[0].description, 'Test Location');
-*/
+      expect(result[0].description, '333 S Hope St, Los Angeles, CA, USA');
     });
   });
 }
