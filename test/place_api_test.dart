@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:angeleno_project/controllers/place_api.dart';
+import 'package:angeleno_project/models/autofill_place.dart';
 import 'package:angeleno_project/models/autofill_suggestion.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -109,6 +110,85 @@ void main() {
       expect(result.length, 5);
       expect(result[0].placeId, 'ChIJEdCfy7LHwoARs9411harle4');
       expect(result[0].description, '333 S Hope St, Los Angeles, CA, USA');
+    });
+
+    test('Provides PlaceDetails', () async {
+      // Mock a successful response with detailed address components
+      final response = http.Response('''
+        {
+          "status": "OK",
+          "result": {
+            "address_components": [
+              {
+                "long_name": "1600",
+                "short_name": "1600",
+                "types": ["street_number"]
+              },
+              {
+                "long_name": "Amphitheatre Parkway",
+                "short_name": "Amphitheatre Pkwy",
+                "types": ["route"]
+              },
+              {
+                "long_name": "Mountain View",
+                "short_name": "Mountain View",
+                "types": ["locality", "political"]   
+
+              },
+              {
+                "long_name": "Santa Clara County",
+                "short_name": "Santa Clara County",
+                "types": ["administrative_area_level_2", "political"]
+              },
+              {
+                "long_name": "California",
+                "short_name": "CA",
+                "types": ["administrative_area_level_1", "political"]
+              },
+              {
+                "long_name": "United States",
+                "short_name": "US",
+                "types": ["country", "political"]
+              },
+              {
+                "long_name": "94043",
+                "short_name": "94043",
+                "types": ["postal_code"]   
+
+              }
+            ]
+          }
+        }
+      ''', 200);
+
+      AutofillPlace place = AutofillPlace(
+          streetNumber: '1600',
+          street: 'Amphitheatre Parkway',
+          city: 'Mountain View',
+          zipCode: '94043',
+          state: 'California');
+
+      final placeId = 'test_place_id';
+      final placesAPI = ' ss';
+      final expectedUri = Uri.parse(
+          'https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&fields=address_component&key=$placesAPI&sessiontoken=test_session_token');
+
+      when(mockHttpClient.get(expectedUri, headers: anyNamed('headers')))
+          .thenAnswer((_) async => Future.value(response));
+
+      // Configure the mock to return the list of suggestions
+      when(mockPlaceAPI.getPlaceDetailFromId(placeId))
+          .thenAnswer((_) async => place);
+      // Call the method being tested
+
+      final result = await mockPlaceAPI.getPlaceDetailFromId(placeId);
+
+      expect(result, isA<AutofillPlace>());
+      expect(result.streetNumber, '1600');
+      expect(result.street, 'Amphitheatre Parkway');
+      expect(result.city, 'Mountain View');
+      expect(result.zipCode, '94043');
+      expect(result.state, 'California');
     });
   });
 }
