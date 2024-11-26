@@ -39,7 +39,7 @@ void main() {
 
   setUp(() {
     mockHttpClient = MockClient();
-    placeAPI = PlaceAPI('test_session_token', mockHttpClient);
+    placeAPI = PlaceAPI('test_session_token', client: mockHttpClient);
     mockPlaceAPI = MockPlaceAPI();
     //placeAPI = PlaceAPI("");
   });

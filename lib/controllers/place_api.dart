@@ -20,12 +20,11 @@ class PlaceAPI {
   PlaceAPI(this.sessionToken, {final http.Client? client})
       : client = client ?? Client(); //Added for facilitating test
 */
-/*
-  PlaceAPI(this.sessionToken, {http.Client? client})
-      : client = client ?? http.Client();
-      */
 
-  PlaceAPI(this.sessionToken, this.client);
+  PlaceAPI(this.sessionToken, {final http.Client? client})
+      : client = client ?? http.Client();
+
+  // PlaceAPI(this.sessionToken, this.client);
 
   int count = 0;
 
