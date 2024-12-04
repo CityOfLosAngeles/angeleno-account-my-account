@@ -9,6 +9,8 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
   int pageIndex = 0;
   String errMsg = '';
   bool obscurePassword = true;
+  bool inFlightRequest = false;
+
   late bool _isSmallScreen;
 
   Widget get dialogClose => IconButton(

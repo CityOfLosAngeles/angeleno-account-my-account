@@ -91,6 +91,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
   void enrollMobile() async {
     setState(() {
       errMsg = '';
+      inFlightRequest = true;
     });
 
     if (passwordField.text.isEmpty) {
@@ -114,6 +115,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
       } else {
         setState(() {
           errMsg = (response['body'] ?? 'An error occurred') as String;
+          inFlightRequest = false;
         });
       }
     });
@@ -122,6 +124,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
   void confirmCode() async {
     setState(() {
       errMsg = '';
+      inFlightRequest = true;
     });
 
     if (codeProvided.isEmpty) {
@@ -138,11 +141,14 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
       if (response.statusCode == HttpStatus.ok) {
         Navigator.pop(context, response.statusCode);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            behavior: SnackBarBehavior.floating,
-            width: 280.0,
-            content: Text('$channel MFA has been enabled.')
+          behavior: SnackBarBehavior.floating,
+          width: 280.0,
+          content: Text('$channel MFA has been enabled.')
         ));
       }
+      setState(() {
+        inFlightRequest = false;
+      });
     });
   }
 

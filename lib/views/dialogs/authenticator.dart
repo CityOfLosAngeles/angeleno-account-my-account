@@ -55,7 +55,7 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
   @override
   List<Widget> get dialogNext => [
     TextButton(
-      onPressed: passwordField.text.isEmpty ? null : () {
+      onPressed: passwordField.text.isEmpty || inFlightRequest ? null : () {
         enrollTOTP();
       },
       child: const Text('Continue'),
@@ -67,7 +67,7 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
       child: const Text('Continue'),
     ),
     TextButton(
-      onPressed: totpCode.isEmpty ? null : () {
+      onPressed: totpCode.isEmpty || inFlightRequest ? null : () {
         confirmTOTP();
       },
       child: const Text('Finish'),
@@ -78,6 +78,7 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
 
     setState(() {
       errMsg = '';
+      inFlightRequest = true;
     });
 
     if (passwordField.text.isEmpty) {
@@ -97,11 +98,13 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
           totpQrCode = response['barcode'] as String;
           mfaToken = response['token'] as String;
           qrCodeAltString = response['barcode_string'] as String;
+          inFlightRequest = false;
         });
         navigateToNextPage();
       } else {
         setState(() {
           errMsg = response['body'] as String;
+          inFlightRequest = false;
         });
       }
     });
@@ -111,6 +114,7 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
 
     setState(() {
       errMsg = '';
+      inFlightRequest = true;
     });
 
     if (totpCode.isEmpty) {
@@ -135,6 +139,9 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
           errMsg = response.body;
         });
       }
+      setState(() {
+        inFlightRequest = false;
+      });
     });
   }
 
