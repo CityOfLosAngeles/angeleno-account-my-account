@@ -152,25 +152,6 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
     });
   }
 
-  void removeConnection(final String connectionId) {
-    auth0UserApi.removeConnection(connectionId)
-      .then((final response) {
-      final bool success = response.statusCode == HttpStatus.ok;
-      if (success) {
-        Navigator.pop(context, response.statusCode);
-        ScaffoldMessenger.of(context).showSnackBar( const SnackBar(
-          behavior: SnackBarBehavior.floating,
-          width: 280.0,
-          content: Text('Connection has been removed.')
-        ));
-        setState(() {
-          _connectedServices.removeWhere((final Service element) =>
-            element.grantId == connectionId);
-        });
-      }
-    });
-  }
-
   @override
   Widget build(final BuildContext context) => FutureBuilder(
     future: _authMethods, 
