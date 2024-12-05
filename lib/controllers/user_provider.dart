@@ -84,16 +84,6 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void login() async {
-    await auth0Web.loginWithRedirect(redirectUrl: redirectUri);
-  }
-
-  Future<bool> isLoggedIn() async =>
-      await auth0Web.hasValidCredentials();
-
-  Future<Credentials> currentCredentials() async =>
-      await auth0Web.credentials();
-
   Future<void> logout() => auth0Web.logout(
       federated: false,
       returnToUrl: 'https://sandbox.account.lacity.gov/'

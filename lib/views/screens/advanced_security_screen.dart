@@ -39,7 +39,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
   late String voiceAuthId = '';
 
   late Future<void> _authMethods;
-  final List<Service> _connectedServices = [];
+  late List<Service> _connectedServices;
 
   @override
   void initState() {
@@ -56,6 +56,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
   }
 
   Future<void> getAuthenticationMethods() async {
+    _connectedServices = [];
     await auth0UserApi.getAuthenticationMethods(userProvider.user!.userId)
       .then((final response) {
         final bool success = response.statusCode == HttpStatus.ok;
@@ -112,11 +113,27 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
     }).then((final response) {
       final bool success = response.statusCode == HttpStatus.ok;
       if (success) {
+
+        String authMethod;
+        switch (method) {
+          case 'totp':
+            authMethod = 'Authenticator App';
+            break;
+          case 'sms':
+            authMethod = 'SMS';
+            break;
+          case 'voice':
+            authMethod = 'Voice';
+            break;
+          default:
+            authMethod = 'Unknown';
+        }
+
         Navigator.pop(context, response.statusCode);
-        ScaffoldMessenger.of(context).showSnackBar( const SnackBar(
+        ScaffoldMessenger.of(context).showSnackBar( SnackBar(
           behavior: SnackBarBehavior.floating,
           width: 280.0,
-          content: Text('Authenticator app has been removed.')
+          content: Text('$authMethod has been removed.')
         ));
         setState(() {
           switch(method) {
@@ -126,26 +143,10 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
             case 'sms':
               smsEnabled = false;
               break;
+            case 'voice':
+              voiceEnabled = false;
+              break;
           }
-        });
-      }
-    });
-  }
-
-  void removeConnection(final String connectionId) {
-    auth0UserApi.removeConnection(connectionId)
-      .then((final response) {
-      final bool success = response.statusCode == HttpStatus.ok;
-      if (success) {
-        Navigator.pop(context, response.statusCode);
-        ScaffoldMessenger.of(context).showSnackBar( const SnackBar(
-          behavior: SnackBarBehavior.floating,
-          width: 280.0,
-          content: Text('Connection has been removed.')
-        ));
-        setState(() {
-          _connectedServices.removeWhere((final Service element) =>
-            element.grantId == connectionId);
         });
       }
     });
@@ -298,17 +299,15 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                             onPressed: () {
                               showDialog<int>(
                                   context: context,
-                                  builder: (
-                                      final BuildContext context) => MobileDialog(
-                                    userProvider: userProvider,
-                                    userApi: auth0UserApi,
-                                    channel: 'sms',
+                                  builder: (final BuildContext context) =>
+                                    MobileDialog(
+                                      userProvider: userProvider,
+                                      userApi: auth0UserApi,
+                                      channel: 'sms',
                                   )
                               ).then((final value) {
-                                if (value != null && value == HttpStatus.ok) {
-                                  setState(() {
-                                    smsEnabled = true;
-                                  });
+                                if (value != null && value == HttpStatus.ok){
+                                  _triggerAuthMethods();
                                 }
                               });
                             },
@@ -326,7 +325,43 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                         voiceEnabled ?
                         FilledButton.tonal(
                           key: const Key('disableVoice'),
-                          onPressed: () => {},
+                          onPressed: () => showDialog<int>(
+                              context: context,
+                              builder: (final BuildContext context) => AlertDialog(
+                                title: const Text('Remove Voice MFA?'),
+                                content: const SingleChildScrollView(
+                                    child: ListBody(
+                                      children: <Widget>[
+                                        // ignore: avoid_escaping_inner_quotes
+                                        Text('Do you confirm to remove Voice Calls? This'
+                                            ' action is irreversible. If you want to use this'
+                                            ' factor again you will need to enroll the'
+                                            ' factor again.')
+                                      ],
+                                    )
+                                ),
+                                actions: <Widget>[
+                                  TextButton(
+                                    child: const Text('Cancel'),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                  TextButton(
+                                    child: const Text('Ok'),
+                                    onPressed: () {
+                                      disableMFA(voiceAuthId, 'voice');
+                                    },
+                                  )
+                                ],
+                              )
+                          ).then((final value) {
+                            if (value != null && value == HttpStatus.ok) {
+                              setState(() {
+                                smsEnabled = false;
+                              });
+                            }
+                          }),
                           child: const Text('Disable'),
                         )
                             :
@@ -342,10 +377,8 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                                     channel: 'voice',
                                   )
                               ).then((final value) {
-                                if (value != null && value == HttpStatus.ok) {
-                                  setState(() {
-                                    voiceEnabled = true;
-                                  });
+                                if (value != null && value == HttpStatus.ok){
+                                  _triggerAuthMethods();
                                 }
                               });
                             },
