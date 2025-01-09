@@ -201,6 +201,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.2"
+  datadog_flutter_plugin:
+    dependency: "direct main"
+    description:
+      name: datadog_flutter_plugin
+      sha256: d01efdf00b50b3c965254a07100ab948b6891aff3a2e0a7865a6a8efcb5d7e35
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.10.0"
+  datadog_tracking_http_client:
+    dependency: "direct main"
+    description:
+      name: datadog_tracking_http_client
+      sha256: "4fd525bd1da68601d4afbd7ef02f5b30cae0196485338b67b48372ce9ef72835"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.0"
   ed25519_edwards:
     dependency: transitive
     description:
@@ -628,6 +644,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.10.0"
+  sprintf:
+    dependency: transitive
+    description:
+      name: sprintf
+      sha256: "1fc9ffe69d4df602376b52949af107d8f5703b77cda567c4d7d86a0693120f23"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.0.0"
   stack_trace:
     dependency: transitive
     description:
@@ -772,6 +796,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.0"
+  uuid:
+    dependency: transitive
+    description:
+      name: uuid
+      sha256: a5be9ef6618a7ac1e964353ef476418026db906c4facdedaa299b7a2e71690ff
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.5.1"
   vector_graphics:
     dependency: transitive
     description:
