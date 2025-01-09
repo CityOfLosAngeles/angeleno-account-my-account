@@ -17,4 +17,6 @@ abstract class Api {
   void confirmMFA(final Map<String, String> body);
 
   void unenrollMFA(final Map<String, String> body);
+
+  void removeConnection(final String connectionId);
 }

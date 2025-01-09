@@ -5,23 +5,20 @@ import 'package:angeleno_project/views/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_strategy/url_strategy.dart';
-import 'package:datadog_flutter_plugin/datadog_flutter_plugin.dart';
 
 
-Future<void> main() async {
+void main() {
   setPathUrlStrategy();
 
-  await DatadogSdk.runApp(configuration, TrackingConsent.granted, () async {
-    runApp(
-        MultiProvider(
-            providers: [
-              ChangeNotifierProvider(create: (final _) => UserProvider()),
-              ChangeNotifierProvider(create: (final _) => OverlayProvider())
-            ],
-            child: const MyApp()
-        )
-    );
-  });
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (final _) => UserProvider()),
+        ChangeNotifierProvider(create: (final _) => OverlayProvider())
+      ],
+      child: const MyApp()
+    )
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -29,7 +26,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) => MaterialApp(
-    title: 'Angeleno - Account',
+    title: 'Angeleno - My Account '
+        '${environment == 'prod' ? '' : ' - $environment'}',
     debugShowCheckedModeBanner: false,
     theme: ThemeData(
       useMaterial3: true,
@@ -41,9 +39,6 @@ class MyApp extends StatelessWidget {
 
       )
     ),
-    navigatorObservers: [
-      DatadogNavigationObserver(datadogSdk: DatadogSdk.instance),
-    ],
     onGenerateRoute: (final settings) => MaterialPageRoute(
       builder: (final context) => const MyHomePage(),
       settings: const RouteSettings(name: '/')

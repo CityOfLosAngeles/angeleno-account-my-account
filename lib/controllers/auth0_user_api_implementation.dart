@@ -302,6 +302,7 @@ class Auth0UserApi extends Api {
     }
   }
 
+  @override
   Future<ApiResponse> removeConnection(final String connectionId) async {
 
     final token = await getOAuthToken();

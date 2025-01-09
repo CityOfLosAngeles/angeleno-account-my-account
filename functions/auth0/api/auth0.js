@@ -14,10 +14,10 @@ export const updateUser = onRequest(async (req, res) => {
   let user;
 
   try {
-    user = Object.assign(new User(), req.body);
+    user = new User(req.body);
   } catch (err) {
     console.error(err);
-    return res.send(400);
+    return res.status(400).send(err.message);
   }
 
   const updatedUserObject = {};
@@ -29,9 +29,11 @@ export const updateUser = onRequest(async (req, res) => {
 
   if (user.lastName) {
     updatedUserObject['family_name'] = user.lastName;
+    updatedUserObject['name'] += ` ${user.lastName}`;
   }
 
   const primaryAddress = {};
+  
   if (user.zip) {
     primaryAddress['zip'] = user.zip;
   }
@@ -65,6 +67,7 @@ export const updateUser = onRequest(async (req, res) => {
   }
 
   user.metadata['phone'] = user.phone;
+
   updatedUserObject['user_metadata'] = user.metadata;
 
   const updateUserUrl = `https://${auth0Domain}/api/v2/users/${user.userId}`;
@@ -123,7 +126,7 @@ export const updatePassword = onRequest(async (req, res) => {
       },
       data: {
         password: newPassword,
-        connection: 'Username-Password-Authentication',
+        connection: 'Angeleno-Users-Default',
       },
     };
 
@@ -169,7 +172,8 @@ export const authMethods = onRequest(async (req, res) => {
 
     const request = await axios.request(config);
 
-    const applications = await getConnectedServices(userId);
+
+   const applications = await getConnectedServices(userId);
 
     const response = {
       mfaMethods: request.data,
@@ -352,6 +356,40 @@ export const unenrollMFA = onRequest(async (req, res) => {
   }
 });
 
+export const removeConnection = onRequest(async (req, res) => {
+  try {
+    const {
+      connectionId
+    } = req.body;
+
+    if (!connectionId) {
+      res.status(400).send('Invalid request - missing required fields.');
+      return;
+    }
+  
+    const config = {
+      method: 'delete',
+      maxBodyLength: Infinity,
+      url: `https://${auth0Domain}/api/v2/grants/${connectionId}`,
+      headers: {
+        'Authorization': `Bearer ${await getAccessToken()}`
+      }
+    };
+    
+    await axios.request(config)
+    res.status(200).send();
+  } catch (error) {
+    console.log(error);
+
+    const {
+      status = 500,
+      message = '',
+    } = error.response;
+
+    return res.status(status).send(message);
+  };
+});
+
 const getConnectedServices = async (userId) => {
 
   if (!userId) {
@@ -426,37 +464,3 @@ const getConnectedServices = async (userId) => {
     return res.status(status).send(message);
   }
 };
-
-export const removeConnection = onRequest(async (req, res) => {
-  try {
-    const {
-      connectionId
-    } = req.body;
-
-    if (!connectionId) {
-      res.status(400).send('Invalid request - missing required fields.');
-      return;
-    }
-  
-    const config = {
-      method: 'delete',
-      maxBodyLength: Infinity,
-      url: `https://${auth0Domain}/api/v2/grants/${connectionId}`,
-      headers: {
-        'Authorization': `Bearer ${await getAccessToken()}`
-      }
-    };
-    
-    await axios.request(config)
-    res.status(200).send();
-  } catch (error) {
-    console.log(error);
-
-    const {
-      status = 500,
-      message = '',
-    } = error.response;
-
-    return res.status(status).send(message);
-  };
-});
