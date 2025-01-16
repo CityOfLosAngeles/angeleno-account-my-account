@@ -6,7 +6,6 @@ import 'package:angeleno_project/views/screens/password_screen.dart';
 import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
@@ -19,8 +18,8 @@ import 'mocks/auth0_user_api_mock.dart';
 void main() {
 
   late MockAuth0UserApi mockUserApi;
-  // Commenting out with L81, L82, L124 as it conflicts with Datadog
-  // final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  // Commenting out with L125 as it conflicts with Datadog
+  // TestWidgetsFlutterBinding.ensureInitialized();
   // binding.testTextInput.register();
 
   setUp(() {
@@ -78,8 +77,8 @@ void main() {
 
     await tester.enterText(find.byType(TextFormField).at(0), 'New First Name');
     await tester.enterText(find.byType(TextFormField).at(1), 'New Last Name');
-    // final inputTextFieldFinder = find.byKey(const Key('phoneField'));
-    // await tester.enterText(inputTextFieldFinder, '');    await tester.enterText(inputTextFieldFinder, '2134325435');
+    final inputTextFieldFinder = find.byKey(const Key('phoneField'));
+    await tester.enterText(inputTextFieldFinder, '');    await tester.enterText(inputTextFieldFinder, '2134325435');
     await tester.enterText(find.byType(TextFormField).at(3), 'New Address');
     await tester.enterText(find.byType(TextFormField).at(4), 'New Address 2');
     await tester.enterText(find.byType(TextFormField).at(5), 'New City');
