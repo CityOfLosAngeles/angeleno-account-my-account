@@ -332,6 +332,11 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.enterText(find.byKey(const Key('passwordField')), 'myPassword');
+    // await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    // await tester.pumpAndSettle();
+    // expect(find.text('An error occurred'), findsOneWidget);
+
+    await tester.enterText(find.byKey(const Key('passwordField')), 'myPassword');
     await tester.pump();
     await tester.tap(find.widgetWithText(TextButton, 'Continue'));
     await tester.pumpAndSettle();
@@ -344,5 +349,46 @@ void main() {
     expect(find.byType(SnackBar), findsOneWidget);
     expect(find.byKey(const Key('disableVoice')), findsOneWidget);
 
+  });
+
+  testWidgets('Advanced Security - Voice - Wrong password', (final WidgetTester tester) async {
+
+    final enrollMFAResponse = <String, dynamic> {
+      'status': 400,
+      'body': 'An error occurred'
+    };
+
+    when(mockUserApi.enrollMFA(any))
+        .thenAnswer((_) async => enrollMFAResponse);
+
+    await tester.pumpWidget(
+      MaterialApp(
+          home: Scaffold(
+            body: AdvancedSecurityScreen(
+                userProvider: userProvider,
+                auth0UserApi: mockUserApi
+            ),
+          )
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('enableVoice')), findsOneWidget);
+    await tester.tap(find.byKey( const Key('enableVoice')));
+    await tester.pumpAndSettle();
+
+    final inputTextFieldFinder = find.byKey(const Key('phoneField'));
+    await tester.enterText(inputTextFieldFinder, '2134325435');
+    await tester.pump();
+    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.pump();
+
+    await tester.enterText(find.byKey(const Key('passwordField')), 'wrongPassword');
+    await tester.pump();
+    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    // await tester.pumpAndSettle();
+    await tester.pump();
+    expect(find.text('An error occurred'), findsOneWidget);
   });
 }
