@@ -50,7 +50,7 @@ jobs:
 
   security-scan:
     # OSV-Scanner 
-    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml"
+    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@1.9.2"
     with:
       scan-args: |-
         --lockfile=pubspec.lock
