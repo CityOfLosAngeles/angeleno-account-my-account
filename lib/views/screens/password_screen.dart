@@ -146,24 +146,19 @@ class _PasswordScreenState extends State<PasswordScreen> {
             // border: const OutlineInputBorder(),
             // labelText: 'Current Password',
             label: const Text('Current Password'),
-            suffixIcon: TextButton.icon(onPressed: () {
-              setState(() {
-                isPasswordVisible = !isPasswordVisible;
-              });
-            }, label: Text(isPasswordVisible ? 'Hide' : 'Show'),
-              icon: Icon(isPasswordVisible ? Icons.visibility_off : Icons.visibility))
-            // suffixIcon: IconButton(
-            //   key: const Key('toggle_old_password'),
-            //   tooltip: '${isPasswordVisible ? 'Hide' : 'Show'} password',
-            //   onPressed: () {
-            //     setState(() {
-            //       isPasswordVisible = !isPasswordVisible;
-            //     });
-            //   },
-            //   icon: Icon(
-            //     isPasswordVisible ? Icons.visibility_off : Icons.visibility
-            //   )
-            // )
+            icon: Icon(isPasswordVisible ? Icons.visibility_off : Icons.visibility),
+            suffixIcon: IconButton(
+              key: const Key('toggle_old_password'),
+              tooltip: '${isPasswordVisible ? 'Hide' : 'Show'} password',
+              onPressed: () {
+                setState(() {
+                  isPasswordVisible = !isPasswordVisible;
+                });
+              },
+              icon: Icon(
+                isPasswordVisible ? Icons.visibility_off : Icons.visibility
+              )
+            )
           ),
           onChanged: (final value) {
             setState(() {
