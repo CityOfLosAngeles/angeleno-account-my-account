@@ -49,8 +49,6 @@ class _PasswordScreenState extends State<PasswordScreen> {
     auth0UserApi = widget.auth0UserApi;
   }
 
-
-
   void submitRequest() {
     if (newPassword == passwordMatch) {
 
@@ -100,7 +98,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
     overlayProvider = context.watch<OverlayProvider>();
     userProvider = context.watch<UserProvider>();
 
-    RumViewInfo? infoExtractor(Route<dynamic> route) => RumViewInfo(
+    RumViewInfo? infoExtractor(final Route<dynamic> route) => RumViewInfo(
         name: 'Password View',
         attributes: {'extra_attribute': 'attribute_value'},
       );

@@ -44,7 +44,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     auth0UserApi = widget.auth0UserApi;
   }
 
-  @override
   RumViewInfo get rumViewInfo => RumViewInfo(name: 'Profile Screen');
 
   void updateUser() {

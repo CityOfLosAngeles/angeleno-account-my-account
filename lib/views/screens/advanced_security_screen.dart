@@ -56,7 +56,6 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
     });
   }
 
-  @override
   RumViewInfo get rumViewInfo => RumViewInfo(name: 'Security Screen');
 
   Future<void> getAuthenticationMethods() async {
