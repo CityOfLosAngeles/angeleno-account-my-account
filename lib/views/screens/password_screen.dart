@@ -35,7 +35,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
 
   bool isPasswordVisible = false;
   bool isNewPasswordVisible = false;
-  bool IsPasswordMatchVisible = false;
+  bool isPasswordMatchVisible = false;
 
   late bool _isButtonDisabled = true;
 
@@ -220,7 +220,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
         ),
         const SizedBox(height: 10.0),
         TextFormField(
-          obscureText: !IsPasswordMatchVisible,
+          obscureText: !isPasswordMatchVisible,
           autocorrect: false,
           key: const Key('match_password'),
           enableSuggestions: false,
@@ -240,14 +240,14 @@ class _PasswordScreenState extends State<PasswordScreen> {
             label: const Text('Confirm New Password'),
             suffixIcon: IconButton(
               key: const Key('toggle_match_password'),
-              tooltip: '${IsPasswordMatchVisible ? 'Hide' : 'Show'} new password confirmation',
+              tooltip: '${isPasswordMatchVisible ? 'Hide' : 'Show'} new password confirmation',
               onPressed: () {
                 setState(() {
-                  IsPasswordMatchVisible = !IsPasswordMatchVisible;
+                  isPasswordMatchVisible = !isPasswordMatchVisible;
                 });
               },
               icon: Icon(
-                IsPasswordMatchVisible ? Icons.visibility_off : Icons.visibility
+                isPasswordMatchVisible ? Icons.visibility_off : Icons.visibility
               )
             ),
 
