@@ -134,8 +134,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
             return null;
           },
           decoration: InputDecoration(
-            // border: const OutlineInputBorder(),
-            // labelText: 'Current Password',
+            border: const OutlineInputBorder(),
             label: const Text('Current Password'),
             icon: Icon(isPasswordVisible ? Icons.visibility_off : Icons.visibility),
             suffixIcon: IconButton(
@@ -179,7 +178,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
           },
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
-            labelText: 'New Password',
+            label: const Text('New Password'),
             suffixIcon: IconButton(
               key: const Key('toggle_new_password'),
               tooltip: '${isNewPasswordVisible ? 'Hide' : 'Show'} new password',
@@ -236,7 +235,6 @@ class _PasswordScreenState extends State<PasswordScreen> {
           },
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
-            // labelText: 'Confirm New Password',
             label: const Text('Confirm New Password'),
             suffixIcon: IconButton(
               key: const Key('toggle_match_password'),
