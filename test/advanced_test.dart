@@ -330,12 +330,6 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(TextButton, 'Continue'));
     await tester.pumpAndSettle();
-
-    await tester.enterText(find.byKey(const Key('passwordField')), 'myPassword');
-    // await tester.tap(find.widgetWithText(TextButton, 'Continue'));
-    // await tester.pumpAndSettle();
-    // expect(find.text('An error occurred'), findsOneWidget);
-
     await tester.enterText(find.byKey(const Key('passwordField')), 'myPassword');
     await tester.pump();
     await tester.tap(find.widgetWithText(TextButton, 'Continue'));

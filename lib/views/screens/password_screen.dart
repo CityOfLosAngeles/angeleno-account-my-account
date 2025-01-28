@@ -136,7 +136,6 @@ class _PasswordScreenState extends State<PasswordScreen> {
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
             label: const Text('Current Password'),
-            icon: Icon(isPasswordVisible ? Icons.visibility_off : Icons.visibility),
             suffixIcon: IconButton(
               key: const Key('toggle_old_password'),
               tooltip: '${isPasswordVisible ? 'Hide' : 'Show'} password',

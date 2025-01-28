@@ -62,5 +62,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Privacy Policy'), findsOneWidget);
+
+    await tester.tap(find.text('Disclaimer'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Disclaimer'), findsOneWidget);
   });
 }
