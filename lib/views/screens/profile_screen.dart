@@ -43,8 +43,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     auth0UserApi = widget.auth0UserApi;
   }
 
-  RumViewInfo get rumViewInfo => RumViewInfo(name: 'Profile Screen');
-
   void updateUser() {
     // Only submit patch if data has been updated
     if (!(user == userProvider.cleanUser)) {

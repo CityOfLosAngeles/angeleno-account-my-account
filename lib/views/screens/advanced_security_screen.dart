@@ -56,8 +56,6 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
     });
   }
 
-  RumViewInfo get rumViewInfo => RumViewInfo(name: 'Security Screen');
-
   Future<void> getAuthenticationMethods() async {
     _connectedServices = [];
     await auth0UserApi.getAuthenticationMethods(userProvider.user!.userId)

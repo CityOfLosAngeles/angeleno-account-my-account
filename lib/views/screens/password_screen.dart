@@ -98,14 +98,8 @@ class _PasswordScreenState extends State<PasswordScreen> {
     overlayProvider = context.watch<OverlayProvider>();
     userProvider = context.watch<UserProvider>();
 
-    RumViewInfo? infoExtractor(final Route<dynamic> route) => RumViewInfo(
-        name: 'Password View',
-        attributes: {'extra_attribute': 'attribute_value'},
-      );
-
     DatadogNavigationObserver(
-      datadogSdk: DatadogSdk.instance,
-      viewInfoExtractor: infoExtractor,
+      datadogSdk: DatadogSdk.instance
     );
 
     return ListView(
