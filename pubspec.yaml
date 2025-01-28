@@ -40,6 +40,9 @@ dependencies:
   qr_flutter: ^4.1.0
   intl_phone_number_input: ^0.7.3+1
   url_strategy: ^0.2.0
+  flutter_typeahead: ^5.0.1 #Used for Autofill/Maps
+  uuid: ^4.2.2 #Used for Autofill/Maps
+  #flutter_keyboard_visibility: ^6.0.0
 
 dev_dependencies:
   flutter_test:
@@ -56,6 +59,7 @@ dev_dependencies:
   mockito: ^5.4.4
   build_runner: ^2.4.9
   analyzer: ^5.13.0
+  test: ^1.25.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

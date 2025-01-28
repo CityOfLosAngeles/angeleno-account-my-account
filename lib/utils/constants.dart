@@ -4,11 +4,23 @@ import 'package:flutter/material.dart';
 const auth0ClientId = String.fromEnvironment('CLIENT_ID');
 const auth0Domain = String.fromEnvironment('AUTH0_DOMAIN');
 const redirectUri = String.fromEnvironment('REDIRECT_URI');
-const cloudFunctionURL =
-    String.fromEnvironment('CLOUD_FUNCTIONS_URL');
+const cloudFunctionURL = String.fromEnvironment('CLOUD_FUNCTIONS_URL');
 const serviceAccountSecret = String.fromEnvironment('SA_SECRET_KEY');
 const serviceAccountEmail = String.fromEnvironment('SA_EMAIL');
 const environment = String.fromEnvironment('ENVIRONMENT');
+
+const placesAPI = String.fromEnvironment('PLACES_API_KEY');
+
+const placesAPIFirebaseURL =
+    String.fromEnvironment('MAPS_API_FIREBASE_PLACE_DETAILS_BASE_URL');
+const fetchSuggestionsAPIFirebaseURL =
+    String.fromEnvironment('MAPS_API_FIREBASE_AUTOFILL_SUGGESTIONS_BASE_URL');
+const updatePasswordAPIFirebaseURL =
+    String.fromEnvironment('AUTH0_FIREBASE_UPDATE_USER_PASSWORD_BASE_URL');
+const updateUserAPIFirebaseURL =
+    String.fromEnvironment('AUTH0_FIREBASE_UPDATE_USER_BASE_URL');
+
+const bool isTestingLocally = true;
 
 /* Regex */
 final RegExp nameRegEx = RegExp(r"^[a-zA-ZÀ-ÿ\s'\-\d]*$");
@@ -17,10 +29,7 @@ final RegExp nameRegEx = RegExp(r"^[a-zA-ZÀ-ÿ\s'\-\d]*$");
 const double smallScreen = 575;
 
 /* Text Styles */
-const headerStyle = TextStyle(
-    fontSize: 20,
-    fontWeight: FontWeight.bold
-);
+const headerStyle = TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
 
 /* Colors */
 const disabledColor = Colors.black54;

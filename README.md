@@ -13,7 +13,7 @@ This repository is a Flutter based web-app that interfaces with Auth0 to handle 
 The development branch is our main branch you can use to work on your own work/issues. To start development you'll `git clone` this repo; after cloning you'll by default be on the development branch. When opening the pull request for your work, make sure the branch is being merged into `development` branch as well.
 
 ### Minimum Requirements
-- [Flutter](https://docs.flutter.dev/get-started/install) >= 3.16.0
+- [Flutter](https://docs.flutter.dev/get-started/install) >= 3.22.0
 - [Node](https://nodejs.org/en/download)
 - [Firebase Local Emulator Suite](https://firebase.google.com/docs/emulator-suite)
 - [Google Cloud Account](https://cloud.google.com/)
@@ -34,12 +34,19 @@ The development branch is our main branch you can use to work on your own work/i
 
 
 ## Development
+Always get the latest while development
+ - git fetch development; git pull development
+ - checkout your local development branch
+ - git merge development
+
+
 
 ### Flutter Environment
 After downloading the [Flutter SDK](https://docs.flutter.dev/get-started/install), you'll be able to run
 `flutter doctor` which will give you details on anything you need to develop the application. As this app is only web-based for now you can safely ignore warnings around developing for Windows, Android, iOS, etc.
 
 Making updates to `.dart` files will require you to run `flutter build web` so that the web app can recompile.
+
 
 After building, you can use `flutter run -d chrome` to run on Chrome. You can add additional devices (browsers) for cross-browser testing.
 
@@ -59,4 +66,30 @@ In Auth0, you'll want to create a Single Page Application to get the appropriate
 If you're using a cloud function without authorization, you will not need the Service Account variables, but the code will have to be modified.
 
 
-The cloud functions being used can be found in the `functions` directory. To run them locally, you can find instructions [here](https://firebase.google.com/docs/functions/local-emulator). Once you have the functions running locally, you'll have to update the code in the locations (e.g. [here](/lib/controllers/api_implementation.dart#L88)) where the request is sent so that it points to your emulator.
+The cloud functions being used can be found in the `functions` directory. To run them locally, you can find instructions [here](https://firebase.google.com/docs/functions/local-emulator). Once you have the functions running locally, you'll have to update the code in the locations (e.g. [here](/lib/controllers/api_implementation.dart#L88)) where the request is sent so that it points to your emulator. You will need to run the "Needed for firebase functions" steps below to get this up and running
+
+#### Commands
+##### Needed for running project:
+- flutter run -d chrome --web-port=#### --dart-define-from-file=.env
+- firebase emulators:start --only functions
+
+##### Needed for firebase functions
+After downloading the project, you can run the following
+- run npm i (From  `functions/maps`)
+- run npm i (From  `functions/auth0`)
+
+##### Needed for syntax:
+- dart analyze
+
+##### Needed for running Unit Tests:
+- flutter test test/<filename.dart>
+
+
+### Potential Issues
+- Invalid project id: DEFAULT_PROJECT.
+  - Change the "projects->default" to the actual Google Project in the .firebaserc file located in the root
+
+
+- To get this code working you might need to run 
+  - flutter pub upgrade web
+

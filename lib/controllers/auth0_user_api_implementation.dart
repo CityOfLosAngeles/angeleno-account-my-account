@@ -9,64 +9,56 @@ import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:http/http.dart' as http;
 import 'package:angeleno_project/controllers/auth0_user_api.dart';
 import 'package:angeleno_project/models/user.dart';
+import 'package:http/http.dart';
 
 class Auth0UserApi extends Api {
-
   var authToken = '';
 
   String createJwt() {
     final jwt = JWT(
-      {
-        'exp': DateTime.now()
-            .add(const Duration(hours: 1))
-            .millisecondsSinceEpoch ~/ 1000,
-        'iat': DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        'aud': 'https://www.googleapis.com/oauth2/v4/token',
-        'target_audience': cloudFunctionURL
-      },
-      issuer: serviceAccountEmail,
-      subject: serviceAccountEmail,
-      header: {
-        'alg':'RS256',
-        'typ':'JWT'
-      }
-    );
+        {
+          'exp': DateTime.now()
+                  .add(const Duration(hours: 1))
+                  .millisecondsSinceEpoch ~/
+              1000,
+          'iat': DateTime.now().millisecondsSinceEpoch ~/ 1000,
+          'aud': 'https://www.googleapis.com/oauth2/v4/token',
+          'target_audience': cloudFunctionURL
+        },
+        issuer: serviceAccountEmail,
+        subject: serviceAccountEmail,
+        header: {'alg': 'RS256', 'typ': 'JWT'});
 
-    final privKey = serviceAccountSecret
-        .replaceAll(r'\n', '\n');
+    final privKey = serviceAccountSecret.replaceAll(r'\n', '\n');
 
     final rsaPrivKey = RSAPrivateKey(privKey);
 
     return jwt.sign(rsaPrivKey, algorithm: JWTAlgorithm.RS256);
-
   }
 
   Future<String> getOAuthToken() async {
-
     if (authToken.isNotEmpty) {
       final decodedToken = JWT.decode(authToken);
       final tokenExpiration = decodedToken.payload['exp'] as int;
-      if (DateTime
-          .now()
-          .millisecondsSinceEpoch ~/ 1000 < tokenExpiration) {
+      if (DateTime.now().millisecondsSinceEpoch ~/ 1000 < tokenExpiration) {
         return authToken;
       }
     }
 
     try {
       final jwt = createJwt();
+      final response = await http
+          .post(Uri.parse('https://www.googleapis.com/oauth2/v4/token'),
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': 'Bearer $jwt'
+              },
+              // ignore: lines_longer_than_80_chars
+              body:
+                  'grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=$jwt')
+          .timeout(const Duration(seconds: 5));
 
-      final response = await http.post(
-          Uri.parse('https://www.googleapis.com/oauth2/v4/token'),
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': 'Bearer $jwt'
-          },
-          // ignore: lines_longer_than_80_chars
-          body: 'grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=$jwt'
-      ).timeout(const Duration(seconds: 5));
-
-      if (response.statusCode == HttpStatus.ok) {
+      if (response!.statusCode == HttpStatus.ok) {
         final jsonRes = jsonDecode(response.body);
         authToken = jsonRes['id_token'] as String;
         return authToken;
@@ -96,13 +88,24 @@ class Auth0UserApi extends Api {
 
       final body = json.encode(user);
 
-      final response = await http.post(
-          Uri.parse('/auth0/updateUser'),
-          headers: headers,
-          body: body
-      ).timeout(const Duration(seconds: 5));
+      Response? response;
+      try {
+        if (isTestingLocally) {
+          response = await http
+              .post(Uri.parse(updateUserAPIFirebaseURL),
+                  headers: headers, body: body)
+              .timeout(const Duration(seconds: 5));
+        } else {
+          response = await http
+              .post(Uri.parse('/auth0/updateUser'),
+                  headers: headers, body: body)
+              .timeout(const Duration(seconds: 5));
+        }
+      } catch (e) {
+        print('the issue we got ${e.toString()} ');
+      }
 
-      if (response.statusCode == HttpStatus.ok) {
+      if (response!.statusCode == HttpStatus.ok) {
         print(response.body);
       } else {
         print(response);
@@ -110,7 +113,7 @@ class Auth0UserApi extends Api {
 
       statusCode = response.statusCode;
     } catch (err) {
-      print (err);
+      print(err);
       // generic server error
       statusCode = HttpStatus.internalServerError;
     }
@@ -132,18 +135,17 @@ class Auth0UserApi extends Api {
     final reqBody = json.encode(body);
 
     try {
-      final request = await http.post(
-          Uri.parse('/auth0/updatePassword'),
-          headers: headers,
-          body: reqBody
-      ).timeout(const Duration(seconds: 5));
+      final request = await http
+          .post(Uri.parse('/auth0/updatePassword'),
+              headers: headers, body: reqBody)
+          .timeout(const Duration(seconds: 5));
 
       response = {
         'status': request.statusCode,
         'body': request.body.isNotEmpty ? request.body : 'Error Encountered'
       };
     } catch (err) {
-      print (err);
+      print(err);
       // generic server error
       response = {
         'status': HttpStatus.internalServerError,
@@ -156,7 +158,6 @@ class Auth0UserApi extends Api {
 
   @override
   Future<ApiResponse> getAuthenticationMethods(final String userId) async {
-
     final token = await getOAuthToken();
 
     final headers = {
@@ -165,18 +166,16 @@ class Auth0UserApi extends Api {
     };
 
     try {
-      final request = await http.get(
-          Uri.parse('/auth0/authMethods/$userId'),
-          headers: headers
-      ).timeout(const Duration(seconds: 5));
+      final request = await http
+          .get(Uri.parse('/auth0/authMethods/$userId'), headers: headers)
+          .timeout(const Duration(seconds: 5));
 
       if (request.statusCode == HttpStatus.ok) {
         return ApiResponse(request.statusCode, request.body);
       } else {
         throw ApiException(request.statusCode, request.body);
       }
-
-    } on ApiException catch(e) {
+    } on ApiException catch (e) {
       return ApiResponse(e.statusCode, e.error);
     } catch (err) {
       return ApiResponse(HttpStatus.internalServerError, 'Error Encountered');
@@ -184,8 +183,7 @@ class Auth0UserApi extends Api {
   }
 
   @override
-  Future<Map<String, dynamic>>
-    enrollMFA(final Map<String, String> body) async {
+  Future<Map<String, dynamic>> enrollMFA(final Map<String, String> body) async {
     late Map<String, dynamic> response;
 
     final token = await getOAuthToken();
@@ -198,11 +196,9 @@ class Auth0UserApi extends Api {
     final reqBody = json.encode(body);
 
     try {
-      final request = await http.post(
-          Uri.parse('/auth0/enrollMFA'),
-          headers: headers,
-          body: reqBody
-      ).timeout(const Duration(seconds: 5));
+      final request = await http
+          .post(Uri.parse('/auth0/enrollMFA'), headers: headers, body: reqBody)
+          .timeout(const Duration(seconds: 5));
 
       final jsonBody = jsonDecode(request.body);
       final barcode = jsonBody['barcode_uri'] ?? '';
@@ -222,12 +218,8 @@ class Auth0UserApi extends Api {
       } else {
         throw ApiException(request.statusCode, request.body);
       }
-
-    } on ApiException catch(e) {
-      response = {
-        'status': e.statusCode,
-        'body': e.error
-      };
+    } on ApiException catch (e) {
+      response = {'status': e.statusCode, 'body': e.error};
     } catch (err) {
       response = {
         'status': HttpStatus.internalServerError,
@@ -240,7 +232,6 @@ class Auth0UserApi extends Api {
 
   @override
   Future<ApiResponse> confirmMFA(final Map<String, String> body) async {
-
     final token = await getOAuthToken();
 
     final headers = {
@@ -251,19 +242,16 @@ class Auth0UserApi extends Api {
     final reqBody = json.encode(body);
 
     try {
-      final request = await http.post(
-          Uri.parse('/auth0/confirmMFA'),
-          headers: headers,
-          body: reqBody
-      ).timeout(const Duration(seconds: 5));
+      final request = await http
+          .post(Uri.parse('/auth0/confirmMFA'), headers: headers, body: reqBody)
+          .timeout(const Duration(seconds: 5));
 
       if (request.statusCode == HttpStatus.ok) {
         return ApiResponse(request.statusCode, '');
       } else {
         throw ApiException(request.statusCode, request.body);
       }
-
-    }  on ApiException catch(e) {
+    } on ApiException catch (e) {
       return ApiResponse(e.statusCode, e.error);
     } catch (err) {
       return ApiResponse(HttpStatus.internalServerError, 'Error Encountered.');
@@ -272,7 +260,6 @@ class Auth0UserApi extends Api {
 
   @override
   Future<ApiResponse> unenrollMFA(final Map<String, String> body) async {
-
     final token = await getOAuthToken();
 
     final headers = {
@@ -283,19 +270,17 @@ class Auth0UserApi extends Api {
     final reqBody = json.encode(body);
 
     try {
-      final request = await http.post(
-          Uri.parse('/auth0/unenrollMFA'),
-          headers: headers,
-          body: reqBody
-      ).timeout(const Duration(seconds: 5));
+      final request = await http
+          .post(Uri.parse('/auth0/unenrollMFA'),
+              headers: headers, body: reqBody)
+          .timeout(const Duration(seconds: 5));
 
       if (request.statusCode == HttpStatus.ok) {
         return ApiResponse(request.statusCode, '');
       } else {
         throw ApiException(request.statusCode, request.body);
       }
-
-    }  on ApiException catch(e) {
+    } on ApiException catch (e) {
       return ApiResponse(e.statusCode, e.error);
     } catch (err) {
       return ApiResponse(HttpStatus.internalServerError, 'Error Encountered');
@@ -304,7 +289,6 @@ class Auth0UserApi extends Api {
 
   @override
   Future<ApiResponse> removeConnection(final String connectionId) async {
-
     final token = await getOAuthToken();
 
     final headers = {
@@ -312,24 +296,20 @@ class Auth0UserApi extends Api {
       'Authorization': 'Bearer $token'
     };
 
-    final reqBody = json.encode({
-      'connectionId': connectionId
-    });
+    final reqBody = json.encode({'connectionId': connectionId});
 
     try {
-      final request = await http.post(
-          Uri.parse('/auth0/removeConnection'),
-          headers: headers,
-          body: reqBody
-      ).timeout(const Duration(seconds: 5));
+      final request = await http
+          .post(Uri.parse('/auth0/removeConnection'),
+              headers: headers, body: reqBody)
+          .timeout(const Duration(seconds: 5));
 
       if (request.statusCode == HttpStatus.ok) {
         return ApiResponse(request.statusCode, '');
       } else {
         throw ApiException(request.statusCode, request.body);
       }
-
-    }  on ApiException catch(e) {
+    } on ApiException catch (e) {
       return ApiResponse(e.statusCode, e.error);
     } catch (err) {
       return ApiResponse(HttpStatus.internalServerError, 'Error Encountered');
