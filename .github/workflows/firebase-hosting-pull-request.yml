@@ -36,6 +36,8 @@ jobs:
               echo SA_EMAIL=${{ secrets.SA_EMAIL }} >> .env
               echo SA_SECRET_KEY="${{ secrets.SA_SECRET_KEY }}" >> .env
               echo ENVIRONMENT="${{ secrets.ENVIRONMENT }}" >> .env
+              echo DATADOG_CLIENT_TOKEN="${{ secrets.DATADOG_CLIENT_TOKEN }}" >> .env
+              echo DATADOG_APP_ID="${{ secrets.DATADOG_APP_ID }}" >> .env
       - run: flutter build web --dart-define-from-file=.env
       - name: Update .firebaserc
         run: |

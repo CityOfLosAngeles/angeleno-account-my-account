@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:angeleno_project/models/password_reset.dart';
 import 'package:angeleno_project/utils/constants.dart';
+import 'package:datadog_flutter_plugin/datadog_flutter_plugin.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -32,9 +33,9 @@ class _PasswordScreenState extends State<PasswordScreen> {
   String newPassword = '';
   String passwordMatch = '';
 
-  bool viewPassword = false;
-  bool viewNewPassword = false;
-  bool viewPasswordMatch = false;
+  bool isPasswordVisible = false;
+  bool isNewPasswordVisible = false;
+  bool isPasswordMatchVisible = false;
 
   late bool _isButtonDisabled = true;
 
@@ -97,6 +98,10 @@ class _PasswordScreenState extends State<PasswordScreen> {
     overlayProvider = context.watch<OverlayProvider>();
     userProvider = context.watch<UserProvider>();
 
+    DatadogNavigationObserver(
+      datadogSdk: DatadogSdk.instance
+    );
+
     return ListView(
       children: [
         Padding(
@@ -111,7 +116,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
             )
         ),
         TextFormField(
-          obscureText: !viewPassword,
+          obscureText: !isPasswordVisible,
           autocorrect: false,
           key: const Key('old_password'),
           enableSuggestions: false,
@@ -124,16 +129,17 @@ class _PasswordScreenState extends State<PasswordScreen> {
           },
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
-            labelText: 'Current Password',
+            label: const Text('Current Password'),
             suffixIcon: IconButton(
               key: const Key('toggle_old_password'),
+              tooltip: '${isPasswordVisible ? 'Hide' : 'Show'} password',
               onPressed: () {
                 setState(() {
-                  viewPassword = !viewPassword;
+                  isPasswordVisible = !isPasswordVisible;
                 });
               },
               icon: Icon(
-                viewPassword ? Icons.visibility_off : Icons.visibility
+                isPasswordVisible ? Icons.visibility_off : Icons.visibility
               )
             )
           ),
@@ -146,7 +152,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
         ),
         const SizedBox(height: 10.0),
         TextFormField(
-          obscureText: !viewNewPassword,
+          obscureText: !isNewPasswordVisible,
           autocorrect: false,
           key: const Key('new_password'),
           enableSuggestions: false,
@@ -165,16 +171,17 @@ class _PasswordScreenState extends State<PasswordScreen> {
           },
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
-            labelText: 'New Password',
+            label: const Text('New Password'),
             suffixIcon: IconButton(
               key: const Key('toggle_new_password'),
+              tooltip: '${isNewPasswordVisible ? 'Hide' : 'Show'} new password',
               onPressed: () {
                 setState(() {
-                  viewNewPassword = !viewNewPassword;
+                  isNewPasswordVisible = !isNewPasswordVisible;
                 });
               },
               icon: Icon(
-                viewNewPassword ? Icons.visibility_off : Icons.visibility
+                isNewPasswordVisible ? Icons.visibility_off : Icons.visibility
               )
             )
           ),
@@ -205,7 +212,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
         ),
         const SizedBox(height: 10.0),
         TextFormField(
-          obscureText: !viewPasswordMatch,
+          obscureText: !isPasswordMatchVisible,
           autocorrect: false,
           key: const Key('match_password'),
           enableSuggestions: false,
@@ -221,18 +228,20 @@ class _PasswordScreenState extends State<PasswordScreen> {
           },
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
-            labelText: 'Confirm New Password',
+            label: const Text('Confirm New Password'),
             suffixIcon: IconButton(
               key: const Key('toggle_match_password'),
+              tooltip: '${isPasswordMatchVisible ? 'Hide' : 'Show'} new password confirmation',
               onPressed: () {
                 setState(() {
-                  viewPasswordMatch = !viewPasswordMatch;
+                  isPasswordMatchVisible = !isPasswordMatchVisible;
                 });
               },
               icon: Icon(
-                viewPasswordMatch ? Icons.visibility_off : Icons.visibility
+                isPasswordMatchVisible ? Icons.visibility_off : Icons.visibility
               )
-            )
+            ),
+
           ),
           onChanged: (final value) {
             setState(() {

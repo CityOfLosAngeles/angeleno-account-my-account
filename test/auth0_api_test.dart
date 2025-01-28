@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:angeleno_project/models/user.dart';
+import 'package:datadog_flutter_plugin/datadog_flutter_plugin.dart';
+import 'package:datadog_tracking_http_client/datadog_tracking_http_client.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mockito/mockito.dart';
@@ -41,6 +43,52 @@ void main() {
     final statusCode = await mockUserApi.updateUser(user);
 
     expect(statusCode, equals(HttpStatus.ok));
+  });
+
+  test('Datadog configuration is initialized correctly', () {
+    final datadogConfig = DatadogConfiguration(
+      clientToken: 'test_token',
+      env: 'test_env',
+      site: DatadogSite.us5,
+      nativeCrashReportEnabled: true,
+      loggingConfiguration: DatadogLoggingConfiguration(),
+      rumConfiguration: DatadogRumConfiguration(
+        applicationId: 'test_app_id',
+        reportFlutterPerformance: true,
+      ),
+    )..enableHttpTracking();
+
+    expect(datadogConfig.clientToken, 'test_token');
+    expect(datadogConfig.env, 'test_env');
+    expect(datadogConfig.site, DatadogSite.us5);
+    expect(datadogConfig.nativeCrashReportEnabled, true);
+    expect(datadogConfig.loggingConfiguration, isNotNull);
+    expect(datadogConfig.rumConfiguration, isNotNull);
+  });
+
+  // test('Logger is created successfully', () {
+  //   final logConfiguration = DatadogLoggerConfiguration();
+  //   final logger = DatadogSdk.instance.logs?.createLogger(logConfiguration);
+  //
+  //   expect(logger, isNotNull);
+  // });
+
+  test('Datadog configuration handles null values', () {
+    final datadogConfig = DatadogConfiguration(
+      clientToken: '',
+      env: '',
+      site: DatadogSite.us5,
+      nativeCrashReportEnabled: false,
+      loggingConfiguration: null,
+      rumConfiguration: null,
+    )..enableHttpTracking();
+
+    expect(datadogConfig.clientToken, '');
+    expect(datadogConfig.env, '');
+    expect(datadogConfig.site, DatadogSite.us5);
+    expect(datadogConfig.nativeCrashReportEnabled, false);
+    expect(datadogConfig.loggingConfiguration, isNull);
+    expect(datadogConfig.rumConfiguration, isNull);
   });
 
 }
