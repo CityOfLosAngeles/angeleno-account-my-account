@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:angeleno_project/controllers/auth0_user_api_implementation.dart';
 import 'package:angeleno_project/utils/constants.dart';
 import 'package:angeleno_project/views/dialogs/mobile.dart';
-import 'package:datadog_flutter_plugin/datadog_flutter_plugin.dart';
 import 'package:flutter/material.dart';
 
 
