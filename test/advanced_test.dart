@@ -44,8 +44,8 @@ void main() {
   );
   userProvider.setUser(auth0User);
 
-  testWidgets('Advanced Security', (final WidgetTester tester) async {
-    final authenticationMethodsMockResponse = ApiResponse(200, 
+  testWidgets('Advanced Security - TOTP and SMS', (final WidgetTester tester) async {
+    final authenticationMethodsMockResponse = ApiResponse(200,
     '{"mfaMethods": [{"type": "totp", "id": "123"}, {"type": "phone", "id": "456", "preferred_authentication_method": "sms"}]}');
     final disableAuthenticatorMockResponse = ApiResponse(200, '');
     final confirmAuthenticatorMockResponse = ApiResponse(200, '');
@@ -53,8 +53,8 @@ void main() {
      final totpEnrollmentMockResponse = {
       'status': 200,
       'token': 'eyJhbG',
-      'authenticator_type': 'otp', 
-      'secret': 'NQ4FGVKEMQWGIRZVJFSE2STEKN4UQKCD', 
+      'authenticator_type': 'otp',
+      'secret': 'NQ4FGVKEMQWGIRZVJFSE2STEKN4UQKCD',
       'barcode': 'otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example',
       'barcode_string': 'totpString',
       'oobCode': 'dasddasdasd'
@@ -133,7 +133,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('toggle_password')));
     await tester.pump();
-    // ignore: lines_longer_than_80_chars
+
     final refreshAuthenticatorPasswordField = tester.firstWidget<TextField>(authenticatorPasswordFinder);
     expect(refreshAuthenticatorPasswordField.obscureText, false);
 
@@ -153,8 +153,7 @@ void main() {
     // Authenticator has been re-enabled so we should see the disable button
     expect(find.byKey(const Key('disableAuthenticator')), findsOneWidget);
 
-
-    // SMS Tests
+    // SMS Tests - Enabled
     expect(find.byKey(const Key('disableSMS')), findsOneWidget);
     await tester.tap(find.byKey( const Key('disableSMS')));
 
@@ -171,7 +170,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(SnackBar), findsOneWidget);
     await tester.pumpAndSettle();
-    
+
     expect(find.byKey(const Key('enableSMS')), findsOneWidget);
     await tester.tap(find.byKey( const Key('enableSMS')));
     await tester.pumpAndSettle();
@@ -203,7 +202,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('toggle_password')));
     await tester.pump();
-    // ignore: lines_longer_than_80_chars
+
     final refreshPhonePasswordField = tester.firstWidget<TextField>(phonePasswordFinder);
     expect(refreshPhonePasswordField.obscureText, false);
 
@@ -218,7 +217,7 @@ void main() {
     expect(find.byType(SnackBar), findsOneWidget);
     expect(find.byKey(const Key('disableSMS')), findsOneWidget);
 
-    // Voice Tests
+    // Voice Tests - Disabled state
     expect(find.byKey(const Key('enableVoice')), findsOneWidget);
     await tester.tap(find.byKey( const Key('enableVoice')));
 
@@ -248,14 +247,18 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(SnackBar), findsOneWidget);
-    expect(find.byKey(const Key('disableVoice')), findsOneWidget);
-
   });
 
   testWidgets('Advanced Security - Voice', (final WidgetTester tester) async {
     final authenticationMethodsMockResponse = ApiResponse(200,
         '{"mfaMethods": [{"type": "phone", "id": "456", "preferred_authentication_method": "voice"}],' +
             '"services": [{"clientId": "65165", "name": "Example", "scope": ["openid", "profile", "email"], "grantId": "123"}]}');
+
+    final enrollMFAResponse = <String, dynamic> {
+      'status': 200,
+      'oobCode': 'oobCode',
+      'token' : 'myToken'
+    };
 
     final disableAuthenticatorMockResponse = ApiResponse(200, '');
     final confirmAuthenticatorMockResponse = ApiResponse(200, '');
@@ -266,11 +269,91 @@ void main() {
     when(mockUserApi.unenrollMFA(any))
         .thenAnswer((_) async => disableAuthenticatorMockResponse);
 
+    when(mockUserApi.enrollMFA(any))
+        .thenAnswer((_) async => enrollMFAResponse);
+
     when(mockUserApi.confirmMFA(any))
         .thenAnswer((_) async => confirmAuthenticatorMockResponse);
 
     when(mockUserApi.removeConnection(any))
         .thenAnswer((_) => Future.value(ApiResponse(200, '')));
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: AdvancedSecurityScreen(
+            userProvider: userProvider,
+            auth0UserApi: mockUserApi
+          ),
+        )
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    verify(mockUserApi.getAuthenticationMethods(any)).called(1);
+
+    expect(find.byKey(const Key('enableAuthenticator')), findsOneWidget);
+    expect(find.byKey(const Key('enableSMS')), findsOneWidget);
+    expect(find.byKey(const Key('disableVoice')), findsOneWidget);
+
+    // Voice
+    await tester.tap(find.byKey( const Key('disableVoice')));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(Dialog), findsOneWidget);
+    await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
+    await tester.pumpAndSettle();
+    expect(find.byType(Dialog), findsNothing);
+
+    await tester.tap(find.byKey( const Key('disableVoice')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(TextButton, 'Ok'));
+    await tester.pumpAndSettle();
+    expect(find.byType(SnackBar), findsOneWidget);
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('enableVoice')), findsOneWidget);
+    await tester.tap(find.byKey( const Key('enableVoice')));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(MobileDialog), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.close));
+    await tester.pumpAndSettle();
+    expect(find.byType(MobileDialog), findsNothing);
+
+    await tester.tap(find.byKey( const Key('enableVoice')));
+    await tester.pumpAndSettle();
+
+    final inputTextFieldFinder = find.byKey(const Key('phoneField'));
+    await tester.enterText(inputTextFieldFinder, '2134325435');
+
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('passwordField')), 'myPassword');
+    await tester.pump();
+    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byKey(const Key('phoneCode')), '483234');
+    await tester.pump();
+    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(SnackBar), findsOneWidget);
+    expect(find.byKey(const Key('disableVoice')), findsOneWidget);
+
+  });
+
+  testWidgets('Advanced Security - Voice - Wrong password', (final WidgetTester tester) async {
+
+    final enrollMFAResponse = <String, dynamic> {
+      'status': 400,
+      'body': 'An error occurred'
+    };
+
+    when(mockUserApi.enrollMFA(any))
+        .thenAnswer((_) async => enrollMFAResponse);
 
     await tester.pumpWidget(
       MaterialApp(
@@ -284,30 +367,22 @@ void main() {
     );
 
     await tester.pumpAndSettle();
-    verify(mockUserApi.getAuthenticationMethods(any)).called(1);
 
-    expect(find.byKey(const Key('enableAuthenticator')), findsOneWidget);
-    expect(find.byKey(const Key('enableSMS')), findsOneWidget);
-    expect(find.byKey(const Key('disableVoice')), findsOneWidget);
+    expect(find.byKey(const Key('enableVoice')), findsOneWidget);
+    await tester.tap(find.byKey( const Key('enableVoice')));
+    await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(const Key('disconnect_123')));
-    await tester.pumpAndSettle();
-    
-    expect(find.byType(AlertDialog), findsOneWidget);
-    
-    await tester.tap(find.text('Cancel'));
-    await tester.pumpAndSettle();
-    
-    expect(find.byType(AlertDialog), findsNothing);
-    
-    await tester.tap(find.byKey(const Key('disconnect_123')));
-    await tester.pumpAndSettle();
-    
-    await tester.tap(find.text('Ok'));
-    await tester.pumpAndSettle();
-    
-    expect(find.byType(SnackBar), findsOneWidget);
-    expect(find.byKey(const Key('disconnect_123')), findsNothing);
+    final inputTextFieldFinder = find.byKey(const Key('phoneField'));
+    await tester.enterText(inputTextFieldFinder, '2134325435');
+    await tester.pump();
+    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.pump();
 
+    await tester.enterText(find.byKey(const Key('passwordField')), 'wrongPassword');
+    await tester.pump();
+    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    // await tester.pumpAndSettle();
+    await tester.pump();
+    expect(find.text('An error occurred'), findsOneWidget);
   });
 }

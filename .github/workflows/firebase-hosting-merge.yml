@@ -6,7 +6,9 @@ name: Deploy to Firebase Hosting on merge
 on:
   push:
     branches:
+      - development
       - sandbox
+      - production
 jobs:
   build_and_deploy:
     environment: sandbox
@@ -21,6 +23,7 @@ jobs:
           flutter-version: '3.22.2'
           channel: 'stable'
           cache: true
+      - run: echo "Gituhb REF name ${GITHUB_REF_NAME}"
       - run: flutter pub get
       - run: flutter config --enable-web
       - run: |
@@ -32,6 +35,8 @@ jobs:
             echo SA_EMAIL=${{ secrets.SA_EMAIL }} >> .env
             echo SA_SECRET_KEY="${{ secrets.SA_SECRET_KEY }}" >> .env
             echo ENVIRONMENT="${{ secrets.ENVIRONMENT }}" >> .env
+            echo DATADOG_CLIENT_TOKEN="${{ secrets.DATADOG_CLIENT_TOKEN }}" >> .env
+            echo DATADOG_APP_ID="${{ secrets.DATADOG_APP_ID }}" >> .env
       - run: flutter build web --dart-define-from-file=.env
       - name: Update .firebaserc
         run: |
@@ -45,6 +50,6 @@ jobs:
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MY_ACCOUNT_SANDBOX_422814 }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MY_ACCOUNT_SANDBOX_422814  }}
           channelId: live
           projectId: my-account-sandbox-422814

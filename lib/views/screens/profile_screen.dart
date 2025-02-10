@@ -98,12 +98,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            Semantics(
+              header: true,
+              child: const Text(
+                'Profile',
+                textAlign: TextAlign.left,
+                style: headerStyle
+              )
+            ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10),
               child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colorScheme.secondaryContainer
+                ),
                 onPressed: (editMode &&
                     ((user.phone!.isNotEmpty && !validPhoneNumber) ||
                         !isFormValid) && isNotTestMode

@@ -1,6 +1,7 @@
 export const {
   auth0ClientId,
   auth0ClientSecret,
+  auth0NonCustomDomain,
   auth0Domain
 } = process.env;
 
