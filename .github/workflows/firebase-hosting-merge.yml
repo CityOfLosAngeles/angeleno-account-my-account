@@ -11,7 +11,7 @@ on:
       - production
 jobs:
   build_and_deploy:
-    environment: ${{github.ref}}
+    environment: ${GITHUB_REF_NAME}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,6 +23,7 @@ jobs:
           flutter-version: '3.22.2'
           channel: 'stable'
           cache: true
+      - run: echo "Gituhb REF name ${GITHUB_REF_NAME}"
       - run: flutter pub get
       - run: flutter config --enable-web
       - run: |
