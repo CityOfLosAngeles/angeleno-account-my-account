@@ -7,9 +7,11 @@ on:
   push:
     branches:
       - development
+      - sandbox
+      - production
 jobs:
   build_and_deploy:
-    environment: development
+    environment: ${{git.ref}}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
