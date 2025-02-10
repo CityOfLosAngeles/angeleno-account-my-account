@@ -3,6 +3,7 @@ import axios from 'axios';
 
 import {
   auth0Domain,
+  auth0NonCustomDomain,
   auth0ClientId,
   auth0ClientSecret
 } from './constants.js';
@@ -28,7 +29,7 @@ export const getAccessToken = async () => {
     'grant_type': 'client_credentials',
     'client_id': auth0ClientId,
     'client_secret': auth0ClientSecret,
-    'audience': `https://${auth0Domain}/api/v2/`
+    'audience': `https://${auth0NonCustomDomain}/api/v2/`
   };
 
   try {
@@ -61,7 +62,7 @@ export const authorizeUser = async (email, password, audience = '/api/v2/') => {
         'password': password,
         'client_id': auth0ClientId,
         'client_secret': auth0ClientSecret,
-        'audience': `https://${auth0Domain}${audience}`,
+        'audience': `https://${auth0NonCustomDomain}${audience}`,
         'scope': audience === '/api/v2/' ? 'openid' : ''
       })
     };
