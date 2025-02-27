@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:angeleno_project/models/mfa_method.dart';
 import 'package:flutter/material.dart';
 
 import 'constants.dart';
@@ -12,6 +15,11 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
   bool inFlightRequest = false;
 
   late bool _isSmallScreen;
+  List<MfaMethod> authenticators = [];
+  late String mfaToken = '';
+  late String oobCode = '';
+  late String mfaCode = '';
+  bool requireAdditionalAuthentication = false;
 
   Widget get dialogClose => IconButton(
     alignment: Alignment.centerLeft,
@@ -25,15 +33,16 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
     onPressed: () {
       setState(() {
         pageIndex -= 1;
+        inFlightRequest = false;
       });
     },
     child: const Text('Back'),
   );
 
-  void navigateToNextPage() {
-    if (pageIndex <= 2) {
+  void navigateToNextPage({final int increment = 1}) {
+    if (pageIndex <= 4) {
       setState(() {
-        pageIndex += 1;
+        pageIndex += increment;
       });
     } else {
       Navigator.pop(context);
@@ -54,6 +63,8 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
     ],
   );
 
+  
+  
   @override
   Widget build(final BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
@@ -62,11 +73,14 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
     _isSmallScreen = isSmallScreen;
 
     return isSmallScreen
-        ? Dialog.fullscreen(child: dialogBody)
-        : AlertDialog(
-      content: dialogBody,
-      actionsAlignment: MainAxisAlignment.end,
-      actions: pageIndex == 0 ? [dialogNext[pageIndex]] : [dialogBack, dialogNext[pageIndex]],
-    );
+        ?
+        Dialog.fullscreen(child: dialogBody)
+        :
+        AlertDialog(
+          content: dialogBody,
+          actionsAlignment: MainAxisAlignment.end,
+          actions: pageIndex == 0 ? [dialogNext[pageIndex]] : [dialogBack, dialogNext[pageIndex]],
+
+        );
   }
 }

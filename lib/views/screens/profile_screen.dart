@@ -110,10 +110,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colorScheme.secondaryContainer
-                ),
+              child: FilledButton.tonal(
+                // style: ElevatedButton.styleFrom(
+                //   backgroundColor: Color(const Theme.of(context).colorScheme),
+                // ),
                 onPressed: (editMode &&
                     ((user.phone!.isNotEmpty && !validPhoneNumber) ||
                         !isFormValid) && isNotTestMode

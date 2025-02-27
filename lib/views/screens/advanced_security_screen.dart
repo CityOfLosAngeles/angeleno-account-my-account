@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 
 import '../../controllers/user_provider.dart';
 import '../../models/connected_applications_model.dart';
+import '../../models/mfa_method.dart';
 import '../dialogs/authenticator.dart';
 
 class AdvancedSecurityScreen extends StatefulWidget {
@@ -39,6 +40,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
   late String voiceAuthId = '';
 
   late Future<void> _authMethods;
+  List<MfaMethod> authenticators = [];
   late List<Service> _connectedServices;
 
   @override
@@ -57,6 +59,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
 
   Future<void> getAuthenticationMethods() async {
     _connectedServices = [];
+    authenticators = [];
     await auth0UserApi.getAuthenticationMethods(userProvider.user!.userId)
       .then((final response) {
         final bool success = response.statusCode == HttpStatus.ok;
@@ -84,22 +87,31 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
               final type = element['type'] as String;
               final methodId = element['id'] as String;
 
+              final MfaMethod mfaMethod = MfaMethod();
+              mfaMethod.id = methodId;
+              mfaMethod.authenticatorType = type;
+
               switch(type) {
                 case 'totp':
                   authenticatorEnabled = true;
                   totpAuthId = methodId;
                   break;
                 case 'phone':
+                  mfaMethod.name = element['phone_number'] as String;
                   final prefMethod =
                     element['preferred_authentication_method'] as String;
                   if (prefMethod == 'sms') {
                     smsEnabled = true;
                     smsAuthId = methodId;
+                    mfaMethod.oobChannel = 'sms';
                   } else {
                     voiceEnabled = true;
                     voiceAuthId = methodId;
+                    mfaMethod.oobChannel = 'voice';
                   }
               }
+
+              authenticators.add(mfaMethod);
             }
           }
         }
@@ -113,6 +125,8 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
     }).then((final response) {
       final bool success = response.statusCode == HttpStatus.ok;
       if (success) {
+
+        getAuthenticationMethods();
 
         String authMethod;
         switch (method) {
@@ -135,19 +149,6 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
           width: 280.0,
           content: Text('$authMethod has been removed.')
         ));
-        setState(() {
-          switch(method) {
-            case 'totp':
-              authenticatorEnabled = false;
-              break;
-            case 'sms':
-              smsEnabled = false;
-              break;
-            case 'voice':
-              voiceEnabled = false;
-              break;
-          }
-        });
       }
     });
   }
@@ -232,7 +233,8 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                             builder: (final BuildContext context) =>
                               AuthenticatorDialog(
                                 userProvider: userProvider,
-                                auth0UserApi: auth0UserApi
+                                auth0UserApi: auth0UserApi,
+                                authMethods: authenticators
                               ),
                           ).then((final value) {
                             if (value != null && value == HttpStatus.ok){
@@ -304,7 +306,8 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                                       userProvider: userProvider,
                                       userApi: auth0UserApi,
                                       channel: 'sms',
-                                  )
+                                      authMethods: authenticators
+                                    )
                               ).then((final value) {
                                 if (value != null && value == HttpStatus.ok){
                                   _triggerAuthMethods();
@@ -358,7 +361,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                           ).then((final value) {
                             if (value != null && value == HttpStatus.ok) {
                               setState(() {
-                                smsEnabled = false;
+                                voiceEnabled = false;
                               });
                             }
                           }),
@@ -375,6 +378,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                                     userProvider: userProvider,
                                     userApi: auth0UserApi,
                                     channel: 'voice',
+                                    authMethods: authenticators
                                   )
                               ).then((final value) {
                                 if (value != null && value == HttpStatus.ok){

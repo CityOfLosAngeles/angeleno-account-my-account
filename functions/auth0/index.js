@@ -15,7 +15,9 @@ import {
   confirmMFA,
   authMethods,
   unenrollMFA,
-  removeConnection
+  removeConnection,
+  challengeMfa,
+  requestMFAToken
 } from './api/auth0.js';
 import { setGlobalOptions } from 'firebase-functions/v2';
 
@@ -28,5 +30,7 @@ app.post('/auth0/confirmMFA', confirmMFA);
 app.get('/auth0/authMethods/:userId', authMethods);
 app.post('/auth0/unenrollMFA', unenrollMFA);
 app.post('/auth0/removeConnection', removeConnection);
+app.post('/auth0/challengeMfa', challengeMfa);
+app.post('/auth0/requestMFAToken', requestMFAToken);
 
 export const auth0 = onRequest(app);

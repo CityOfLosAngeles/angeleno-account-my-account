@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:angeleno_project/controllers/auth0_user_api_implementation.dart';
 import 'package:flutter/foundation.dart';
@@ -5,18 +6,23 @@ import 'package:flutter/material.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
 import '../../controllers/user_provider.dart';
-import '../../utils/BaseMFADialogState.dart';
+import '../../models/mfa_method.dart';
+import '../../models/mfa_response.dart';
+import '../../utils/base_mfa_dialog_state.dart';
 import '../../utils/constants.dart';
 
 class MobileDialog extends StatefulWidget {
   final UserProvider userProvider;
   final Auth0UserApi userApi;
   final String channel;
+  final List<MfaMethod> authMethods;
+
 
   const MobileDialog({
     required this.userProvider,
     required this.userApi,
     required this.channel,
+    required this.authMethods,
     super.key
   });
 
@@ -32,6 +38,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
   late UserProvider userProvider;
   late Auth0UserApi api;
   late String channel;
+  late List<MfaMethod> authMethods;
 
   final isNotTestMode = kIsWeb ||
       !Platform.environment.containsKey('FLUTTER_TEST');
@@ -52,6 +59,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
     userProvider = widget.userProvider;
     api = widget.userApi;
     channel = widget.channel;
+    authMethods = widget.authMethods;
 
     passwordField.addListener(() {
       setState(() {});
@@ -80,6 +88,8 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
           },
           child: const Text('Continue'),
         ),
+        const SizedBox.shrink(),
+        const SizedBox.shrink(),
         TextButton(
           onPressed: codeProvided.isEmpty ? null : () {
            confirmCode();
@@ -103,14 +113,23 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
       'password': passwordField.text,
       'mfaFactor': 'oob',
       'channel': channel,
-      'number': phoneNumber
+      'number': phoneNumber,
+      'mfaToken': mfaToken
     };
 
     api.enrollMFA(body).then((final response) {
-      final bool success = response['status'] == HttpStatus.ok;
-      if (success) {
-        oobCode = response['oobCode'] as String;
-        mfaToken = response['token'] as String;
+      final int statusCode = response['status'] as int;
+      final mfaResponse = response['body'] as MfaResponse;
+
+      if (statusCode == HttpStatus.ok) {
+        oobCode = mfaResponse.oobCode;
+        mfaToken = mfaResponse.token;
+        navigateToNextPage(increment: !requireAdditionalAuthentication ? 3 : 1);
+      } else if (statusCode == HttpStatus.forbidden) {
+        requireAdditionalAuthentication = true;
+        if (mfaToken.isEmpty) {
+          mfaToken = mfaResponse.token;
+        }
         navigateToNextPage();
       } else {
         setState(() {
@@ -183,6 +202,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
                 onFieldSubmitted: (final value) {
                   navigateToNextPage();
                 },
+                autoFocus: true,
                 autoValidateMode: isNotTestMode ?
                   AutovalidateMode.onUserInteraction
                   : AutovalidateMode.disabled,
@@ -196,6 +216,43 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
                 inputBorder: const OutlineInputBorder(),
               ),
             )
+          ],
+        ),
+      ));
+
+  Widget get codeScreen =>
+      modalBody(Align(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('Please enter the code received:'),
+            SizedBox(
+              width: 250,
+              child: TextFormField(
+                key: const Key('phoneCode'),
+                autofocus: true,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                validator: (final value) {
+                  if (value == null || value
+                      .trim()
+                      .isEmpty) {
+                    return 'Code is required';
+                  }
+                  return null;
+                },
+                onFieldSubmitted: (final value) {
+                  confirmCode();
+                },
+                onChanged: (final val) {
+                  setState(() {
+                    codeProvided = val;
+                  });
+                },
+              ),
+            ),
+            const SizedBox(height: 15),
+            if (errMsg.isNotEmpty)
+              Text(errMsg, style: TextStyle(color: const ColorScheme.light().error))
           ],
         ),
       ));
@@ -252,53 +309,125 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
                 ),
                 const SizedBox(height: 15),
                 if (errMsg.isNotEmpty)
-                  Text(errMsg, style: TextStyle(color: colorScheme.error))
+                  Text(errMsg, style: TextStyle(color: const ColorScheme.light().error))
               ],
             ),
           )
       );
 
-  Widget get codeScreen =>
-      modalBody(Align(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('Please enter the code received:'),
-            SizedBox(
-              width: 250,
-              child: TextFormField(
-                key: const Key('phoneCode'),
-                autofocus: true,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                validator: (final value) {
-                  if (value == null || value
-                      .trim()
-                      .isEmpty) {
-                    return 'Code is required';
-                  }
-                  return null;
-                },
-                onFieldSubmitted: (final value) {
-                  confirmCode();
-                },
-                onChanged: (final val) {
-                  setState(() {
-                    codeProvided = val;
-                  });
-                },
-              ),
+  Widget get authenticatorList => modalBody(
+    Align(
+      child: Column(
+        children: [
+          const Text('Select an authentication method:',
+            style: TextStyle(
+              decoration: TextDecoration.none,
+              color: Colors.black,
+              fontSize: 16.0,
+              fontWeight: FontWeight.normal
             ),
-            const SizedBox(height: 15),
-            if (errMsg.isNotEmpty)
-              Text(errMsg, style: TextStyle(color: colorScheme.error))
-          ],
-        ),
-      ));
+          ),
+          const SizedBox(height: 15),
+          SizedBox(
+            height: 400,
+            width: 400,
+            child: ListView.builder(
+              itemCount: authMethods.length,
+              padding: const EdgeInsets.all(20),
+              itemBuilder: (final BuildContext context, final int index) {
+
+                late final String friendlyMfaMethodName;
+                final method = authMethods[index];
+
+                if (method.authenticatorType == 'phone') {
+                  if (method.oobChannel == 'sms') {
+                    friendlyMfaMethodName = 'SMS Message to ${method.name}';
+                  } else {
+                    friendlyMfaMethodName = 'Voice Call to ${method.name}';
+                  }
+                } else {
+                  friendlyMfaMethodName = 'Authenticator (TOTP) application';
+
+                }
+
+                return TextButton(
+                  onPressed: () async {
+                    navigateToNextPage();
+                  },
+                  child: Text(friendlyMfaMethodName),
+                );
+              }
+            )
+          ),
+          const SizedBox(height: 15),
+          if (errMsg.isNotEmpty)
+            Text(errMsg, style: TextStyle(color: const ColorScheme.light().error))
+        ],
+      )
+    )
+  );
+
+  Widget get codeEnterScreen => modalBody(
+    Align(
+      child: Column(
+        children: [
+          const Text('Enter code provided:',
+            style: TextStyle(
+              decoration: TextDecoration.none,
+              color: Colors.black,
+              fontSize: 16.0,
+              fontWeight: FontWeight.normal
+            ),
+          ),
+          const SizedBox(height: 15),
+          SizedBox(
+            width: 250,
+            child: TextFormField(
+              autofocus: true,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              onFieldSubmitted: (final value) async {
+                final Map<String, String> body = {
+                  'mfaToken': mfaToken,
+                  'oobCode': oobCode,
+                  'bindingCode': mfaCode
+                };
+
+                final response = await api.requestMFAToken(body);
+
+                setState(() {
+                  mfaToken = jsonDecode(response.body)['access_token'] as String;
+                });
+
+                enrollMobile();
+
+              },
+              validator: (final value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Code is required';
+                }
+                return null;
+              },
+              onChanged: (final val) {
+                setState(() {
+                  oobCode = val;
+                });
+              },
+            )
+          ),
+          const SizedBox(height: 15),
+          if (errMsg.isNotEmpty)
+            Text(errMsg, style: TextStyle(color: const ColorScheme.light().error))
+        ],
+      )
+    )
+  );
 
   List<Widget> get screens =>
       [
         phonePrompt,
         passwordPrompt,
+        authenticatorList,
+        codeEnterScreen,
         codeScreen
       ];
 

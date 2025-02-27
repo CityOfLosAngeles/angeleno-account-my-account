@@ -69,7 +69,27 @@ export const authorizeUser = async (email, password, audience = '/api/v2/') => {
 
     return await axios.request(passwordValidationRequest);
   } catch (err) {
-    console.error(err);
-    throw err;
+    
+    let {
+      status = 500,
+      message,
+      data: {
+        error_description,
+        error,
+        mfa_token
+      }
+    } = err.response;
+
+    if (status === 403 && error === 'mfa_required') {
+      return {
+        status,
+        data: {
+          mfa_token
+        }
+      }
+    } else {
+      console.error(err);
+      throw err;
+    }
   }
 };

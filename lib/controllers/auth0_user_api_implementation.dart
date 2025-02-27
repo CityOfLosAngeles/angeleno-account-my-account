@@ -10,26 +10,28 @@ import 'package:http/http.dart' as http;
 import 'package:angeleno_project/controllers/auth0_user_api.dart';
 import 'package:angeleno_project/models/user.dart';
 
+import '../models/mfa_response.dart';
+
 class Auth0UserApi extends Api {
 
   var authToken = '';
 
   String createJwt() {
     final jwt = JWT(
-      {
-        'exp': DateTime.now()
-            .add(const Duration(hours: 1))
-            .millisecondsSinceEpoch ~/ 1000,
-        'iat': DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        'aud': 'https://www.googleapis.com/oauth2/v4/token',
-        'target_audience': cloudFunctionURL
-      },
-      issuer: serviceAccountEmail,
-      subject: serviceAccountEmail,
-      header: {
-        'alg':'RS256',
-        'typ':'JWT'
-      }
+        {
+          'exp': DateTime.now()
+              .add(const Duration(hours: 1))
+              .millisecondsSinceEpoch ~/ 1000,
+          'iat': DateTime.now().millisecondsSinceEpoch ~/ 1000,
+          'aud': 'https://www.googleapis.com/oauth2/v4/token',
+          'target_audience': cloudFunctionURL
+        },
+        issuer: serviceAccountEmail,
+        subject: serviceAccountEmail,
+        header: {
+          'alg':'RS256',
+          'typ':'JWT'
+        }
     );
 
     final privKey = serviceAccountSecret
@@ -184,8 +186,7 @@ class Auth0UserApi extends Api {
   }
 
   @override
-  Future<Map<String, dynamic>>
-    enrollMFA(final Map<String, String> body) async {
+  Future<Map<String, dynamic>> enrollMFA(final Map<String, String> body) async {
     late Map<String, dynamic> response;
 
     final token = await getOAuthToken();
@@ -204,20 +205,14 @@ class Auth0UserApi extends Api {
           body: reqBody
       ).timeout(const Duration(seconds: 5));
 
-      final jsonBody = jsonDecode(request.body);
-      final barcode = jsonBody['barcode_uri'] ?? '';
-      final token = jsonBody['token'] ?? '';
-      final tokenSecret = jsonBody['secret'] ?? '';
-      final oobCode = jsonBody['oob_code'] ?? '';
+      final mfaRes = MfaResponse.fromJson(
+          jsonDecode(request.body) as Map<String, dynamic>
+      );
 
-      if (request.statusCode == HttpStatus.ok) {
+      if (request.statusCode == HttpStatus.ok || request.statusCode == HttpStatus.forbidden) {
         response = {
           'status': request.statusCode,
-          'body': request.body,
-          'barcode': barcode,
-          'token': token,
-          'barcode_string': tokenSecret,
-          'oobCode': oobCode
+          'body': mfaRes
         };
       } else {
         throw ApiException(request.statusCode, request.body);
@@ -299,6 +294,68 @@ class Auth0UserApi extends Api {
       return ApiResponse(e.statusCode, e.error);
     } catch (err) {
       return ApiResponse(HttpStatus.internalServerError, 'Error Encountered');
+    }
+  }
+
+  Future<ApiResponse> challengeMFA(final Map<String, String> body) async {
+
+    final token = await getOAuthToken();
+
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token'
+    };
+
+    final reqBody = json.encode(body);
+
+    try {
+      final request = await http.post(
+          Uri.parse('/auth0/challengeMfa'),
+          headers: headers,
+          body: reqBody
+      ).timeout(const Duration(seconds: 5));
+
+      if (request.statusCode == HttpStatus.ok) {
+        return ApiResponse(request.statusCode, request.body);
+      } else {
+        throw ApiException(request.statusCode, request.body);
+      }
+
+    }  on ApiException catch(e) {
+      return ApiResponse(e.statusCode, e.error);
+    } catch (err) {
+      return ApiResponse(HttpStatus.internalServerError, 'Error Encountered.');
+    }
+  }
+
+  Future<ApiResponse> requestMFAToken(final Map<String, String> body) async {
+
+    final token = await getOAuthToken();
+
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token'
+    };
+
+    final reqBody = json.encode(body);
+
+    try {
+      final request = await http.post(
+          Uri.parse('/auth0/requestMFAToken'),
+          headers: headers,
+          body: reqBody
+      ).timeout(const Duration(seconds: 5));
+
+      if (request.statusCode == HttpStatus.ok) {
+        return ApiResponse(request.statusCode, request.body);
+      } else {
+        throw ApiException(request.statusCode, request.body);
+      }
+
+    }  on ApiException catch(e) {
+      return ApiResponse(e.statusCode, e.error);
+    } catch (err) {
+      return ApiResponse(HttpStatus.internalServerError, 'Error Encountered.');
     }
   }
 

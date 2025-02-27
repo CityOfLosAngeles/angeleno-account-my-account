@@ -133,7 +133,6 @@ export const updatePassword = onRequest(async (req, res) => {
     await axios.request(passwordUpdateRequest);
 
     res.status(200).send();
-    return;
   } catch (err) {
     console.error(`Error: ${err.message}`);
 
@@ -145,7 +144,6 @@ export const updatePassword = onRequest(async (req, res) => {
     res
       .status(status)
       .send(message || error_description || 'Error encountered');
-    return;
   }
 });
 
@@ -173,11 +171,11 @@ export const authMethods = onRequest(async (req, res) => {
     const request = await axios.request(config);
 
 
-   const applications = await getConnectedServices(userId);
+//   const applications = await getConnectedServices(userId);
 
     const response = {
-      mfaMethods: request.data,
-      services: applications.filter((e) => e !== null)
+      mfaMethods: request.data
+//      services: applications.filter((e) => e !== null)
     }
 
     res.status(200).send(response);
@@ -204,18 +202,35 @@ export const enrollMFA = onRequest(async (req, res) => {
     channel
   } = body;
 
-  try {
-    const validateResponse = await authorizeUser(
-      email,
-      password,
-      '/mfa/'
-    );
+  let mfaToken = body.mfaToken || '';
 
-    const mfaToken = validateResponse?.data?.access_token;
+  try {
+   
+    if (!mfaToken) {
+      const validateResponse = await authorizeUser(
+        email,
+        password,
+        '/mfa/'
+      );
+
+      if (validateResponse.status === 403) {
+        res.status(403).send({
+          mfaToken: validateResponse.data.mfa_token,
+        });
+        return;
+      } else {
+        mfaToken = validateResponse?.data?.access_token;
+      }
+    }
+    
+    if (!mfaToken) {
+      res.status(400).send('Invalid request - missing required fields.');
+      return;
+    }
 
     let additionalData = {};
 
-    if (mfaFactor == 'oob') {
+    if (mfaFactor === 'oob') {
       additionalData = {
         'oob_channels': [channel],
         'phone_number': number
@@ -273,7 +288,7 @@ export const confirmMFA = onRequest(async (req, res) => {
   }
 
   try {
-    let additionalData = {};
+    let additionalData;
 
     if (oobCode.length) {
       additionalData = {
@@ -387,7 +402,101 @@ export const removeConnection = onRequest(async (req, res) => {
     } = error.response;
 
     return res.status(status).send(message);
-  };
+  }
+});
+
+export const challengeMfa = onRequest(async (req, res) => {
+
+  try {
+    const {
+      mfaToken,
+      authenticatorId: mfaFactor
+    } = req.body;
+
+
+    if (!mfaToken || !mfaFactor) {
+      res.status(400).send('Invalid request - missing required fields.');
+      return;
+    }
+
+    const requestOptions = {
+      method: 'POST',
+      url: `https://${auth0Domain}/mfa/challenge`,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${mfaToken}`,
+      },
+      data: {
+        client_id: auth0ClientId,
+        client_secret: auth0ClientSecret,
+        challenge_type: mfaFactor,
+        mfa_token: mfaToken,
+      },
+    }
+
+    const request = await axios.request(requestOptions);
+
+    return res.status(200).send(request.data);
+  } catch (err) {
+    console.log(err);
+
+    return res.status(500).send();
+  }
+
+});
+
+export const requestMFAToken = onRequest(async (req, res) => {
+
+  try {
+    const {
+      mfaToken: mfa_token,
+      oobCode: oob_code,
+      bindingCode: binding_code
+    } = req.body;
+
+    if (!mfa_token) {
+      res.status(400).send('Invalid request - missing required fields.');
+      return;
+    }
+
+    const data = !binding_code ? {
+      grant_type: "http://auth0.com/oauth/grant-type/mfa-otp",
+      client_id: auth0ClientId,
+      client_secret: auth0ClientSecret,
+      mfa_token,
+      otp: oob_code
+    } : {
+      grant_type: "http://auth0.com/oauth/grant-type/mfa-oob",
+      client_id: auth0ClientId,
+      client_secret: auth0ClientSecret,
+      mfa_token,
+      oob_code,
+      binding_code
+    };
+
+    const requestOptions = {
+      method: 'POST',
+      url: `https://${auth0Domain}/oauth/token`,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      data
+    }
+
+    const request = await axios.request(requestOptions);
+
+    return res.status(200).send(request.data);
+  } catch (err) {
+    console.error(err);
+
+    const {
+      status = 500,
+      message = '',
+    } = error.response;
+
+    return res.status(status).send(message);
+  }
+
 });
 
 const getConnectedServices = async (userId) => {
