@@ -209,7 +209,7 @@ class Auth0UserApi extends Api {
           jsonDecode(request.body) as Map<String, dynamic>
       );
 
-      if (request.statusCode == HttpStatus.ok || request.statusCode == HttpStatus.forbidden) {
+      if (request.statusCode == HttpStatus.ok || request.statusCode == HttpStatus.unauthorized) {
         response = {
           'status': request.statusCode,
           'body': mfaRes
@@ -221,7 +221,7 @@ class Auth0UserApi extends Api {
     } on ApiException catch(e) {
       response = {
         'status': e.statusCode,
-        'body': e.error
+        'body': MfaResponse(errorMessage: e.error)
       };
     } catch (err) {
       response = {

@@ -1,23 +1,26 @@
 class MfaResponse {
-  final String barcode; // TOTP
-  final String token;
-  final String barcodeString; // TOTP
-  final String oobCode; // SMS/Voice
+  String barcode; // TOTP
+  String token;
+  String barcodeString; // TOTP
+  String oobCode; // SMS/Voice
+  String errorMessage = '';
 
   MfaResponse({
-    required this.barcode,
-    required this.token,
-    required this.barcodeString,
-    required this.oobCode
+    this.barcode = '',
+    this.token = '',
+    this.barcodeString = '',
+    this.oobCode = '',
+    this.errorMessage = ''
   });
 
   @override
-  String toString() => 'MfaResponse{barcode: $barcode, token: $token, barcodeString: $barcodeString, oobCode: $oobCode}';
+  String toString() => '{barcode: $barcode, token: $token, barcodeString: $barcodeString, oobCode: $oobCode}';
 
   factory MfaResponse.fromJson(final Map<String, dynamic> json) => MfaResponse(
       token: json['token'] as String? ?? '',
       barcode: json['barcode_uri'] as String? ?? '',
       barcodeString: json['secret'] as String? ?? '',
-      oobCode: json['oob_code'] as String? ?? ''
+      oobCode: json['oob_code'] as String? ?? '',
+      errorMessage: json['error'] as String? ?? ''
     );
 }

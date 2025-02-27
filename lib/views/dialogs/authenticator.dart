@@ -112,7 +112,7 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
         });
 
         navigateToNextPage(increment: !requireAdditionalAuthentication ? 3 : 1);
-      } else if (statusCode == HttpStatus.forbidden) {
+      } else if (statusCode == HttpStatus.unauthorized) {
         requireAdditionalAuthentication = true;
         if (mfaToken.isEmpty) {
             mfaToken = mfaResponse.token;
@@ -120,7 +120,7 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
         navigateToNextPage();
       } else {
         setState(() {
-          errMsg = response['body'] as String;
+          errMsg = mfaResponse.errorMessage;
           inFlightRequest = false;
         });
       }

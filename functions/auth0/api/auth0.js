@@ -214,7 +214,9 @@ export const enrollMFA = onRequest(async (req, res) => {
       );
 
       if (validateResponse.status === 403) {
-        res.status(403).send({
+        // Auth0 uses a 403 for Wrong Email/Password and
+        // when MFA is required, so we manipulate it to 401 for our use case 
+        res.status(401).send({
           mfaToken: validateResponse.data.mfa_token,
         });
         return;

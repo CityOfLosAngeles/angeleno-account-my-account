@@ -125,7 +125,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
         oobCode = mfaResponse.oobCode;
         mfaToken = mfaResponse.token;
         navigateToNextPage(increment: !requireAdditionalAuthentication ? 3 : 1);
-      } else if (statusCode == HttpStatus.forbidden) {
+      } else if (statusCode == HttpStatus.unauthorized) {
         requireAdditionalAuthentication = true;
         if (mfaToken.isEmpty) {
           mfaToken = mfaResponse.token;
@@ -133,7 +133,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
         navigateToNextPage();
       } else {
         setState(() {
-          errMsg = (response['body'] ?? 'An error occurred') as String;
+          errMsg = mfaResponse.errorMessage;
           inFlightRequest = false;
         });
       }
