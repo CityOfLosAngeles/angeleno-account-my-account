@@ -356,7 +356,7 @@ Align(
     )
   );
 
-  Widget get codeEnterScreen => modalBody(
+  Widget get mfaAuthCodeScreen => modalBody(
     Align(
       child: Column(
         children: [
@@ -414,7 +414,7 @@ Align(
   List<Widget> get screens => [
     passwordPrompt,
     authenticatorList,
-    codeEnterScreen,
+    mfaAuthCodeScreen,
     qrCodeScreen,
     confirmationScreen
   ];

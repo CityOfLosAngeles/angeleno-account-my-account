@@ -367,7 +367,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
     )
   );
 
-  Widget get codeEnterScreen => modalBody(
+  Widget get mfaAuthCodeScreen => modalBody(
     Align(
       child: Column(
         children: [
@@ -427,7 +427,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
         phonePrompt,
         passwordPrompt,
         authenticatorList,
-        codeEnterScreen,
+        mfaAuthCodeScreen,
         codeScreen
       ];
 
