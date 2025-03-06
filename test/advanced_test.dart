@@ -1,6 +1,7 @@
 import 'package:angeleno_project/controllers/auth0_user_api_implementation.dart';
 import 'package:angeleno_project/controllers/user_provider.dart';
 import 'package:angeleno_project/models/api_response.dart';
+import 'package:angeleno_project/models/mfa_response.dart';
 import 'package:angeleno_project/views/dialogs/mobile.dart';
 import 'package:angeleno_project/views/screens/advanced_security_screen.dart';
 import 'package:auth0_flutter/auth0_flutter.dart';
@@ -9,6 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'mocks/auth0_user_api_mock.dart';
+
 
 @GenerateNiceMocks([MockSpec<Auth0UserApi>()])
 void main() {
@@ -46,18 +48,18 @@ void main() {
 
   testWidgets('Advanced Security - TOTP and SMS', (final WidgetTester tester) async {
     final authenticationMethodsMockResponse = ApiResponse(200,
-    '{"mfaMethods": [{"type": "totp", "id": "123"}, {"type": "phone", "id": "456", "preferred_authentication_method": "sms"}]}');
+    '{"mfaMethods": [{"type": "totp", "id": "123"}, {"type": "phone", "id": "456", "preferred_authentication_method": "sms", "phone_number": "2135432454"}]}');
     final disableAuthenticatorMockResponse = ApiResponse(200, '');
     final confirmAuthenticatorMockResponse = ApiResponse(200, '');
 
      final totpEnrollmentMockResponse = {
       'status': 200,
-      'token': 'eyJhbG',
-      'authenticator_type': 'otp',
-      'secret': 'NQ4FGVKEMQWGIRZVJFSE2STEKN4UQKCD',
-      'barcode': 'otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example',
-      'barcode_string': 'totpString',
-      'oobCode': 'dasddasdasd'
+      'body': MfaResponse(
+         barcode: 'otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example',
+         token: 'eyJhbG',
+         barcodeString: 'totpString',
+         oobCode: 'dasddasdasd'
+       )
     };
 
     when(mockUserApi.getAuthenticationMethods(any))
@@ -251,13 +253,17 @@ void main() {
 
   testWidgets('Advanced Security - Voice', (final WidgetTester tester) async {
     final authenticationMethodsMockResponse = ApiResponse(200,
-        '{"mfaMethods": [{"type": "phone", "id": "456", "preferred_authentication_method": "voice"}],' +
+        '{"mfaMethods": [{"type": "phone", "id": "456", "preferred_authentication_method": "voice","phone_number": "2135432454"}],' +
             '"services": [{"clientId": "65165", "name": "Example", "scope": ["openid", "profile", "email"], "grantId": "123"}]}');
 
     final enrollMFAResponse = <String, dynamic> {
       'status': 200,
-      'oobCode': 'oobCode',
-      'token' : 'myToken'
+      'body': MfaResponse(
+        barcode: 'otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example',
+        token: 'eyJhbG',
+        barcodeString: 'totpString',
+        oobCode: 'dasddasdasd'
+      )
     };
 
     final disableAuthenticatorMockResponse = ApiResponse(200, '');
@@ -349,7 +355,9 @@ void main() {
 
     final enrollMFAResponse = <String, dynamic> {
       'status': 400,
-      'body': 'An error occurred'
+      'body': MfaResponse(
+        errorMessage: 'An error occurred'
+      )
     };
 
     when(mockUserApi.enrollMFA(any))
