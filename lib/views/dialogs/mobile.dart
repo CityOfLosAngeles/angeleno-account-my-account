@@ -252,7 +252,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
                 ),
                 const SizedBox(height: 15),
                 if (errMsg.isNotEmpty)
-                  Text(errMsg, style: TextStyle(color: colorScheme.error))
+                  Text(errMsg, style: TextStyle(color: Theme.of(context).colorScheme.error))
               ],
             ),
           )
@@ -290,7 +290,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
             ),
             const SizedBox(height: 15),
             if (errMsg.isNotEmpty)
-              Text(errMsg, style: TextStyle(color: colorScheme.error))
+              Text(errMsg, style: TextStyle(color: Theme.of(context).colorScheme.error))
           ],
         ),
       ));

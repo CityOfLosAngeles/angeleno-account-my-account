@@ -204,8 +204,8 @@ class _PasswordScreenState extends State<PasswordScreen> {
               'Be at least $minPasswordLength characters',
               style: TextStyle(
               color: acceptableLength
-                ? colorScheme.primary
-                : colorScheme.error
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.error
               )
             )
           ],
@@ -254,7 +254,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (errorMsg.isNotEmpty)
-              Text(errorMsg, style: TextStyle(color: colorScheme.error)),
+              Text(errorMsg, style: TextStyle(color: Theme.of(context).colorScheme.error)),
             const SizedBox(height: 10.0),
             ElevatedButton(
               onPressed: _isButtonDisabled ? null : () => submitRequest(),

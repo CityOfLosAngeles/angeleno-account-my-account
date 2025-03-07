@@ -1,6 +1,7 @@
 import 'package:angeleno_project/controllers/overlay_provider.dart';
 import 'package:angeleno_project/controllers/user_provider.dart';
 import 'package:angeleno_project/utils/constants.dart';
+import 'package:angeleno_project/utils/theme.dart';
 import 'package:angeleno_project/views/screens/home_screen.dart';
 import 'package:datadog_flutter_plugin/datadog_flutter_plugin.dart';
 import 'package:flutter/material.dart';
@@ -32,16 +33,8 @@ class MyApp extends StatelessWidget {
     title: 'Angeleno - My Account '
         '${environment == 'prod' ? '' : ' - $environment'}',
     debugShowCheckedModeBanner: false,
-    theme: ThemeData(
-      useMaterial3: true,
-      colorScheme: colorScheme,
-      inputDecorationTheme: const InputDecorationTheme(
-        disabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: disabledColor)
-        ),
-
-      )
-    ),
+    theme: MaterialTheme(Theme.of(context).textTheme)
+        .theme(MaterialTheme.lightScheme()),
     navigatorObservers: [
       DatadogNavigationObserver(datadogSdk: DatadogSdk.instance),
     ],

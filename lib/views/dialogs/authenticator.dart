@@ -195,7 +195,7 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
           ),
           const SizedBox(height: 15),
           if (errMsg.isNotEmpty)
-            Text(errMsg, style: TextStyle(color: colorScheme.error))
+            Text(errMsg, style: TextStyle(color: Theme.of(context).colorScheme.error))
         ],
       ),
     )
@@ -272,7 +272,7 @@ Align(
           ),
           const SizedBox(height: 15),
           if (errMsg.isNotEmpty)
-            Text(errMsg, style: TextStyle(color: colorScheme.error))
+            Text(errMsg, style: TextStyle(color: Theme.of(context).colorScheme.error))
         ],
       )
     )
