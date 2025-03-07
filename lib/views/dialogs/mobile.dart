@@ -10,6 +10,7 @@ import '../../models/mfa_method.dart';
 import '../../models/mfa_response.dart';
 import '../../utils/base_mfa_dialog_state.dart';
 import '../../utils/constants.dart';
+import '../../utils/error_message.dart';
 
 class MobileDialog extends StatefulWidget {
   final UserProvider userProvider;
@@ -32,7 +33,6 @@ class MobileDialog extends StatefulWidget {
 
 class _MobileDialogState extends BaseDialogState<MobileDialog> {
 
-  final passwordField = TextEditingController();
   final phoneField = TextEditingController();
 
   late UserProvider userProvider;
@@ -60,15 +60,10 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
     api = widget.userApi;
     channel = widget.channel;
     authMethods = widget.authMethods;
-
-    passwordField.addListener(() {
-      setState(() {});
-    });
   }
 
   @override
   void dispose() {
-    passwordField.dispose();
     phoneField.dispose();
     super.dispose();
   }
@@ -100,7 +95,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
 
   void enrollMobile() async {
     setState(() {
-      errMsg = '';
+      errorMessage = '';
       inFlightRequest = true;
     });
 
@@ -133,7 +128,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
         navigateToNextPage();
       } else {
         setState(() {
-          errMsg = mfaResponse.errorMessage;
+          errorMessage = mfaResponse.errorMessage;
           inFlightRequest = false;
         });
       }
@@ -142,7 +137,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
 
   void confirmCode() async {
     setState(() {
-      errMsg = '';
+      errorMessage = '';
       inFlightRequest = true;
     });
 
@@ -251,69 +246,16 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
               ),
             ),
             const SizedBox(height: 15),
-            if (errMsg.isNotEmpty)
-              Text(errMsg, style: TextStyle(color: const ColorScheme.light().error))
+            if (errorMessage.isNotEmpty)
+              Text(errorMessage, style: TextStyle(color: const ColorScheme.light().error))
           ],
         ),
       ));
 
-  Widget get passwordPrompt =>
-      modalBody(
-          Align(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 15),
-                const Text(
-                  'Please enter your password:',
-                  textAlign: TextAlign.center,
-                  softWrap: true,
-                ),
-                const SizedBox(height: 15),
-                SizedBox(
-                  width: 250,
-                  child: TextFormField(
-                    key: const Key('passwordField'),
-                    autofocus: true,
-                    controller: passwordField,
-                    obscureText: obscurePassword,
-                    enableSuggestions: false,
-                    autocorrect: false,
-                    onFieldSubmitted: (final value) {
-                      enrollMobile();
-                    },
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    validator: (final value) {
-                      if (value == null || value
-                          .trim()
-                          .isEmpty) {
-                        return 'Password is required';
-                      }
-                      return null;
-                    },
-                    decoration: InputDecoration(
-                      suffixIcon: IconButton(
-                        key: const Key('toggle_password'),
-                        onPressed: () {
-                          setState(() {
-                            obscurePassword = !obscurePassword;
-                          });
-                        },
-                        icon: Icon(
-                            obscurePassword ? Icons.visibility : Icons
-                                .visibility_off
-                        ),
-                      )
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 15),
-                if (errMsg.isNotEmpty)
-                  Text(errMsg, style: TextStyle(color: const ColorScheme.light().error))
-              ],
-            ),
-          )
-      );
+  Widget get passwordPromptWidget => passwordPrompt(
+    'Please enter your password:',
+    enrollMobile
+  );
 
   Widget get authenticatorList => modalBody(
     Align(
@@ -360,8 +302,8 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
             )
           ),
           const SizedBox(height: 15),
-          if (errMsg.isNotEmpty)
-            Text(errMsg, style: TextStyle(color: const ColorScheme.light().error))
+          if (errorMessage.isNotEmpty)
+            ErrorMessage(message: errorMessage)
         ],
       )
     )
@@ -415,8 +357,8 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
             )
           ),
           const SizedBox(height: 15),
-          if (errMsg.isNotEmpty)
-            Text(errMsg, style: TextStyle(color: const ColorScheme.light().error))
+          if (errorMessage.isNotEmpty)
+            Text(errorMessage, style: TextStyle(color: const ColorScheme.light().error))
         ],
       )
     )
@@ -425,7 +367,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
   List<Widget> get screens =>
       [
         phonePrompt,
-        passwordPrompt,
+        passwordPromptWidget,
         authenticatorList,
         mfaAuthCodeScreen,
         codeScreen

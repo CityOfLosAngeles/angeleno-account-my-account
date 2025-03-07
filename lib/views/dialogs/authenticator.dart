@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:angeleno_project/utils/error_message.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -32,8 +33,6 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
   late Auth0UserApi auth0UserApi;
   late List<MfaMethod> authMethods;
 
-  final passwordField = TextEditingController();
-
   String totpQrCode = '';
   String totpCode = '';
   String qrCodeAltString = '';
@@ -45,16 +44,6 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
     userProvider = widget.userProvider;
     auth0UserApi = widget.auth0UserApi;
     authMethods = widget.authMethods;
-
-    passwordField.addListener(() {
-      setState(() {});
-    });
-  }
-
-  @override
-  void dispose() {
-    passwordField.dispose();
-    super.dispose();
   }
 
   @override
@@ -84,7 +73,7 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
   void enrollTOTP() async {
 
     setState(() {
-      errMsg = '';
+      errorMessage = '';
       inFlightRequest = true;
     });
 
@@ -120,7 +109,7 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
         navigateToNextPage();
       } else {
         setState(() {
-          errMsg = mfaResponse.errorMessage;
+          errorMessage = mfaResponse.errorMessage;
           inFlightRequest = false;
         });
       }
@@ -130,7 +119,7 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
   void confirmTOTP() async {
 
     setState(() {
-      errMsg = '';
+      errorMessage = '';
       inFlightRequest = true;
     });
 
@@ -153,7 +142,7 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
         ));
       } else {
         setState(() {
-          errMsg = response.body;
+          errorMessage = response.body;
         });
       }
       setState(() {
@@ -162,60 +151,9 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
     });
   }
 
-  Widget get passwordPrompt => modalBody(
-    Align(
-      child:  Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text(
-            'Set up Multi-Factor Authentication (MFA). Continue MFA '
-                'setup to add an additional layer of security when signing '
-                'in to your account. \n\n Please enter your password:',
-            textAlign: TextAlign.center,
-            softWrap: true,
-          ),
-          const SizedBox(height: 15),
-          SizedBox(
-            key: const Key('passwordField'),
-            width: 250,
-            child: TextFormField(
-              autofocus: true,
-              controller: passwordField,
-              onFieldSubmitted: (final value) {
-                enrollTOTP();
-              },
-              obscureText: obscurePassword,
-              enableSuggestions: false,
-              autocorrect: false,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              validator: (final value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Password is required';
-                }
-                return null;
-              },
-              decoration: InputDecoration(
-                  suffixIcon: IconButton(
-                    key: const Key('toggle_password'),
-                    onPressed: () {
-                      setState(() {
-                        obscurePassword = !obscurePassword;
-                      });
-                    },
-                    icon: Icon(
-                      // ignore: lines_longer_than_80_chars
-                        obscurePassword ? Icons.visibility : Icons.visibility_off
-                    ),
-                  )
-              ),
-            ),
-          ),
-          const SizedBox(height: 15),
-          if (errMsg.isNotEmpty)
-            Text(errMsg, style: TextStyle(color: const ColorScheme.light().error))
-        ],
-      ),
-    )
+  Widget get passwordPromptWidget => passwordPrompt(
+    'Set up Multi-Factor Authentication (MFA). Continue MFA setup to add an additional layer of security when signing in to your account. \n\n Please enter your password:',
+    enrollTOTP
   );
 
   Widget get qrCodeScreen =>  modalBody(
@@ -288,8 +226,8 @@ Align(
               )
           ),
           const SizedBox(height: 15),
-          if (errMsg.isNotEmpty)
-            Text(errMsg, style: TextStyle(color: const ColorScheme.light().error))
+          if (errorMessage.isNotEmpty)
+            ErrorMessage(message: errorMessage)
         ],
       )
     )
@@ -349,8 +287,8 @@ Align(
             )
           ),
           const SizedBox(height: 15),
-          if (errMsg.isNotEmpty)
-            Text(errMsg, style: TextStyle(color: const ColorScheme.light().error))
+          if (errorMessage.isNotEmpty)
+            ErrorMessage(message: errorMessage)
         ],
       )
     )
@@ -404,15 +342,15 @@ Align(
             )
           ),
           const SizedBox(height: 15),
-          if (errMsg.isNotEmpty)
-            Text(errMsg, style: TextStyle(color: const ColorScheme.light().error))
+          if (errorMessage.isNotEmpty)
+            ErrorMessage(message: errorMessage)
         ],
       )
     )
   );
 
   List<Widget> get screens => [
-    passwordPrompt,
+    passwordPromptWidget,
     authenticatorList,
     mfaAuthCodeScreen,
     qrCodeScreen,

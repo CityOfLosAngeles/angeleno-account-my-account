@@ -226,7 +226,7 @@ class Auth0UserApi extends Api {
     } catch (err) {
       response = {
         'status': HttpStatus.internalServerError,
-        'body': 'Error Encountered'
+        'body': MfaResponse(errorMessage: 'Error Encountered')
       };
     }
 

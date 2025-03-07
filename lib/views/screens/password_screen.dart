@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:angeleno_project/models/password_reset.dart';
 import 'package:angeleno_project/utils/constants.dart';
+import 'package:angeleno_project/utils/error_message.dart';
 import 'package:datadog_flutter_plugin/datadog_flutter_plugin.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -254,7 +255,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (errorMsg.isNotEmpty)
-              Text(errorMsg, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              ErrorMessage(message: errorMsg),
             const SizedBox(height: 10.0),
             ElevatedButton(
               onPressed: _isButtonDisabled ? null : () => submitRequest(),

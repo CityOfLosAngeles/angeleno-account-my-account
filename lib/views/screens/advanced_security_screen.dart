@@ -63,13 +63,12 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
     await auth0UserApi.getAuthenticationMethods(userProvider.user!.userId)
       .then((final response) {
         final bool success = response.statusCode == HttpStatus.ok;
+
         if (success) {
           final String jsonString = response.body;
-
           final json = jsonDecode(jsonString) as Map<String, dynamic>;
 
-          final List<dynamic> dataList = json['mfaMethods']
-            as List<dynamic>;
+          final List<dynamic> dataList = json['mfaMethods'] as List<dynamic>;
 
           final List<dynamic> services = json.containsKey('services')
               ? json['services'] as List<dynamic> : [];
