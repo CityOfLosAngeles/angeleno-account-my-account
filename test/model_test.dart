@@ -252,4 +252,141 @@ void main() {
       expect(service.icon, '');
     });
   });
+
+  group('MFA Response', () {
+    test('fromJson creates an instance with correct values', () {
+      final json = {
+        'token': 'test_token',
+        'barcode_uri': 'test_barcode',
+        'secret': 'test_secret',
+        'oob_code': 'test_oob_code',
+        'error': 'test_error'
+      };
+
+      final response = MfaResponse.fromJson(json);
+
+      expect(response.token, 'test_token');
+      expect(response.barcode, 'test_barcode');
+      expect(response.barcodeString, 'test_secret');
+      expect(response.oobCode, 'test_oob_code');
+      expect(response.errorMessage, 'test_error');
+    });
+
+    test('fromJson handles missing fields gracefully', () {
+      final json = {};
+
+      final response = MfaResponse.fromJson(json);
+
+      expect(response.token, '');
+      expect(response.barcode, '');
+      expect(response.barcodeString, '');
+      expect(response.oobCode, '');
+      expect(response.errorMessage, '');
+    });
+
+    test('toString returns correct string representation', () {
+      final response = MfaResponse(
+          token: 'test_token',
+          barcode: 'test_barcode',
+          barcodeString: 'test_secret',
+          oobCode: 'test_oob_code'
+      );
+
+      expect(response.toString(), '{barcode: test_barcode, token: test_token, barcodeString: test_secret, oobCode: test_oob_code}');
+    });
+
+    test('constructor initializes fields with default values', () {
+      final response = MfaResponse();
+
+      expect(response.token, '');
+      expect(response.barcode, '');
+      expect(response.barcodeString, '');
+      expect(response.oobCode, '');
+      expect(response.errorMessage, '');
+    });
+
+    test('constructor initializes fields with provided values', () {
+      final response = MfaResponse(
+          token: 'test_token',
+          barcode: 'test_barcode',
+          barcodeString: 'test_secret',
+          oobCode: 'test_oob_code',
+          errorMessage: 'test_error'
+      );
+
+      expect(response.token, 'test_token');
+      expect(response.barcode, 'test_barcode');
+      expect(response.barcodeString, 'test_secret');
+      expect(response.oobCode, 'test_oob_code');
+      expect(response.errorMessage, 'test_error');
+    });
+  })
+
+  group('MFA Method', ({
+    test('fromJson creates an instance with correct values', () {
+      final json = {
+        'id': 'test_id',
+        'name': 'test_name',
+        'type': 'test_type',
+        'icon': 'test_icon'
+      };
+
+      final method = MfaMethod.fromJson(json);
+
+      expect(method.id, 'test_id');
+      expect(method.name, 'test_name');
+      expect(method.type, 'test_type');
+      expect(method.icon, 'test_icon');
+    });
+
+    test('fromJson handles missing fields gracefully', () {
+      final json = {};
+
+      final method = MfaMethod.fromJson(json);
+
+      expect(method.id, '');
+      expect(method.name, '');
+      expect(method.type, '');
+      expect(method.icon, '');
+    });
+
+    test('toJson creates correct JSON', () {
+      final method = MfaMethod(
+          id: 'test_id',
+          name: 'test_name',
+          type: 'test_type',
+          icon: 'test_icon'
+      );
+
+      final json = method.toJson();
+
+      expect(json['id'], 'test_id');
+      expect(json['name'], 'test_name');
+      expect(json['type'], 'test_type');
+      expect(json['icon'], 'test_icon');
+    });
+
+    test('constructor initializes fields with default values', () {
+      final method = MfaMethod();
+
+      expect(method.id, '');
+      expect(method.name, '');
+      expect(method.type, '');
+      expect(method.icon, '');
+    });
+
+    test('constructor initializes fields with provided values', () {
+      final method = MfaMethod(
+          id: 'test_id',
+          name: 'test_name',
+          type: 'test_type',
+          icon: 'test_icon'
+      );
+
+      expect(method.id, 'test_id');
+      expect(method.name, 'test_name');
+      expect(method.type, 'test_type');
+      expect(method.icon, 'test_icon');
+    });
+  })
 }

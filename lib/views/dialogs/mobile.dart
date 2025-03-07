@@ -9,7 +9,6 @@ import '../../controllers/user_provider.dart';
 import '../../models/mfa_method.dart';
 import '../../models/mfa_response.dart';
 import '../../utils/base_mfa_dialog_state.dart';
-import '../../utils/constants.dart';
 import '../../utils/error_message.dart';
 
 class MobileDialog extends StatefulWidget {
