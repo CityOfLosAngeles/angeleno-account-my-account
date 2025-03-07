@@ -276,7 +276,7 @@ void main() {
     });
 
     test('fromJson handles missing fields gracefully', () {
-      final json = {};
+      final Map<String, dynamic>json = {};
 
       final response = MfaResponse.fromJson(json);
 
