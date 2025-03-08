@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:flutter/services.dart';
 
 import 'mocks/auth0_user_api_mock.dart';
 
@@ -499,5 +498,25 @@ void main() {
     await tester.pump();
 
     expect(find.text('Enter code provided:'), findsOneWidget);
+
+    await tester.enterText(find.byKey(const Key('additionalMfaCode')),'123456');
+
+
+    when(mockUserApi.enrollMFA(any))
+        .thenAnswer((_) async => {
+      'status': 200,
+      'body': MfaResponse(
+          token: 'eyJhbG...',
+          barcode: 'otpauth://totp/Example:',
+          barcodeString: 'JBSWY3DPEHP',
+          oobCode: 'dasddasdasd'
+      )
+    });
+
+    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Setup Authenticator. Scan code below:'), findsOneWidget);
+
   });
 }

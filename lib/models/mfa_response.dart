@@ -23,7 +23,7 @@ class MfaResponse {
   String toString() => '{barcode: $barcode, token: $token, barcodeString: $barcodeString, oobCode: $oobCode}';
 
   factory MfaResponse.fromJson(final Map<String, dynamic> json) => MfaResponse(
-      token: json['token'] as String? ?? '',
+      token: (json['token'] as String?) ?? (json['mfaToken'] as String?) ?? '',
       barcode: json['barcode_uri'] as String? ?? '',
       barcodeString: json['secret'] as String? ?? '',
       oobCode: json['oob_code'] as String? ?? '',

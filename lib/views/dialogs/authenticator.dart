@@ -109,7 +109,10 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
       } else if (statusCode == HttpStatus.unauthorized) {
         requireAdditionalAuthentication = true;
         if (mfaToken.isEmpty) {
-            mfaToken = mfaResponse.token;
+          mfaToken = mfaResponse.token;
+          setState(() {
+            inFlightRequest = false;
+          });
         }
         navigateToNextPage();
       } else {
@@ -329,6 +332,7 @@ Align(
           SizedBox(
             width: 250,
             child: TextFormField(
+              key: const Key('additionalMfaCode'),
               autofocus: true,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               onFieldSubmitted: (final value) => getMfaToken,
