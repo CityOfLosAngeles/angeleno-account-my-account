@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:flutter/services.dart';
+
 import 'mocks/auth0_user_api_mock.dart';
 
 
@@ -249,6 +251,93 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(SnackBar), findsOneWidget);
+  });
+
+  testWidgets('Authenticator, wrong password', (final WidgetTester tester) async {
+    final authenticationMethodsMockResponse = ApiResponse(200,
+        '{"mfaMethods": []}');
+
+    when(mockUserApi.getAuthenticationMethods(any))
+        .thenAnswer((_) async => authenticationMethodsMockResponse);
+
+    when(mockUserApi.enrollMFA(any))
+        .thenAnswer((_) async => {
+      'status': 404,
+      'body': MfaResponse(
+          errorMessage: 'Error found!'
+      )
+    });
+
+    await tester.pumpWidget(
+      MaterialApp(
+          home: Scaffold(
+            body: AdvancedSecurityScreen(
+                userProvider: userProvider,
+                auth0UserApi: mockUserApi
+            ),
+          )
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    verify(mockUserApi.getAuthenticationMethods(any)).called(1);
+
+    expect(find.byKey(const Key('enableAuthenticator')), findsOneWidget);
+    await tester.tap(find.byKey( const Key('enableAuthenticator')));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(Dialog), findsOneWidget);
+    await tester.enterText(find.byType(TextFormField), 'WrongPassword');
+    await tester.pump();
+
+    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.pumpAndSettle();
+
+
+    expect(find.text('Error found!'), findsOneWidget);
+  });
+
+  testWidgets('Authenticator, additional MFA required', (final WidgetTester tester) async {
+    final authenticationMethodsMockResponse = ApiResponse(200,
+        '{"mfaMethods": [{"type": "phone", "id": "456", "preferred_authentication_method": "sms", "phone_number": "2135432454"}]}');
+
+    when(mockUserApi.getAuthenticationMethods(any))
+        .thenAnswer((_) async => authenticationMethodsMockResponse);
+
+    when(mockUserApi.enrollMFA(any))
+        .thenAnswer((_) async => {
+          'status': 401,
+          'body': MfaResponse(
+              token: 'eyJhbG...'
+          )
+        });
+
+    await tester.pumpWidget(
+      MaterialApp(
+          home: Scaffold(
+            body: AdvancedSecurityScreen(
+                userProvider: userProvider,
+                auth0UserApi: mockUserApi
+            ),
+          )
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    verify(mockUserApi.getAuthenticationMethods(any)).called(1);
+
+    expect(find.byKey(const Key('enableAuthenticator')), findsOneWidget);
+    await tester.tap(find.byKey( const Key('enableAuthenticator')));
+
+    await tester.pumpAndSettle();
+
+    // Opens dialog and closes it on Cancel
+    expect(find.byType(Dialog), findsOneWidget);
+    await tester.enterText(find.byType(TextFormField), 'userPassword');
+
+    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.pumpAndSettle();
+
   });
 
   testWidgets('Advanced Security - Voice', (final WidgetTester tester) async {
