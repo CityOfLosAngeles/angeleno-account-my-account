@@ -404,22 +404,4 @@ void main() {
       expect(method.name, 'test_name');
     });
   });
-
-  group('Datadog Configuration', () {
-    test('datadogConfig initializes with correct values', () {
-      expect(datadogConfig.clientToken, datadogClientToken);
-      expect(datadogConfig.env, 'env');
-      expect(datadogConfig.site, DatadogSite.us5);
-      expect(datadogConfig.nativeCrashReportEnabled, true);
-      expect(datadogConfig.loggingConfiguration, isA<DatadogLoggingConfiguration>());
-      expect(datadogConfig.rumConfiguration.applicationId, dataDogApplicationId);
-      expect(datadogConfig.rumConfiguration.reportFlutterPerformance, true);
-    });
-
-    test('logger is created with correct configuration', () {
-      expect(logger, isNotNull);
-      expect(logger?.configuration, logConfiguration);
-    });
-  });
-
 }

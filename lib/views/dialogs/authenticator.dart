@@ -236,6 +236,7 @@ Align(
   Widget get authenticatorList => modalBody(
     Align(
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           const Text('Select an authentication method:',
             style: TextStyle(
@@ -247,8 +248,8 @@ Align(
           ),
           const SizedBox(height: 15),
           SizedBox(
-            height: 400,
-            width: 400,
+            width: double.maxFinite,
+            height: 80,
             child: ListView.builder(
               itemCount: authMethods.length,
               padding: const EdgeInsets.all(20),
@@ -285,10 +286,7 @@ Align(
                 );
               }
             )
-          ),
-          const SizedBox(height: 15),
-          if (errorMessage.isNotEmpty)
-            ErrorMessage(message: errorMessage)
+          )
         ],
       )
     )

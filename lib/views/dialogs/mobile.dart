@@ -158,6 +158,10 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
           width: 280.0,
           content: Text('$channel MFA has been enabled.')
         ));
+      } else {
+        setState(() {
+          errorMessage = response.body;
+        });
       }
       setState(() {
         inFlightRequest = false;
