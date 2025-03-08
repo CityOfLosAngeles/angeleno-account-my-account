@@ -33,9 +33,9 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
   late Auth0UserApi auth0UserApi;
   late List<MfaMethod> authMethods;
 
-  String totpQrCode = '';
-  String totpCode = '';
+  String authenticatorQrCode = '';
   String qrCodeAltString = '';
+  String authenticatorCode = '';
 
   @override
   void initState() {
@@ -50,12 +50,17 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
   List<Widget> get dialogNext => [
     TextButton(
       onPressed: passwordField.text.isEmpty || inFlightRequest ? null : () {
-        enrollTOTP();
+        enrollAuthenticator();
       },
       child: const Text('Continue'),
     ),
     const SizedBox.shrink(),
-    const SizedBox.shrink(),
+    TextButton(
+      onPressed: inFlightRequest ? null : () {
+        getMfaToken();
+      },
+      child: const Text('Continue'),
+    ),
     TextButton(
       onPressed: () {
         navigateToNextPage();
@@ -63,14 +68,14 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
       child: const Text('Continue'),
     ),
     TextButton(
-      onPressed: totpCode.isEmpty || inFlightRequest ? null : () {
-        confirmTOTP();
+      onPressed: authenticatorCode.isEmpty || inFlightRequest ? null : () {
+        confirmAuthenticator();
       },
       child: const Text('Finish'),
     )
   ];
 
-  void enrollTOTP() async {
+  void enrollAuthenticator() async {
 
     setState(() {
       errorMessage = '';
@@ -94,7 +99,7 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
 
       if (statusCode == HttpStatus.ok) {
         setState(() {
-          totpQrCode = mfaResponse.barcode;
+          authenticatorQrCode = mfaResponse.barcode;
           mfaToken = mfaResponse.token;
           qrCodeAltString = mfaResponse.barcodeString;
           inFlightRequest = false;
@@ -116,20 +121,20 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
     });
   }
 
-  void confirmTOTP() async {
+  void confirmAuthenticator() async {
 
     setState(() {
       errorMessage = '';
       inFlightRequest = true;
     });
 
-    if (totpCode.isEmpty) {
+    if (authenticatorCode.isEmpty) {
       return;
     }
 
     final Map<String, String> body = {
       'mfaToken': mfaToken,
-      'userOtpCode': totpCode
+      'userOtpCode': authenticatorCode
     };
 
     auth0UserApi.confirmMFA(body).then((final response) {
@@ -151,9 +156,25 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
     });
   }
 
+  void getMfaToken() async {
+    final Map<String, String> body = {
+      'mfaToken': mfaToken,
+      'oobCode': oobCode,
+      'bindingCode': mfaCode
+    };
+
+    final response = await auth0UserApi.requestMFAToken(body);
+
+    setState(() {
+      mfaToken = jsonDecode(response.body)['access_token'] as String;
+    });
+
+    enrollAuthenticator();
+  }
+
   Widget get passwordPromptWidget => passwordPrompt(
     'Set up Multi-Factor Authentication (MFA). Continue MFA setup to add an additional layer of security when signing in to your account. \n\n Please enter your password:',
-    enrollTOTP
+    enrollAuthenticator
   );
 
   Widget get qrCodeScreen =>  modalBody(
@@ -173,7 +194,7 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
             height: 150,
             width: 150,
             child: QrImageView(
-              data: totpQrCode,
+              data: authenticatorQrCode,
               size: 150
             ),
           ),
@@ -210,7 +231,7 @@ Align(
                 autofocus: true,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 onFieldSubmitted: (final value) {
-                  confirmTOTP();
+                  confirmAuthenticator();
                 },
                 validator: (final value) {
                   if (value == null || value.trim().isEmpty) {
@@ -220,7 +241,7 @@ Align(
                 },
                 onChanged: (final val) {
                   setState(() {
-                    totpCode = val;
+                    authenticatorCode = val;
                   });
                 },
               )
@@ -310,22 +331,7 @@ Align(
             child: TextFormField(
               autofocus: true,
               autovalidateMode: AutovalidateMode.onUserInteraction,
-              onFieldSubmitted: (final value) async {
-                final Map<String, String> body = {
-                  'mfaToken': mfaToken,
-                  'oobCode': oobCode,
-                  'bindingCode': mfaCode
-                };
-
-                final response = await auth0UserApi.requestMFAToken(body);
-
-                setState(() {
-                  mfaToken = jsonDecode(response.body)['access_token'] as String;
-                });
-
-                enrollTOTP();
-
-              },
+              onFieldSubmitted: (final value) => getMfaToken,
               validator: (final value) {
                 if (value == null || value.trim().isEmpty) {
                   return 'Code is required';
