@@ -46,8 +46,6 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
   String initialCountry = 'US';
 
   String phoneNumber = '';
-  String mfaToken = '';
-  String oobCode = '';
   String codeProvided = '';
   bool validPhoneNumber = false;
 
@@ -83,7 +81,12 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
           child: const Text('Continue'),
         ),
         const SizedBox.shrink(),
-        const SizedBox.shrink(),
+        TextButton(
+          onPressed: inFlightRequest ? null : () {
+            getMfaToken();
+          },
+          child: const Text('Continue'),
+        ),
         TextButton(
           onPressed: codeProvided.isEmpty ? null : () {
            confirmCode();
@@ -123,6 +126,9 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
         requireAdditionalAuthentication = true;
         if (mfaToken.isEmpty) {
           mfaToken = mfaResponse.token;
+          setState(() {
+            inFlightRequest = false;
+          });
         }
         navigateToNextPage();
       } else {
@@ -167,6 +173,22 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
         inFlightRequest = false;
       });
     });
+  }
+
+  void getMfaToken() async {
+    final Map<String, String> body = {
+      'mfaToken': mfaToken,
+      'oobCode': oobCode,
+      'bindingCode': mfaCode
+    };
+
+    final response = await api.requestMFAToken(body);
+
+    setState(() {
+      mfaToken = jsonDecode(response.body)['access_token'] as String;
+    });
+
+    enrollMobile();
   }
 
   Widget get phonePrompt =>
@@ -274,8 +296,8 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
           ),
           const SizedBox(height: 15),
           SizedBox(
-            height: 400,
-            width: 400,
+            width: double.maxFinite,
+            height: 80,
             child: ListView.builder(
               itemCount: authMethods.length,
               padding: const EdgeInsets.all(20),
@@ -303,10 +325,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
                 );
               }
             )
-          ),
-          const SizedBox(height: 15),
-          if (errorMessage.isNotEmpty)
-            ErrorMessage(message: errorMessage)
+          )
         ],
       )
     )
@@ -328,24 +347,10 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
           SizedBox(
             width: 250,
             child: TextFormField(
+              key: const Key('additionalMfaCode'),
               autofocus: true,
               autovalidateMode: AutovalidateMode.onUserInteraction,
-              onFieldSubmitted: (final value) async {
-                final Map<String, String> body = {
-                  'mfaToken': mfaToken,
-                  'oobCode': oobCode,
-                  'bindingCode': mfaCode
-                };
-
-                final response = await api.requestMFAToken(body);
-
-                setState(() {
-                  mfaToken = jsonDecode(response.body)['access_token'] as String;
-                });
-
-                enrollMobile();
-
-              },
+              onFieldSubmitted: (final value) => getMfaToken(),
               validator: (final value) {
                 if (value == null || value.trim().isEmpty) {
                   return 'Code is required';

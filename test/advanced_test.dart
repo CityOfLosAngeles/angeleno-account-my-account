@@ -519,4 +519,91 @@ void main() {
     expect(find.text('Setup Authenticator. Scan code below:'), findsOneWidget);
 
   });
+
+  testWidgets('Mobile - additional MFA required', (final WidgetTester tester) async {
+    final authenticationMethodsMockResponse = ApiResponse(200,
+        '{"mfaMethods": [{"type": "totp", "id": "123"}]}');
+
+    when(mockUserApi.getAuthenticationMethods(any))
+        .thenAnswer((_) async => authenticationMethodsMockResponse);
+
+    when(mockUserApi.challengeMFA(any))
+        .thenAnswer((_) async => ApiResponse(
+        200,
+        '{"oob_code": "123456"}'
+    ));
+
+    when(mockUserApi.requestMFAToken(any))
+        .thenAnswer((_) async => ApiResponse(
+        200,
+        '{"access_token": "eymyaccesstoken"}'
+    ));
+
+    when(mockUserApi.enrollMFA(any))
+        .thenAnswer((_) async => {
+      'status': 401,
+      'body': MfaResponse(
+          token: 'eyJhbG...'
+      )
+    });
+
+    await tester.pumpWidget(
+      MaterialApp(
+          home: Scaffold(
+            body: AdvancedSecurityScreen(
+                userProvider: userProvider,
+                auth0UserApi: mockUserApi
+            ),
+          )
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    verify(mockUserApi.getAuthenticationMethods(any)).called(1);
+
+    expect(find.byKey(const Key('enableSMS')), findsOneWidget);
+    await tester.tap(find.byKey( const Key('enableSMS')));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(Dialog), findsOneWidget);
+
+    final inputTextFieldFinder = find.byKey(const Key('phoneField'));
+    await tester.enterText(inputTextFieldFinder, '2134325435');
+    await tester.pump();
+
+    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.pumpAndSettle();
+
+
+    await tester.enterText(find.byType(TextFormField), 'userPassword');
+    await tester.pump();
+
+    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.pump();
+
+    expect(find.text('Select an authentication method:'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(TextButton, 'Authenticator (TOTP) application'));
+    await tester.pump();
+
+    expect(find.text('Enter code provided:'), findsOneWidget);
+
+    await tester.enterText(find.byKey(const Key('additionalMfaCode')),'123456');
+
+
+    when(mockUserApi.enrollMFA(any))
+        .thenAnswer((_) async => {
+      'status': 200,
+      'body': MfaResponse(
+          token: 'eyJhbG...',
+          oobCode: 'dasddasdasd'
+      )
+    });
+
+    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Please enter the code received:'), findsOneWidget);
+
+  });
 }
