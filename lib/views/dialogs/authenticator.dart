@@ -140,22 +140,22 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
       'userOtpCode': authenticatorCode
     };
 
-    auth0UserApi.confirmMFA(body).then((final response) {
-      if (response.statusCode == HttpStatus.ok) {
-        Navigator.pop(context, response.statusCode);
-        ScaffoldMessenger.of(context).showSnackBar( const SnackBar(
-          behavior: SnackBarBehavior.floating,
-          width: 280.0,
-          content: Text('Authenticator app has been set up.')
-        ));
-      } else {
-        setState(() {
-          errorMessage = response.body;
-        });
-      }
+    final response = await auth0UserApi.confirmMFA(body);
+    if (!mounted) return;
+    if (response.statusCode == HttpStatus.ok) {
+      Navigator.pop(context, response.statusCode);
+      ScaffoldMessenger.of(context).showSnackBar( const SnackBar(
+        behavior: SnackBarBehavior.floating,
+        width: 280.0,
+        content: Text('Authenticator app has been set up.')
+      ));
+    } else {
       setState(() {
-        inFlightRequest = false;
+        errorMessage = response.body;
       });
+    }
+    setState(() {
+      inFlightRequest = false;
     });
   }
 
@@ -262,7 +262,7 @@ Align(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('Select an authentication method:',
+          const Text('Please select an authentication method to verify your identity:',
             style: TextStyle(
               decoration: TextDecoration.none,
               color: Colors.black,

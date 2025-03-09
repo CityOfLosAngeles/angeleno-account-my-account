@@ -1,4 +1,5 @@
 import 'package:angeleno_project/models/mfa_method.dart';
+import 'package:angeleno_project/utils/error_message.dart';
 import 'package:flutter/material.dart';
 
 import 'constants.dart';
@@ -108,7 +109,7 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
           ),
           const SizedBox(height: 15),
           if (errorMessage.isNotEmpty)
-            Text(errorMessage, style: TextStyle(color: const ColorScheme.light().error))
+            ErrorMessage(message: errorMessage)
         ],
       ),
     )

@@ -117,39 +117,42 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
     });
   }
 
-  void disableMFA(final String mfaAuthId, final String method) {
-    auth0UserApi.unenrollMFA({
+  Future<void> disableMFA(final String mfaAuthId, final String method) async {
+
+    final response = await auth0UserApi.unenrollMFA({
       'authFactorId': mfaAuthId,
       'userId': widget.userProvider.user!.userId
-    }).then((final response) {
-      final bool success = response.statusCode == HttpStatus.ok;
-      if (success) {
-
-        getAuthenticationMethods();
-
-        String authMethod;
-        switch (method) {
-          case 'totp':
-            authMethod = 'Authenticator App';
-            break;
-          case 'sms':
-            authMethod = 'SMS';
-            break;
-          case 'voice':
-            authMethod = 'Voice';
-            break;
-          default:
-            authMethod = 'Unknown';
-        }
-
-        Navigator.pop(context, response.statusCode);
-        ScaffoldMessenger.of(context).showSnackBar( SnackBar(
-          behavior: SnackBarBehavior.floating,
-          width: 280.0,
-          content: Text('$authMethod has been removed.')
-        ));
-      }
     });
+
+    if (!mounted) return;
+
+    final bool success = response.statusCode == HttpStatus.ok;
+    if (success) {
+
+      getAuthenticationMethods();
+
+      String authMethod;
+      switch (method) {
+        case 'totp':
+          authMethod = 'Authenticator App';
+          break;
+        case 'sms':
+          authMethod = 'SMS';
+          break;
+        case 'voice':
+          authMethod = 'Voice';
+          break;
+        default:
+          authMethod = 'Unknown';
+      }
+
+      Navigator.pop(context, response.statusCode);
+      ScaffoldMessenger.of(context).showSnackBar( SnackBar(
+        behavior: SnackBarBehavior.floating,
+        width: 280.0,
+        content: Text('$authMethod has been removed.')
+      ));
+    }
   }
 
   @override
@@ -194,8 +197,8 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                                 children: <Widget>[
                                   // ignore: avoid_escaping_inner_quotes
                                   Text('You won\'t be able to use your  '
-                                      'authenticator app to sign into your Angeleno '
-                                      'Account.')
+                                    'authenticator app to sign into your Angeleno '
+                                    'Account.')
                                 ],
                               )
                             ),
@@ -264,9 +267,10 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                                       children: <Widget>[
                                         // ignore: avoid_escaping_inner_quotes
                                         Text('Do you confirm to remove SMS Text? This'
-                                            ' action is irreversible. If you want to use this'
-                                            ' factor again you will need to enroll the'
-                                            ' factor again.')
+                                          ' action is irreversible. If you want to use this'
+                                          ' factor again you will need to enroll the'
+                                          ' factor again.'
+                                        )
                                       ],
                                     )
                                 ),
@@ -336,9 +340,10 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                                       children: <Widget>[
                                         // ignore: avoid_escaping_inner_quotes
                                         Text('Do you confirm to remove Voice Calls? This'
-                                            ' action is irreversible. If you want to use this'
-                                            ' factor again you will need to enroll the'
-                                            ' factor again.')
+                                          ' action is irreversible. If you want to use this'
+                                          ' factor again you will need to enroll the'
+                                          ' factor again.'
+                                        )
                                       ],
                                     )
                                 ),
@@ -372,13 +377,13 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                             onPressed: () {
                               showDialog<int>(
                                   context: context,
-                                  builder: (
-                                      final BuildContext context) => MobileDialog(
-                                    userProvider: userProvider,
-                                    userApi: auth0UserApi,
-                                    channel: 'voice',
-                                    authMethods: authenticators
-                                  )
+                                  builder: (final BuildContext context) =>
+                                    MobileDialog(
+                                      userProvider: userProvider,
+                                      userApi: auth0UserApi,
+                                      channel: 'voice',
+                                      authMethods: authenticators
+                                    )
                               ).then((final value) {
                                 if (value != null && value == HttpStatus.ok){
                                   _triggerAuthMethods();

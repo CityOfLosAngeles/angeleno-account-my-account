@@ -67,33 +67,33 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
 
   @override
   List<Widget> get dialogNext =>
-      [
-        TextButton(
-          onPressed: !validPhoneNumber && isNotTestMode ? null : () {
-            navigateToNextPage();
-          },
-          child: const Text('Continue'),
-        ),
-        TextButton(
-          onPressed: passwordField.text.isEmpty ? null : () {
-            enrollMobile();
-          },
-          child: const Text('Continue'),
-        ),
-        const SizedBox.shrink(),
-        TextButton(
-          onPressed: inFlightRequest ? null : () {
-            getMfaToken();
-          },
-          child: const Text('Continue'),
-        ),
-        TextButton(
-          onPressed: codeProvided.isEmpty ? null : () {
-           confirmCode();
-          },
-          child: const Text('Continue')
-        )
-      ];
+    [
+      TextButton(
+        onPressed: !validPhoneNumber && isNotTestMode ? null : () {
+          navigateToNextPage();
+        },
+        child: const Text('Continue'),
+      ),
+      TextButton(
+        onPressed: passwordField.text.isEmpty ? null : () {
+          enrollMobile();
+        },
+        child: const Text('Continue'),
+      ),
+      const SizedBox.shrink(),
+      TextButton(
+        onPressed: inFlightRequest ? null : () {
+          getMfaToken();
+        },
+        child: const Text('Continue'),
+      ),
+      TextButton(
+        onPressed: codeProvided.isEmpty ? null : () {
+         confirmCode();
+        },
+        child: const Text('Continue')
+      )
+    ];
 
   void enrollMobile() async {
     setState(() {
@@ -156,22 +156,23 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
       'userOtpCode': codeProvided
     };
 
-    api.confirmMFA(body).then((final response) {
-      if (response.statusCode == HttpStatus.ok) {
-        Navigator.pop(context, response.statusCode);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          behavior: SnackBarBehavior.floating,
-          width: 280.0,
-          content: Text('$channel MFA has been enabled.')
-        ));
-      } else {
-        setState(() {
-          errorMessage = response.body;
-        });
-      }
+    final response = await api.confirmMFA(body);
+    if (!mounted) return;
+
+    if (response.statusCode == HttpStatus.ok) {
+      Navigator.pop(context, response.statusCode);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        behavior: SnackBarBehavior.floating,
+        width: 280.0,
+        content: Text('$channel MFA has been enabled.')
+      ));
+    } else {
       setState(() {
-        inFlightRequest = false;
+        errorMessage = response.body;
       });
+    }
+    setState(() {
+      inFlightRequest = false;
     });
   }
 
@@ -192,90 +193,90 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
   }
 
   Widget get phonePrompt =>
-      modalBody(Align(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'Please enter your phone number:',
-              textAlign: TextAlign.center,
-              softWrap: true,
-            ),
-            const SizedBox(height: 15),
-            SizedBox(
-              width: 500,
-              child: InternationalPhoneNumberInput(
-                selectorConfig: const SelectorConfig(
-                  selectorType: PhoneInputSelectorType.DIALOG,
-                  setSelectorButtonAsPrefixIcon: true,
-                  leadingPadding: 20.0
-                ),
-                key: const Key('phoneField'),
-                onInputChanged: (final PhoneNumber number) {
-                  phoneNumber = number.phoneNumber!;
-                },
-                onInputValidated: (final bool value) {
-                  setState(() {
-                    validPhoneNumber = value;
-                  });
-                },
-                onFieldSubmitted: (final value) {
-                  navigateToNextPage();
-                },
-                autoFocus: true,
-                autoValidateMode: isNotTestMode ?
-                  AutovalidateMode.onUserInteraction
-                  : AutovalidateMode.disabled,
-                selectorTextStyle: const TextStyle(color: Colors.black),
-                initialValue: number,
-                textFieldController: phoneField,
-                keyboardType: const TextInputType.numberWithOptions(
-                  signed: true,
-                  decimal: true
-                ),
-                inputBorder: const OutlineInputBorder(),
+    modalBody(Align(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text(
+            'Please enter your phone number:',
+            textAlign: TextAlign.center,
+            softWrap: true,
+          ),
+          const SizedBox(height: 15),
+          SizedBox(
+            width: 500,
+            child: InternationalPhoneNumberInput(
+              selectorConfig: const SelectorConfig(
+                selectorType: PhoneInputSelectorType.DIALOG,
+                setSelectorButtonAsPrefixIcon: true,
+                leadingPadding: 20.0
               ),
-            )
-          ],
-        ),
-      ));
+              key: const Key('phoneField'),
+              onInputChanged: (final PhoneNumber number) {
+                phoneNumber = number.phoneNumber!;
+              },
+              onInputValidated: (final bool value) {
+                setState(() {
+                  validPhoneNumber = value;
+                });
+              },
+              onFieldSubmitted: (final value) {
+                navigateToNextPage();
+              },
+              autoFocus: true,
+              autoValidateMode: isNotTestMode ?
+                AutovalidateMode.onUserInteraction
+                : AutovalidateMode.disabled,
+              selectorTextStyle: const TextStyle(color: Colors.black),
+              initialValue: number,
+              textFieldController: phoneField,
+              keyboardType: const TextInputType.numberWithOptions(
+                signed: true,
+                decimal: true
+              ),
+              inputBorder: const OutlineInputBorder(),
+            ),
+          )
+        ],
+      ),
+    ));
 
   Widget get codeScreen =>
-      modalBody(Align(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('Please enter the code received:'),
-            SizedBox(
-              width: 250,
-              child: TextFormField(
-                key: const Key('phoneCode'),
-                autofocus: true,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                validator: (final value) {
-                  if (value == null || value
-                      .trim()
-                      .isEmpty) {
-                    return 'Code is required';
-                  }
-                  return null;
-                },
-                onFieldSubmitted: (final value) {
-                  confirmCode();
-                },
-                onChanged: (final val) {
-                  setState(() {
-                    codeProvided = val;
-                  });
-                },
-              ),
+    modalBody(Align(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text('Please enter the code received:'),
+          SizedBox(
+            width: 250,
+            child: TextFormField(
+              key: const Key('phoneCode'),
+              autofocus: true,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: (final value) {
+                if (value == null || value
+                    .trim()
+                    .isEmpty) {
+                  return 'Code is required';
+                }
+                return null;
+              },
+              onFieldSubmitted: (final value) {
+                confirmCode();
+              },
+              onChanged: (final val) {
+                setState(() {
+                  codeProvided = val;
+                });
+              },
             ),
-            const SizedBox(height: 15),
-            if (errorMessage.isNotEmpty)
-              Text(errorMessage, style: TextStyle(color: const ColorScheme.light().error))
-          ],
-        ),
-      ));
+          ),
+          const SizedBox(height: 15),
+          if (errorMessage.isNotEmpty)
+            ErrorMessage(message: errorMessage)
+        ],
+      ),
+    ));
 
   Widget get passwordPromptWidget => passwordPrompt(
     'Please enter your password:',
@@ -286,7 +287,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
     Align(
       child: Column(
         children: [
-          const Text('Select an authentication method:',
+          const Text('Please select an authentication method to verify your identity:',
             style: TextStyle(
               decoration: TextDecoration.none,
               color: Colors.black,
@@ -366,7 +367,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
           ),
           const SizedBox(height: 15),
           if (errorMessage.isNotEmpty)
-            Text(errorMessage, style: TextStyle(color: const ColorScheme.light().error))
+            ErrorMessage(message: errorMessage)
         ],
       )
     )

@@ -50,7 +50,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
     auth0UserApi = widget.auth0UserApi;
   }
 
-  void submitRequest() {
+  Future<void> submitRequest() async {
     if (newPassword == passwordMatch) {
 
       setState(() {
@@ -66,27 +66,28 @@ class _PasswordScreenState extends State<PasswordScreen> {
         userId: userProvider.user!.userId
       );
 
-      auth0UserApi.updatePassword(body).then((final response) {
-        final success = response['status'] == HttpStatus.ok;
-        overlayProvider.hideLoading();
-        ScaffoldMessenger.of(context).showSnackBar( SnackBar(
-            behavior: SnackBarBehavior.floating,
-            width: 280.0,
-            content: Text(success ? 'Password updated. Logging out...'
-                : 'Password update failed')
-        ));
+      final response = await auth0UserApi.updatePassword(body);
 
-        if (!success) {
-          setState(() {
-            errorMsg = response['body'].toString();
-          });
-        } else {
-          Future.delayed(const Duration(seconds: 3), () {
-            userProvider.logout();
-          });
-        }
-      });
+      if (!mounted) return;
 
+      final success = response['status'] == HttpStatus.ok;
+      overlayProvider.hideLoading();
+      ScaffoldMessenger.of(context).showSnackBar( SnackBar(
+        behavior: SnackBarBehavior.floating,
+        width: 280.0,
+        content: Text(success ? 'Password updated. Logging out...'
+          : 'Password update failed')
+      ));
+
+      if (!success) {
+        setState(() {
+          errorMsg = response['body'].toString();
+        });
+      } else {
+        Future.delayed(const Duration(seconds: 3), () {
+          userProvider.logout();
+        });
+      }
     }
   }
 
