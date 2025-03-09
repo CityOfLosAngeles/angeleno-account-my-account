@@ -116,8 +116,15 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
         }
         navigateToNextPage();
       } else {
+        // Covers edge case where user presses back button
+        if (mfaResponse.errorMessage == 'User is already enrolled.') {
+          navigateToNextPage();
+        } else {
+          setState(() {
+            errorMessage = mfaResponse.errorMessage;
+          });
+        }
         setState(() {
-          errorMessage = mfaResponse.errorMessage;
           inFlightRequest = false;
         });
       }

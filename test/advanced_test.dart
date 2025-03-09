@@ -492,7 +492,7 @@ void main() {
     await tester.tap(find.widgetWithText(TextButton, 'Continue'));
     await tester.pump();
 
-    expect(find.text('Select an authentication method:'), findsOneWidget);
+    expect(find.text('Please select an authentication method to verify your identity:'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(TextButton, 'SMS Message to 2135432454'));
     await tester.pump();
@@ -581,7 +581,7 @@ void main() {
     await tester.tap(find.widgetWithText(TextButton, 'Continue'));
     await tester.pump();
 
-    expect(find.text('Select an authentication method:'), findsOneWidget);
+    expect(find.text('Please select an authentication method to verify your identity:'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(TextButton, 'Authenticator (TOTP) application'));
     await tester.pump();
