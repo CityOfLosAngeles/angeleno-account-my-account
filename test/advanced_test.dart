@@ -352,7 +352,7 @@ void main() {
 
   });
 
-  testWidgets('Advanced Security - Voice - Wrong password', (final WidgetTester tester) async {
+  testWidgets('Voice/SMS - wrong password', (final WidgetTester tester) async {
 
     final enrollMFAResponse = <String, dynamic> {
       'status': 400,
@@ -395,7 +395,7 @@ void main() {
     expect(find.text('An error occurred'), findsOneWidget);
   });
 
-  testWidgets('Authenticator, wrong password', (final WidgetTester tester) async {
+  testWidgets('Authenticator - wrong password', (final WidgetTester tester) async {
     final authenticationMethodsMockResponse = ApiResponse(200,
         '{"mfaMethods": []}');
 
@@ -439,7 +439,7 @@ void main() {
     expect(find.text('Error found!'), findsOneWidget);
   });
 
-  testWidgets('Authenticator, additional MFA required', (final WidgetTester tester) async {
+  testWidgets('Authenticator - additional MFA required', (final WidgetTester tester) async {
     final authenticationMethodsMockResponse = ApiResponse(200,
         '{"mfaMethods": [{"type": "phone", "id": "456", "preferred_authentication_method": "sms", "phone_number": "2135432454"}]}');
 
