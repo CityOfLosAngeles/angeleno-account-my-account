@@ -11,7 +11,7 @@ on:
       - production
 jobs:
   build_and_deploy:
-    environment: ${{github.base_ref}}
+    environment: development
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
