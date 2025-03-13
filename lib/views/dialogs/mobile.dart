@@ -327,7 +327,24 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
 
                 return TextButton(
                   onPressed: () async {
-                    navigateToNextPage();
+                    if (friendlyMfaMethodName == 'Authenticator(TOTP) application') {
+                      navigateToNextPage();
+                      return;
+                    } else {
+
+                      final Map<String, String> body = {
+                        'mfaToken': mfaToken,
+                        'authenticatorId': 'oob',
+                        'bindingCode': oobCode
+                      };
+
+                      final response = await api.challengeMFA(body);
+                      final jsonResponse = jsonDecode(response.body);
+                      setState(() {
+                        oobCode = jsonResponse['oob_code'] as String;
+                      });
+                      navigateToNextPage();
+                    }
                   },
                   child: Text(friendlyMfaMethodName),
                 );
