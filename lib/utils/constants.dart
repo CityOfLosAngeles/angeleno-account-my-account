@@ -17,7 +17,7 @@ const datadogClientToken = String.fromEnvironment('DATADOG_CLIENT_TOKEN');
 const dataDogApplicationId = String.fromEnvironment('DATADOG_APP_ID');
 final datadogConfig = DatadogConfiguration(
     clientToken: datadogClientToken,
-    env: 'development',
+    env: 'sandbox',
     site: DatadogSite.us5,
     nativeCrashReportEnabled: true,
     loggingConfiguration: DatadogLoggingConfiguration(),

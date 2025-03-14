@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "target": "angeleno-my-account-dev-402917",
+    "target": "angeleno-my-account-sandbox-422814",
     "public": "build/web",
     "ignore": [
       "firebase.json",
@@ -11,12 +11,12 @@
       {
         "source": "/maps/**",
         "function": "maps",
-        "region": "us-central1"
+        "region": "us-west1"
       },
       {
         "source": "/auth0/**",
         "function": "auth0",
-        "region": "us-central1"
+        "region": "us-west1"
       }
     ]
   },
