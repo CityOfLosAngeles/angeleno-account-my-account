@@ -384,7 +384,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
               },
               onChanged: (final val) {
                 setState(() {
-                  oobCode = val;
+                  mfaCode = val;
                 });
               },
             )
