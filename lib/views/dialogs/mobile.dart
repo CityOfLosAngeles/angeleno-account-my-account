@@ -327,7 +327,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
 
                 return TextButton(
                   onPressed: () async {
-                    if (friendlyMfaMethodName == 'Authenticator(TOTP) application') {
+                    if (method.authenticatorType == 'totp') {
                       navigateToNextPage();
                       return;
                     } else {
