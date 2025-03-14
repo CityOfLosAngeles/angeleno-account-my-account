@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:angeleno_project/models/password_reset.dart';
 import 'package:angeleno_project/utils/constants.dart';
+import 'package:angeleno_project/utils/error_message.dart';
 import 'package:datadog_flutter_plugin/datadog_flutter_plugin.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -49,7 +50,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
     auth0UserApi = widget.auth0UserApi;
   }
 
-  void submitRequest() {
+  Future<void> submitRequest() async {
     if (newPassword == passwordMatch) {
 
       setState(() {
@@ -65,27 +66,28 @@ class _PasswordScreenState extends State<PasswordScreen> {
         userId: userProvider.user!.userId
       );
 
-      auth0UserApi.updatePassword(body).then((final response) {
-        final success = response['status'] == HttpStatus.ok;
-        overlayProvider.hideLoading();
-        ScaffoldMessenger.of(context).showSnackBar( SnackBar(
-            behavior: SnackBarBehavior.floating,
-            width: 280.0,
-            content: Text(success ? 'Password updated. Logging out...'
-                : 'Password update failed')
-        ));
+      final response = await auth0UserApi.updatePassword(body);
 
-        if (!success) {
-          setState(() {
-            errorMsg = response['body'].toString();
-          });
-        } else {
-          Future.delayed(const Duration(seconds: 3), () {
-            userProvider.logout();
-          });
-        }
-      });
+      if (!mounted) return;
 
+      final success = response['status'] == HttpStatus.ok;
+      overlayProvider.hideLoading();
+      ScaffoldMessenger.of(context).showSnackBar( SnackBar(
+        behavior: SnackBarBehavior.floating,
+        width: 280.0,
+        content: Text(success ? 'Password updated. Logging out...'
+          : 'Password update failed')
+      ));
+
+      if (!success) {
+        setState(() {
+          errorMsg = response['body'].toString();
+        });
+      } else {
+        Future.delayed(const Duration(seconds: 3), () {
+          userProvider.logout();
+        });
+      }
     }
   }
 
@@ -204,8 +206,8 @@ class _PasswordScreenState extends State<PasswordScreen> {
               'Be at least $minPasswordLength characters',
               style: TextStyle(
               color: acceptableLength
-                ? colorScheme.primary
-                : colorScheme.error
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.error
               )
             )
           ],
@@ -254,7 +256,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (errorMsg.isNotEmpty)
-              Text(errorMsg, style: TextStyle(color: colorScheme.error)),
+              ErrorMessage(message: errorMsg),
             const SizedBox(height: 10.0),
             ElevatedButton(
               onPressed: _isButtonDisabled ? null : () => submitRequest(),

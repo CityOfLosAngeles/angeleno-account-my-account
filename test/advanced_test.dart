@@ -1,6 +1,7 @@
 import 'package:angeleno_project/controllers/auth0_user_api_implementation.dart';
 import 'package:angeleno_project/controllers/user_provider.dart';
 import 'package:angeleno_project/models/api_response.dart';
+import 'package:angeleno_project/models/mfa_response.dart';
 import 'package:angeleno_project/views/dialogs/mobile.dart';
 import 'package:angeleno_project/views/screens/advanced_security_screen.dart';
 import 'package:auth0_flutter/auth0_flutter.dart';
@@ -8,7 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+
 import 'mocks/auth0_user_api_mock.dart';
+
 
 @GenerateNiceMocks([MockSpec<Auth0UserApi>()])
 void main() {
@@ -46,18 +49,18 @@ void main() {
 
   testWidgets('Advanced Security - TOTP and SMS', (final WidgetTester tester) async {
     final authenticationMethodsMockResponse = ApiResponse(200,
-    '{"mfaMethods": [{"type": "totp", "id": "123"}, {"type": "phone", "id": "456", "preferred_authentication_method": "sms"}]}');
+    '{"mfaMethods": [{"type": "totp", "id": "123"}, {"type": "phone", "id": "456", "preferred_authentication_method": "sms", "phone_number": "2135432454"}]}');
     final disableAuthenticatorMockResponse = ApiResponse(200, '');
     final confirmAuthenticatorMockResponse = ApiResponse(200, '');
 
      final totpEnrollmentMockResponse = {
       'status': 200,
-      'token': 'eyJhbG',
-      'authenticator_type': 'otp',
-      'secret': 'NQ4FGVKEMQWGIRZVJFSE2STEKN4UQKCD',
-      'barcode': 'otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example',
-      'barcode_string': 'totpString',
-      'oobCode': 'dasddasdasd'
+      'body': MfaResponse(
+         barcode: 'otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example',
+         token: 'eyJhbG',
+         barcodeString: 'totpString',
+         oobCode: 'dasddasdasd'
+       )
     };
 
     when(mockUserApi.getAuthenticationMethods(any))
@@ -251,13 +254,17 @@ void main() {
 
   testWidgets('Advanced Security - Voice', (final WidgetTester tester) async {
     final authenticationMethodsMockResponse = ApiResponse(200,
-        '{"mfaMethods": [{"type": "phone", "id": "456", "preferred_authentication_method": "voice"}],' +
+        '{"mfaMethods": [{"type": "phone", "id": "456", "preferred_authentication_method": "voice","phone_number": "2135432454"}],' +
             '"services": [{"clientId": "65165", "name": "Example", "scope": ["openid", "profile", "email"], "grantId": "123"}]}');
 
     final enrollMFAResponse = <String, dynamic> {
       'status': 200,
-      'oobCode': 'oobCode',
-      'token' : 'myToken'
+      'body': MfaResponse(
+        barcode: 'otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example',
+        token: 'eyJhbG',
+        barcodeString: 'totpString',
+        oobCode: 'dasddasdasd'
+      )
     };
 
     final disableAuthenticatorMockResponse = ApiResponse(200, '');
@@ -345,11 +352,13 @@ void main() {
 
   });
 
-  testWidgets('Advanced Security - Voice - Wrong password', (final WidgetTester tester) async {
+  testWidgets('Voice/SMS - wrong password', (final WidgetTester tester) async {
 
     final enrollMFAResponse = <String, dynamic> {
       'status': 400,
-      'body': 'An error occurred'
+      'body': MfaResponse(
+        errorMessage: 'An error occurred'
+      )
     };
 
     when(mockUserApi.enrollMFA(any))
@@ -384,5 +393,217 @@ void main() {
     // await tester.pumpAndSettle();
     await tester.pump();
     expect(find.text('An error occurred'), findsOneWidget);
+  });
+
+  testWidgets('Authenticator - wrong password', (final WidgetTester tester) async {
+    final authenticationMethodsMockResponse = ApiResponse(200,
+        '{"mfaMethods": []}');
+
+    when(mockUserApi.getAuthenticationMethods(any))
+        .thenAnswer((_) async => authenticationMethodsMockResponse);
+
+    when(mockUserApi.enrollMFA(any))
+        .thenAnswer((_) async => {
+      'status': 404,
+      'body': MfaResponse(
+          errorMessage: 'Error found!'
+      )
+    });
+
+    await tester.pumpWidget(
+      MaterialApp(
+          home: Scaffold(
+            body: AdvancedSecurityScreen(
+                userProvider: userProvider,
+                auth0UserApi: mockUserApi
+            ),
+          )
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    verify(mockUserApi.getAuthenticationMethods(any)).called(1);
+
+    expect(find.byKey(const Key('enableAuthenticator')), findsOneWidget);
+    await tester.tap(find.byKey( const Key('enableAuthenticator')));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(Dialog), findsOneWidget);
+    await tester.enterText(find.byType(TextFormField), 'WrongPassword');
+    await tester.pump();
+
+    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.pumpAndSettle();
+
+
+    expect(find.text('Error found!'), findsOneWidget);
+  });
+
+  testWidgets('Authenticator - additional MFA required', (final WidgetTester tester) async {
+    final authenticationMethodsMockResponse = ApiResponse(200,
+        '{"mfaMethods": [{"type": "phone", "id": "456", "preferred_authentication_method": "sms", "phone_number": "2135432454"}]}');
+
+    when(mockUserApi.getAuthenticationMethods(any))
+        .thenAnswer((_) async => authenticationMethodsMockResponse);
+
+    when(mockUserApi.challengeMFA(any))
+        .thenAnswer((_) async => ApiResponse(
+        200,
+        '{"oob_code": "123456"}'
+    ));
+
+    when(mockUserApi.requestMFAToken(any))
+        .thenAnswer((_) async => ApiResponse(
+        200,
+        '{"access_token": "eymyaccesstoken"}'
+      ));
+
+    when(mockUserApi.enrollMFA(any))
+        .thenAnswer((_) async => {
+      'status': 401,
+      'body': MfaResponse(
+          token: 'eyJhbG...'
+      )
+    });
+
+    await tester.pumpWidget(
+      MaterialApp(
+          home: Scaffold(
+            body: AdvancedSecurityScreen(
+                userProvider: userProvider,
+                auth0UserApi: mockUserApi
+            ),
+          )
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    verify(mockUserApi.getAuthenticationMethods(any)).called(1);
+
+    expect(find.byKey(const Key('enableAuthenticator')), findsOneWidget);
+    await tester.tap(find.byKey( const Key('enableAuthenticator')));
+    await tester.pumpAndSettle();
+
+
+    expect(find.byType(Dialog), findsOneWidget);
+    await tester.enterText(find.byType(TextFormField), 'userPassword');
+    await tester.pump();
+
+    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.pump();
+
+    expect(find.text('Please select an authentication method to verify your identity:'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(TextButton, 'SMS Message to 2135432454'));
+    await tester.pump();
+
+    expect(find.text('Enter code provided:'), findsOneWidget);
+
+    await tester.enterText(find.byKey(const Key('additionalMfaCode')),'123456');
+
+
+    when(mockUserApi.enrollMFA(any))
+        .thenAnswer((_) async => {
+      'status': 200,
+      'body': MfaResponse(
+          token: 'eyJhbG...',
+          barcode: 'otpauth://totp/Example:',
+          barcodeString: 'JBSWY3DPEHP',
+          oobCode: 'dasddasdasd'
+      )
+    });
+
+    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Setup Authenticator. Scan code below:'), findsOneWidget);
+
+  });
+
+  testWidgets('Mobile - additional MFA required', (final WidgetTester tester) async {
+    final authenticationMethodsMockResponse = ApiResponse(200,
+        '{"mfaMethods": [{"type": "totp", "id": "123"}]}');
+
+    when(mockUserApi.getAuthenticationMethods(any))
+        .thenAnswer((_) async => authenticationMethodsMockResponse);
+
+    when(mockUserApi.challengeMFA(any))
+        .thenAnswer((_) async => ApiResponse(
+        200,
+        '{"oob_code": "123456"}'
+    ));
+
+    when(mockUserApi.requestMFAToken(any))
+        .thenAnswer((_) async => ApiResponse(
+        200,
+        '{"access_token": "eymyaccesstoken"}'
+    ));
+
+    when(mockUserApi.enrollMFA(any))
+        .thenAnswer((_) async => {
+      'status': 401,
+      'body': MfaResponse(
+          token: 'eyJhbG...'
+      )
+    });
+
+    await tester.pumpWidget(
+      MaterialApp(
+          home: Scaffold(
+            body: AdvancedSecurityScreen(
+                userProvider: userProvider,
+                auth0UserApi: mockUserApi
+            ),
+          )
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    verify(mockUserApi.getAuthenticationMethods(any)).called(1);
+
+    expect(find.byKey(const Key('enableSMS')), findsOneWidget);
+    await tester.tap(find.byKey( const Key('enableSMS')));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(Dialog), findsOneWidget);
+
+    final inputTextFieldFinder = find.byKey(const Key('phoneField'));
+    await tester.enterText(inputTextFieldFinder, '2134325435');
+    await tester.pump();
+
+    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.pumpAndSettle();
+
+
+    await tester.enterText(find.byType(TextFormField), 'userPassword');
+    await tester.pump();
+
+    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.pump();
+
+    expect(find.text('Please select an authentication method to verify your identity:'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(TextButton, 'Authenticator (TOTP) application'));
+    await tester.pump();
+
+    expect(find.text('Enter code provided:'), findsOneWidget);
+
+    await tester.enterText(find.byKey(const Key('additionalMfaCode')),'123456');
+
+
+    when(mockUserApi.enrollMFA(any))
+        .thenAnswer((_) async => {
+      'status': 200,
+      'body': MfaResponse(
+          token: 'eyJhbG...',
+          oobCode: 'dasddasdasd'
+      )
+    });
+
+    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Please enter the code received:'), findsOneWidget);
+
   });
 }
