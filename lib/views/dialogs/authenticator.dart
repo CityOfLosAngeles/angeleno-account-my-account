@@ -1,20 +1,25 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:angeleno_project/utils/error_message.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../controllers/auth0_user_api_implementation.dart';
 import '../../controllers/user_provider.dart';
-import '../../utils/BaseMFADialogState.dart';
-import '../../utils/constants.dart';
+import '../../models/mfa_method.dart';
+import '../../models/mfa_response.dart';
+import '../../utils/base_mfa_dialog_state.dart';
 
 class AuthenticatorDialog extends StatefulWidget {
   final UserProvider userProvider;
   final Auth0UserApi auth0UserApi;
+  final List<MfaMethod> authMethods;
 
   const AuthenticatorDialog({
     required this.userProvider,
     required this.auth0UserApi,
+    required this.authMethods,
     super.key
   });
 
@@ -26,13 +31,11 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
 
   late UserProvider userProvider;
   late Auth0UserApi auth0UserApi;
+  late List<MfaMethod> authMethods;
 
-  final passwordField = TextEditingController();
-
-  String totpQrCode = '';
-  String totpCode = '';
+  String authenticatorQrCode = '';
   String qrCodeAltString = '';
-  String mfaToken = '';
+  String authenticatorCode = '';
 
   @override
   void initState() {
@@ -40,23 +43,21 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
 
     userProvider = widget.userProvider;
     auth0UserApi = widget.auth0UserApi;
-
-    passwordField.addListener(() {
-      setState(() {});
-    });
-  }
-
-  @override
-  void dispose() {
-    passwordField.dispose();
-    super.dispose();
+    authMethods = widget.authMethods;
   }
 
   @override
   List<Widget> get dialogNext => [
     TextButton(
       onPressed: passwordField.text.isEmpty || inFlightRequest ? null : () {
-        enrollTOTP();
+        enrollAuthenticator();
+      },
+      child: const Text('Continue'),
+    ),
+    const SizedBox.shrink(),
+    TextButton(
+      onPressed: inFlightRequest ? null : () {
+        getMfaToken();
       },
       child: const Text('Continue'),
     ),
@@ -67,17 +68,17 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
       child: const Text('Continue'),
     ),
     TextButton(
-      onPressed: totpCode.isEmpty || inFlightRequest ? null : () {
-        confirmTOTP();
+      onPressed: authenticatorCode.isEmpty || inFlightRequest ? null : () {
+        confirmAuthenticator();
       },
       child: const Text('Finish'),
     )
   ];
 
-  void enrollTOTP() async {
+  void enrollAuthenticator() async {
 
     setState(() {
-      errMsg = '';
+      errorMessage = '';
       inFlightRequest = true;
     });
 
@@ -88,117 +89,102 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
     final Map<String, String> body = {
       'email': userProvider.user!.email,
       'password': passwordField.text,
-      'mfaFactor': 'otp'
+      'mfaFactor': 'otp',
+      'mfaToken': mfaToken
     };
 
     auth0UserApi.enrollMFA(body).then((final response) {
-      final bool success = response['status'] == HttpStatus.ok;
-      if (success) {
+      final int statusCode = response['status'] as int;
+      final mfaResponse = response['body'] as MfaResponse;
+
+      if (statusCode == HttpStatus.ok) {
         setState(() {
-          totpQrCode = response['barcode'] as String;
-          mfaToken = response['token'] as String;
-          qrCodeAltString = response['barcode_string'] as String;
+          authenticatorQrCode = mfaResponse.barcode;
+          mfaToken = mfaResponse.token;
+          qrCodeAltString = mfaResponse.barcodeString;
           inFlightRequest = false;
         });
+
+        navigateToNextPage(increment: !requireAdditionalAuthentication ? 3 : 1);
+      } else if (statusCode == HttpStatus.unauthorized) {
+        requireAdditionalAuthentication = true;
+        if (mfaToken.isEmpty) {
+          mfaToken = mfaResponse.token;
+          setState(() {
+            inFlightRequest = false;
+          });
+        }
         navigateToNextPage();
       } else {
+        // Covers edge case where user presses back button
+        if (mfaResponse.errorMessage == 'User is already enrolled.') {
+          navigateToNextPage();
+        } else {
+          setState(() {
+            errorMessage = mfaResponse.errorMessage;
+          });
+        }
         setState(() {
-          errMsg = response['body'] as String;
           inFlightRequest = false;
         });
       }
     });
   }
 
-  void confirmTOTP() async {
+  void confirmAuthenticator() async {
 
     setState(() {
-      errMsg = '';
+      errorMessage = '';
       inFlightRequest = true;
     });
 
-    if (totpCode.isEmpty) {
+    if (authenticatorCode.isEmpty) {
       return;
     }
 
     final Map<String, String> body = {
       'mfaToken': mfaToken,
-      'userOtpCode': totpCode
+      'userOtpCode': authenticatorCode
     };
 
-    auth0UserApi.confirmMFA(body).then((final response) {
-      if (response.statusCode == HttpStatus.ok) {
-        Navigator.pop(context, response.statusCode);
-        ScaffoldMessenger.of(context).showSnackBar( const SnackBar(
-          behavior: SnackBarBehavior.floating,
-          width: 280.0,
-          content: Text('Authenticator app has been set up.')
-        ));
-      } else {
-        setState(() {
-          errMsg = response.body;
-        });
-      }
+    final response = await auth0UserApi.confirmMFA(body);
+    if (!mounted) return;
+    if (response.statusCode == HttpStatus.ok) {
+      Navigator.pop(context, response.statusCode);
+      ScaffoldMessenger.of(context).showSnackBar( const SnackBar(
+        behavior: SnackBarBehavior.floating,
+        width: 280.0,
+        content: Text('Authenticator app has been set up.')
+      ));
+    } else {
       setState(() {
-        inFlightRequest = false;
+        errorMessage = response.body;
       });
+    }
+    setState(() {
+      inFlightRequest = false;
     });
   }
 
-  Widget get passwordPrompt => modalBody(
-    Align(
-      child:  Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text(
-            'Set up Multi-Factor Authentication (MFA). Continue MFA '
-                'setup to add an additional layer of security when signing '
-                'in to your account. \n\n Please enter your password:',
-            textAlign: TextAlign.center,
-            softWrap: true,
-          ),
-          const SizedBox(height: 15),
-          SizedBox(
-            key: const Key('passwordField'),
-            width: 250,
-            child: TextFormField(
-              autofocus: true,
-              controller: passwordField,
-              onFieldSubmitted: (final value) {
-                enrollTOTP();
-              },
-              obscureText: obscurePassword,
-              enableSuggestions: false,
-              autocorrect: false,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              validator: (final value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Password is required';
-                }
-                return null;
-              },
-              decoration: InputDecoration(
-                  suffixIcon: IconButton(
-                    key: const Key('toggle_password'),
-                    onPressed: () {
-                      setState(() {
-                        obscurePassword = !obscurePassword;
-                      });
-                    },
-                    icon: Icon(
-                      // ignore: lines_longer_than_80_chars
-                        obscurePassword ? Icons.visibility : Icons.visibility_off
-                    ),
-                  )
-              ),
-            ),
-          ),
-          const SizedBox(height: 15),
-          if (errMsg.isNotEmpty)
-            Text(errMsg, style: TextStyle(color: colorScheme.error))
-        ],
-      ),
-    )
+  void getMfaToken() async {
+    final Map<String, String> body = {
+      'mfaToken': mfaToken,
+      'oobCode': oobCode,
+      'bindingCode': mfaCode
+    };
+
+    final response = await auth0UserApi.requestMFAToken(body);
+
+    setState(() {
+      mfaToken = jsonDecode(response.body)['access_token'] as String;
+    });
+
+    enrollAuthenticator();
+  }
+
+  Widget get passwordPromptWidget => passwordPrompt(
+    'Set up Multi-Factor Authentication (MFA). Continue MFA setup to add an additional layer of security when signing in to your account. \n\n Please enter your password:',
+    enrollAuthenticator
   );
 
   Widget get qrCodeScreen =>  modalBody(
@@ -218,7 +204,7 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
             height: 150,
             width: 150,
             child: QrImageView(
-              data: totpQrCode,
+              data: authenticatorQrCode,
               size: 150
             ),
           ),
@@ -255,7 +241,7 @@ Align(
                 autofocus: true,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 onFieldSubmitted: (final value) {
-                  confirmTOTP();
+                  confirmAuthenticator();
                 },
                 validator: (final value) {
                   if (value == null || value.trim().isEmpty) {
@@ -265,21 +251,123 @@ Align(
                 },
                 onChanged: (final val) {
                   setState(() {
-                    totpCode = val;
+                    authenticatorCode = val;
                   });
                 },
               )
           ),
           const SizedBox(height: 15),
-          if (errMsg.isNotEmpty)
-            Text(errMsg, style: TextStyle(color: colorScheme.error))
+          if (errorMessage.isNotEmpty)
+            ErrorMessage(message: errorMessage)
+        ],
+      )
+    )
+  );
+
+  Widget get authenticatorList => modalBody(
+    Align(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('Please select an authentication method to verify your identity:',
+            style: TextStyle(
+              decoration: TextDecoration.none,
+              color: Colors.black,
+              fontSize: 16.0,
+              fontWeight: FontWeight.normal
+            ),
+          ),
+          const SizedBox(height: 15),
+          SizedBox(
+            width: double.maxFinite,
+            height: 80,
+            child: ListView.builder(
+              itemCount: authMethods.length,
+              padding: const EdgeInsets.all(20),
+              itemBuilder: (final BuildContext context, final int index) {
+
+                late final String friendlyMfaMethodName;
+                final method = authMethods[index];
+
+                if (method.authenticatorType == 'phone') {
+                  if (method.oobChannel == 'sms') {
+                    friendlyMfaMethodName = 'SMS Message to ${method.name}';
+                  } else {
+                    friendlyMfaMethodName = 'Voice Call to ${method.name}';
+                  }
+                } else {
+                  friendlyMfaMethodName = 'Authenticator (TOTP) application';
+                }
+
+                return TextButton(
+                  onPressed: () async {
+                    final Map<String, String> body = {
+                      'mfaToken': mfaToken,
+                      'authenticatorId': 'oob'
+                    };
+
+                    final response = await auth0UserApi.challengeMFA(body);
+                    final jsonResponse = jsonDecode(response.body);
+                    setState(() {
+                      oobCode = jsonResponse['oob_code'] as String;
+                    });
+                    navigateToNextPage();
+                  },
+                  child: Text(friendlyMfaMethodName),
+                );
+              }
+            )
+          )
+        ],
+      )
+    )
+  );
+
+  Widget get mfaAuthCodeScreen => modalBody(
+    Align(
+      child: Column(
+        children: [
+          const Text('Enter code provided:',
+            style: TextStyle(
+              decoration: TextDecoration.none,
+              color: Colors.black,
+              fontSize: 16.0,
+              fontWeight: FontWeight.normal
+            ),
+          ),
+          const SizedBox(height: 15),
+          SizedBox(
+            width: 250,
+            child: TextFormField(
+              key: const Key('additionalMfaCode'),
+              autofocus: true,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              onFieldSubmitted: (final value) => getMfaToken,
+              validator: (final value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Code is required';
+                }
+                return null;
+              },
+              onChanged: (final val) {
+                setState(() {
+                  mfaCode = val;
+                });
+              },
+            )
+          ),
+          const SizedBox(height: 15),
+          if (errorMessage.isNotEmpty)
+            ErrorMessage(message: errorMessage)
         ],
       )
     )
   );
 
   List<Widget> get screens => [
-    passwordPrompt,
+    passwordPromptWidget,
+    authenticatorList,
+    mfaAuthCodeScreen,
     qrCodeScreen,
     confirmationScreen
   ];

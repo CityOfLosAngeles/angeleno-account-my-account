@@ -4,6 +4,9 @@ import 'package:angeleno_project/models/connected_applications_model.dart';
 import 'package:angeleno_project/models/password_reset.dart';
 import 'package:angeleno_project/models/user.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:angeleno_project/models/mfa_response.dart';
+import 'package:angeleno_project/models/mfa_method.dart';
+
 
 void main() {
 
@@ -250,6 +253,155 @@ void main() {
       final service = Service.fromJson(json);
 
       expect(service.icon, '');
+    });
+  });
+
+  group('MFA Response', () {
+    test('fromJson creates an instance with correct values', () {
+      final json = {
+        'token': 'test_token',
+        'barcode_uri': 'test_barcode',
+        'secret': 'test_secret',
+        'oob_code': 'test_oob_code',
+        'error': 'test_error'
+      };
+
+      final response = MfaResponse.fromJson(json);
+
+      expect(response.token, 'test_token');
+      expect(response.barcode, 'test_barcode');
+      expect(response.barcodeString, 'test_secret');
+      expect(response.oobCode, 'test_oob_code');
+      expect(response.errorMessage, 'test_error');
+    });
+
+    test('fromJson handles missing fields gracefully', () {
+      final Map<String, dynamic>json = {};
+
+      final response = MfaResponse.fromJson(json);
+
+      expect(response.token, '');
+      expect(response.barcode, '');
+      expect(response.barcodeString, '');
+      expect(response.oobCode, '');
+      expect(response.errorMessage, '');
+    });
+
+    test('toString returns correct string representation', () {
+      final response = MfaResponse(
+          token: 'test_token',
+          barcode: 'test_barcode',
+          barcodeString: 'test_secret',
+          oobCode: 'test_oob_code'
+      );
+
+      expect(response.toString(), '{barcode: test_barcode, token: test_token, barcodeString: test_secret, oobCode: test_oob_code}');
+    });
+
+    test('constructor initializes fields with default values', () {
+      final response = MfaResponse();
+
+      expect(response.token, '');
+      expect(response.barcode, '');
+      expect(response.barcodeString, '');
+      expect(response.oobCode, '');
+      expect(response.errorMessage, '');
+    });
+
+    test('constructor initializes fields with provided values', () {
+      final response = MfaResponse(
+          token: 'test_token',
+          barcode: 'test_barcode',
+          barcodeString: 'test_secret',
+          oobCode: 'test_oob_code',
+          errorMessage: 'test_error'
+      );
+
+      expect(response.token, 'test_token');
+      expect(response.barcode, 'test_barcode');
+      expect(response.barcodeString, 'test_secret');
+      expect(response.oobCode, 'test_oob_code');
+      expect(response.errorMessage, 'test_error');
+    });
+  });
+
+  group('MFA Method', () {
+    test('fromJson creates an instance with correct values', () {
+      final json = {
+        'id': 'test_id',
+        'authenticator_type': 'test_type',
+        'active': true,
+        'oob_channel': 'test_channel',
+        'name': 'test_name'
+      };
+
+      final method = MfaMethod.fromJson(json);
+
+      expect(method.id, 'test_id');
+      expect(method.authenticatorType, 'test_type');
+      expect(method.active, true);
+      expect(method.oobChannel, 'test_channel');
+      expect(method.name, 'test_name');
+    });
+
+    test('fromJson handles missing fields gracefully', () {
+      final json = {
+        'id': 'test_id',
+        'authenticator_type': 'test_type',
+        'active': true
+      };
+
+      final method = MfaMethod.fromJson(json);
+
+      expect(method.id, 'test_id');
+      expect(method.authenticatorType, 'test_type');
+      expect(method.active, true);
+      expect(method.oobChannel, '');
+      expect(method.name, '');
+    });
+
+    test('toJson returns correct map representation', () {
+      final method = MfaMethod(
+          id: 'test_id',
+          authenticatorType: 'test_type',
+          active: true,
+          oobChannel: 'test_channel',
+          name: 'test_name'
+      );
+
+      final json = method.toJson();
+
+      expect(json['id'], 'test_id');
+      expect(json['authenticator_type'], 'test_type');
+      expect(json['active'], true);
+      expect(json['oob_channel'], 'test_channel');
+      expect(json['name'], 'test_name');
+    });
+
+    test('constructor initializes fields with default values', () {
+      final method = MfaMethod();
+
+      expect(method.id, '');
+      expect(method.authenticatorType, '');
+      expect(method.active, false);
+      expect(method.oobChannel, '');
+      expect(method.name, '');
+    });
+
+    test('constructor initializes fields with provided values', () {
+      final method = MfaMethod(
+          id: 'test_id',
+          authenticatorType: 'test_type',
+          active: true,
+          oobChannel: 'test_channel',
+          name: 'test_name'
+      );
+
+      expect(method.id, 'test_id');
+      expect(method.authenticatorType, 'test_type');
+      expect(method.active, true);
+      expect(method.oobChannel, 'test_channel');
+      expect(method.name, 'test_name');
     });
   });
 }

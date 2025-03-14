@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 
 import '../../controllers/user_provider.dart';
 import '../../models/connected_applications_model.dart';
+import '../../models/mfa_method.dart';
 import '../dialogs/authenticator.dart';
 
 class AdvancedSecurityScreen extends StatefulWidget {
@@ -39,6 +40,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
   late String voiceAuthId = '';
 
   late Future<void> _authMethods;
+  List<MfaMethod> authenticators = [];
   late List<Service> _connectedServices;
 
   @override
@@ -57,16 +59,16 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
 
   Future<void> getAuthenticationMethods() async {
     _connectedServices = [];
+    authenticators = [];
     await auth0UserApi.getAuthenticationMethods(userProvider.user!.userId)
       .then((final response) {
         final bool success = response.statusCode == HttpStatus.ok;
+
         if (success) {
           final String jsonString = response.body;
-
           final json = jsonDecode(jsonString) as Map<String, dynamic>;
 
-          final List<dynamic> dataList = json['mfaMethods']
-            as List<dynamic>;
+          final List<dynamic> dataList = json['mfaMethods'] as List<dynamic>;
 
           final List<dynamic> services = json.containsKey('services')
               ? json['services'] as List<dynamic> : [];
@@ -84,72 +86,73 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
               final type = element['type'] as String;
               final methodId = element['id'] as String;
 
+              final MfaMethod mfaMethod = MfaMethod();
+              mfaMethod.id = methodId;
+              mfaMethod.authenticatorType = type;
+
               switch(type) {
                 case 'totp':
                   authenticatorEnabled = true;
                   totpAuthId = methodId;
                   break;
                 case 'phone':
+                  mfaMethod.name = element['phone_number'] as String;
                   final prefMethod =
                     element['preferred_authentication_method'] as String;
                   if (prefMethod == 'sms') {
                     smsEnabled = true;
                     smsAuthId = methodId;
+                    mfaMethod.oobChannel = 'sms';
                   } else {
                     voiceEnabled = true;
                     voiceAuthId = methodId;
+                    mfaMethod.oobChannel = 'voice';
                   }
               }
+
+              authenticators.add(mfaMethod);
             }
           }
         }
     });
   }
 
-  void disableMFA(final String mfaAuthId, final String method) {
-    auth0UserApi.unenrollMFA({
+  Future<void> disableMFA(final String mfaAuthId, final String method) async {
+
+    final response = await auth0UserApi.unenrollMFA({
       'authFactorId': mfaAuthId,
       'userId': widget.userProvider.user!.userId
-    }).then((final response) {
-      final bool success = response.statusCode == HttpStatus.ok;
-      if (success) {
-
-        String authMethod;
-        switch (method) {
-          case 'totp':
-            authMethod = 'Authenticator App';
-            break;
-          case 'sms':
-            authMethod = 'SMS';
-            break;
-          case 'voice':
-            authMethod = 'Voice';
-            break;
-          default:
-            authMethod = 'Unknown';
-        }
-
-        Navigator.pop(context, response.statusCode);
-        ScaffoldMessenger.of(context).showSnackBar( SnackBar(
-          behavior: SnackBarBehavior.floating,
-          width: 280.0,
-          content: Text('$authMethod has been removed.')
-        ));
-        setState(() {
-          switch(method) {
-            case 'totp':
-              authenticatorEnabled = false;
-              break;
-            case 'sms':
-              smsEnabled = false;
-              break;
-            case 'voice':
-              voiceEnabled = false;
-              break;
-          }
-        });
-      }
     });
+
+    if (!mounted) return;
+
+    final bool success = response.statusCode == HttpStatus.ok;
+    if (success) {
+
+      getAuthenticationMethods();
+
+      String authMethod;
+      switch (method) {
+        case 'totp':
+          authMethod = 'Authenticator App';
+          break;
+        case 'sms':
+          authMethod = 'SMS';
+          break;
+        case 'voice':
+          authMethod = 'Voice';
+          break;
+        default:
+          authMethod = 'Unknown';
+      }
+
+      Navigator.pop(context, response.statusCode);
+      ScaffoldMessenger.of(context).showSnackBar( SnackBar(
+        behavior: SnackBarBehavior.floating,
+        width: 280.0,
+        content: Text('$authMethod has been removed.')
+      ));
+    }
   }
 
   @override
@@ -194,8 +197,8 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                                 children: <Widget>[
                                   // ignore: avoid_escaping_inner_quotes
                                   Text('You won\'t be able to use your  '
-                                      'authenticator app to sign into your Angeleno '
-                                      'Account.')
+                                    'authenticator app to sign into your Angeleno '
+                                    'Account.')
                                 ],
                               )
                             ),
@@ -232,7 +235,8 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                             builder: (final BuildContext context) =>
                               AuthenticatorDialog(
                                 userProvider: userProvider,
-                                auth0UserApi: auth0UserApi
+                                auth0UserApi: auth0UserApi,
+                                authMethods: authenticators
                               ),
                           ).then((final value) {
                             if (value != null && value == HttpStatus.ok){
@@ -263,9 +267,10 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                                       children: <Widget>[
                                         // ignore: avoid_escaping_inner_quotes
                                         Text('Do you confirm to remove SMS Text? This'
-                                            ' action is irreversible. If you want to use this'
-                                            ' factor again you will need to enroll the'
-                                            ' factor again.')
+                                          ' action is irreversible. If you want to use this'
+                                          ' factor again you will need to enroll the'
+                                          ' factor again.'
+                                        )
                                       ],
                                     )
                                 ),
@@ -304,7 +309,8 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                                       userProvider: userProvider,
                                       userApi: auth0UserApi,
                                       channel: 'sms',
-                                  )
+                                      authMethods: authenticators
+                                    )
                               ).then((final value) {
                                 if (value != null && value == HttpStatus.ok){
                                   _triggerAuthMethods();
@@ -334,9 +340,10 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                                       children: <Widget>[
                                         // ignore: avoid_escaping_inner_quotes
                                         Text('Do you confirm to remove Voice Calls? This'
-                                            ' action is irreversible. If you want to use this'
-                                            ' factor again you will need to enroll the'
-                                            ' factor again.')
+                                          ' action is irreversible. If you want to use this'
+                                          ' factor again you will need to enroll the'
+                                          ' factor again.'
+                                        )
                                       ],
                                     )
                                 ),
@@ -358,7 +365,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                           ).then((final value) {
                             if (value != null && value == HttpStatus.ok) {
                               setState(() {
-                                smsEnabled = false;
+                                voiceEnabled = false;
                               });
                             }
                           }),
@@ -370,12 +377,13 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                             onPressed: () {
                               showDialog<int>(
                                   context: context,
-                                  builder: (
-                                      final BuildContext context) => MobileDialog(
-                                    userProvider: userProvider,
-                                    userApi: auth0UserApi,
-                                    channel: 'voice',
-                                  )
+                                  builder: (final BuildContext context) =>
+                                    MobileDialog(
+                                      userProvider: userProvider,
+                                      userApi: auth0UserApi,
+                                      channel: 'voice',
+                                      authMethods: authenticators
+                                    )
                               ).then((final value) {
                                 if (value != null && value == HttpStatus.ok){
                                   _triggerAuthMethods();
