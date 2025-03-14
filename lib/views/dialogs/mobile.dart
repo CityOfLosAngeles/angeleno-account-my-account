@@ -38,6 +38,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
   late Auth0UserApi api;
   late String channel;
   late List<MfaMethod> authMethods;
+  bool useAuthenticatorSecondFactor = false;
 
   final isNotTestMode = kIsWeb ||
       !Platform.environment.containsKey('FLUTTER_TEST');
@@ -328,6 +329,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
                 return TextButton(
                   onPressed: () async {
                     if (method.authenticatorType == 'totp') {
+                      useAuthenticatorSecondFactor = true;
                       navigateToNextPage();
                       return;
                     } else {
@@ -384,7 +386,11 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
               },
               onChanged: (final val) {
                 setState(() {
-                  mfaCode = val;
+                  if (useAuthenticatorSecondFactor) {
+                    oobCode = val;
+                  } else {
+                    mfaCode = val;
+                  }
                 });
               },
             )
