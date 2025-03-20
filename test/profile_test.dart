@@ -70,7 +70,7 @@ void main() {
 
     expect(find.text('First Name'), findsOneWidget);
 
-    await tester.tap(find.byType(ElevatedButton));
+    await tester.tap(find.byType(FilledButton));
     await tester.pump();
 
     expect(userProvider.isEditing, true);
@@ -114,7 +114,7 @@ void main() {
       find.byType(ElevatedButton),
       const Offset(-250, 0),
     );
-    await tester.tap(find.byType(ElevatedButton));
+    await tester.tap(find.byType(FilledButton));
     await tester.pump();
 
     expect(userProvider.isEditing, false);
@@ -127,7 +127,7 @@ void main() {
     expect(userProvider.user!.state, 'New State');
     expect(userProvider.user!.zip, 'New Zip');
 
-    await tester.tap(find.byType(ElevatedButton));
+    await tester.tap(find.byType(FilledButton));
     await tester.pump();
 
     // Dialog with user intention of leaving while editing

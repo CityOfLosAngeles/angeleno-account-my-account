@@ -6,7 +6,7 @@
 import 'dart:async' as _i5;
 
 import 'package:angeleno_project/controllers/auth0_user_api_implementation.dart'
-    as _i3;
+as _i3;
 import 'package:angeleno_project/models/api_response.dart' as _i2;
 import 'package:angeleno_project/models/password_reset.dart' as _i7;
 import 'package:angeleno_project/models/user.dart' as _i6;
@@ -28,12 +28,12 @@ import 'package:mockito/src/dummies.dart' as _i4;
 
 class _FakeApiResponse_0 extends _i1.SmartFake implements _i2.ApiResponse {
   _FakeApiResponse_0(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+      Object parent,
+      Invocation parentInvocation,
+      ) : super(
+    parent,
+    parentInvocation,
+  );
 }
 
 /// A class which mocks [Auth0UserApi].
@@ -42,93 +42,93 @@ class _FakeApiResponse_0 extends _i1.SmartFake implements _i2.ApiResponse {
 class MockAuth0UserApi extends _i1.Mock implements _i3.Auth0UserApi {
   @override
   String get authToken => (super.noSuchMethod(
-        Invocation.getter(#authToken),
-        returnValue: _i4.dummyValue<String>(
-          this,
-          Invocation.getter(#authToken),
-        ),
-        returnValueForMissingStub: _i4.dummyValue<String>(
-          this,
-          Invocation.getter(#authToken),
-        ),
-      ) as String);
+    Invocation.getter(#authToken),
+    returnValue: _i4.dummyValue<String>(
+      this,
+      Invocation.getter(#authToken),
+    ),
+    returnValueForMissingStub: _i4.dummyValue<String>(
+      this,
+      Invocation.getter(#authToken),
+    ),
+  ) as String);
 
   @override
   set authToken(String? _authToken) => super.noSuchMethod(
-        Invocation.setter(
-          #authToken,
-          _authToken,
-        ),
-        returnValueForMissingStub: null,
-      );
+    Invocation.setter(
+      #authToken,
+      _authToken,
+    ),
+    returnValueForMissingStub: null,
+  );
 
   @override
   String get baseUrl => (super.noSuchMethod(
-        Invocation.getter(#baseUrl),
-        returnValue: _i4.dummyValue<String>(
-          this,
-          Invocation.getter(#baseUrl),
-        ),
-        returnValueForMissingStub: _i4.dummyValue<String>(
-          this,
-          Invocation.getter(#baseUrl),
-        ),
-      ) as String);
+    Invocation.getter(#baseUrl),
+    returnValue: _i4.dummyValue<String>(
+      this,
+      Invocation.getter(#baseUrl),
+    ),
+    returnValueForMissingStub: _i4.dummyValue<String>(
+      this,
+      Invocation.getter(#baseUrl),
+    ),
+  ) as String);
 
   @override
   String createJwt() => (super.noSuchMethod(
-        Invocation.method(
-          #createJwt,
-          [],
-        ),
-        returnValue: _i4.dummyValue<String>(
-          this,
-          Invocation.method(
-            #createJwt,
-            [],
-          ),
-        ),
-        returnValueForMissingStub: _i4.dummyValue<String>(
-          this,
-          Invocation.method(
-            #createJwt,
-            [],
-          ),
-        ),
-      ) as String);
+    Invocation.method(
+      #createJwt,
+      [],
+    ),
+    returnValue: _i4.dummyValue<String>(
+      this,
+      Invocation.method(
+        #createJwt,
+        [],
+      ),
+    ),
+    returnValueForMissingStub: _i4.dummyValue<String>(
+      this,
+      Invocation.method(
+        #createJwt,
+        [],
+      ),
+    ),
+  ) as String);
 
   @override
   _i5.Future<String> getOAuthToken() => (super.noSuchMethod(
-        Invocation.method(
-          #getOAuthToken,
-          [],
-        ),
-        returnValue: _i5.Future<String>.value(_i4.dummyValue<String>(
-          this,
-          Invocation.method(
-            #getOAuthToken,
-            [],
-          ),
-        )),
-        returnValueForMissingStub:
-            _i5.Future<String>.value(_i4.dummyValue<String>(
-          this,
-          Invocation.method(
-            #getOAuthToken,
-            [],
-          ),
-        )),
-      ) as _i5.Future<String>);
+    Invocation.method(
+      #getOAuthToken,
+      [],
+    ),
+    returnValue: _i5.Future<String>.value(_i4.dummyValue<String>(
+      this,
+      Invocation.method(
+        #getOAuthToken,
+        [],
+      ),
+    )),
+    returnValueForMissingStub:
+    _i5.Future<String>.value(_i4.dummyValue<String>(
+      this,
+      Invocation.method(
+        #getOAuthToken,
+        [],
+      ),
+    )),
+  ) as _i5.Future<String>);
 
   @override
   _i5.Future<int> updateUser(_i6.User? user) => (super.noSuchMethod(
-        Invocation.method(
-          #updateUser,
-          [user],
-        ),
-        returnValue: _i5.Future<int>.value(0),
-        returnValueForMissingStub: _i5.Future<int>.value(0),
-      ) as _i5.Future<int>);
+    Invocation.method(
+      #updateUser,
+      [user],
+    ),
+    returnValue: _i5.Future<int>.value(0),
+    returnValueForMissingStub: _i5.Future<int>.value(0),
+  ) as _i5.Future<int>);
 
   @override
   _i5.Future<Map<String, dynamic>> updatePassword(_i7.PasswordBody? body) =>
@@ -138,9 +138,9 @@ class MockAuth0UserApi extends _i1.Mock implements _i3.Auth0UserApi {
           [body],
         ),
         returnValue:
-            _i5.Future<Map<String, dynamic>>.value(<String, dynamic>{}),
+        _i5.Future<Map<String, dynamic>>.value(<String, dynamic>{}),
         returnValueForMissingStub:
-            _i5.Future<Map<String, dynamic>>.value(<String, dynamic>{}),
+        _i5.Future<Map<String, dynamic>>.value(<String, dynamic>{}),
       ) as _i5.Future<Map<String, dynamic>>);
 
   @override
@@ -158,7 +158,7 @@ class MockAuth0UserApi extends _i1.Mock implements _i3.Auth0UserApi {
           ),
         )),
         returnValueForMissingStub:
-            _i5.Future<_i2.ApiResponse>.value(_FakeApiResponse_0(
+        _i5.Future<_i2.ApiResponse>.value(_FakeApiResponse_0(
           this,
           Invocation.method(
             #getAuthenticationMethods,
@@ -175,9 +175,9 @@ class MockAuth0UserApi extends _i1.Mock implements _i3.Auth0UserApi {
           [body],
         ),
         returnValue:
-            _i5.Future<Map<String, dynamic>>.value(<String, dynamic>{}),
+        _i5.Future<Map<String, dynamic>>.value(<String, dynamic>{}),
         returnValueForMissingStub:
-            _i5.Future<Map<String, dynamic>>.value(<String, dynamic>{}),
+        _i5.Future<Map<String, dynamic>>.value(<String, dynamic>{}),
       ) as _i5.Future<Map<String, dynamic>>);
 
   @override
@@ -195,7 +195,7 @@ class MockAuth0UserApi extends _i1.Mock implements _i3.Auth0UserApi {
           ),
         )),
         returnValueForMissingStub:
-            _i5.Future<_i2.ApiResponse>.value(_FakeApiResponse_0(
+        _i5.Future<_i2.ApiResponse>.value(_FakeApiResponse_0(
           this,
           Invocation.method(
             #confirmMFA,
@@ -219,10 +219,58 @@ class MockAuth0UserApi extends _i1.Mock implements _i3.Auth0UserApi {
           ),
         )),
         returnValueForMissingStub:
-            _i5.Future<_i2.ApiResponse>.value(_FakeApiResponse_0(
+        _i5.Future<_i2.ApiResponse>.value(_FakeApiResponse_0(
           this,
           Invocation.method(
             #unenrollMFA,
+            [body],
+          ),
+        )),
+      ) as _i5.Future<_i2.ApiResponse>);
+
+  @override
+  _i5.Future<_i2.ApiResponse> challengeMFA(Map<String, String>? body) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #challengeMFA,
+          [body],
+        ),
+        returnValue: _i5.Future<_i2.ApiResponse>.value(_FakeApiResponse_0(
+          this,
+          Invocation.method(
+            #challengeMFA,
+            [body],
+          ),
+        )),
+        returnValueForMissingStub:
+        _i5.Future<_i2.ApiResponse>.value(_FakeApiResponse_0(
+          this,
+          Invocation.method(
+            #challengeMFA,
+            [body],
+          ),
+        )),
+      ) as _i5.Future<_i2.ApiResponse>);
+
+  @override
+  _i5.Future<_i2.ApiResponse> requestMFAToken(Map<String, String>? body) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #requestMFAToken,
+          [body],
+        ),
+        returnValue: _i5.Future<_i2.ApiResponse>.value(_FakeApiResponse_0(
+          this,
+          Invocation.method(
+            #requestMFAToken,
+            [body],
+          ),
+        )),
+        returnValueForMissingStub:
+        _i5.Future<_i2.ApiResponse>.value(_FakeApiResponse_0(
+          this,
+          Invocation.method(
+            #requestMFAToken,
             [body],
           ),
         )),
@@ -243,7 +291,7 @@ class MockAuth0UserApi extends _i1.Mock implements _i3.Auth0UserApi {
           ),
         )),
         returnValueForMissingStub:
-            _i5.Future<_i2.ApiResponse>.value(_FakeApiResponse_0(
+        _i5.Future<_i2.ApiResponse>.value(_FakeApiResponse_0(
           this,
           Invocation.method(
             #removeConnection,
