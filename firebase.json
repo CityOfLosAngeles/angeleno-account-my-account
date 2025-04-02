@@ -7,6 +7,11 @@
       "**/.*",
       "**/node_modules/**"
     ],
+    "redirects": [{
+      "source": "/signup",
+      "destination": "https://login.dev.account.lacity.gov/authorize?response_type=code&client_id=7xr2ynTzM10h12TS7m6Kgf2rf6o9phEK&redirect_uri=https://dev.my.account.lacity.gov/&screen_hint=signup",
+      "type": 301
+    }],
     "rewrites": [
       {
         "source": "/maps/**",
