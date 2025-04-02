@@ -295,7 +295,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
     Align(
       child: Column(
         children: [
-          const Text('Please select an authentication method to verify your identity:',
+          const Text('Please select an authentication method to authenticate your request:',
             style: TextStyle(
               decoration: TextDecoration.none,
               color: Colors.black,
@@ -305,8 +305,8 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
           ),
           const SizedBox(height: 15),
           SizedBox(
-            width: double.maxFinite,
-            height: 80,
+            width: 300,
+            height: 120,
             child: ListView.builder(
               itemCount: authMethods.length,
               padding: const EdgeInsets.all(20),
@@ -362,8 +362,8 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
     Align(
       child: Column(
         children: [
-          const Text('Enter code provided:',
-            style: TextStyle(
+          Text('Enter code provided ${useAuthenticatorSecondFactor ? 'by Authenticator' : 'by Phone'}:',
+            style: const TextStyle(
               decoration: TextDecoration.none,
               color: Colors.black,
               fontSize: 16.0,

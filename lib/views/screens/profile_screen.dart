@@ -112,7 +112,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10),
-              child: FilledButton.tonal(
+              child: FilledButton(
                 onPressed: (editMode &&
                     ((user.phone!.isNotEmpty && !validPhoneNumber) ||
                         !isFormValid) && isNotTestMode
