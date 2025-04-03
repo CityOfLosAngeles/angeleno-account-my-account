@@ -19,7 +19,7 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
   late String oobCode = '';
   late String mfaCode = '';
   bool requireAdditionalAuthentication = false;
-  String methodBeingEnrolled = 'Enroll';
+  String methodBeingEnrolled = '';
 
   @override
   void initState() {
@@ -164,6 +164,7 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
         Dialog.fullscreen(child: dialogBody)
         :
         AlertDialog(
+          title: Text('Enroll $methodBeingEnrolled'),
           content: dialogBody,
           actionsAlignment: MainAxisAlignment.spaceBetween,
           actions: dialogActions
