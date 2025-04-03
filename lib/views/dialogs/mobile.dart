@@ -262,7 +262,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('Please enter the code sent to ${phoneField.text}'),
+          Text('Please enter the code sent to ${phoneField.text}:'),
           SizedBox(
             width: 250,
             child: TextFormField(
