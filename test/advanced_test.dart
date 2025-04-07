@@ -497,7 +497,7 @@ void main() {
     await tester.tap(find.widgetWithText(TextButton, 'SMS Message to 2135432454'));
     await tester.pump();
 
-    expect(find.text('Enter code sent to phone:'), findsOneWidget);
+    expect(find.text('Enter the code sent to your phone:'), findsOneWidget);
 
     await tester.enterText(find.byKey(const Key('additionalMfaCode')),'123456');
 
@@ -586,7 +586,7 @@ void main() {
     await tester.tap(find.widgetWithText(TextButton, 'Authenticator (TOTP) application'));
     await tester.pump();
 
-    expect(find.text('Enter code provided by Authenticator:'), findsOneWidget);
+    expect(find.text('Enter the code provided by Authenticator:'), findsOneWidget);
 
     await tester.enterText(find.byKey(const Key('additionalMfaCode')),'123456');
 

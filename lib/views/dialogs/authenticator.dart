@@ -236,7 +236,7 @@ Align(
       child:  Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('Enter code displayed from the application:',
+          const Text('Enter the code displayed from your application:',
               textAlign: TextAlign.center,
               softWrap: true
           ),
@@ -338,7 +338,7 @@ Align(
     Align(
       child: Column(
         children: [
-          const Text('Enter code sent to phone:',
+          const Text('Enter the code sent to your phone:',
             style: TextStyle(
               decoration: TextDecoration.none,
               color: Colors.black,
