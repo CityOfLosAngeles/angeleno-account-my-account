@@ -375,7 +375,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
     Align(
       child: Column(
         children: [
-          Text('Enter the code provided ${useAuthenticatorSecondFactor ? 'by Authenticator' : 'by Phone'}:',
+          Text('Enter the code provided by your ${useAuthenticatorSecondFactor ? 'Authenticator' : 'Phone'}:',
             style: const TextStyle(
               decoration: TextDecoration.none,
               color: Colors.black,

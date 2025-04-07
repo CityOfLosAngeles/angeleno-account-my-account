@@ -586,7 +586,7 @@ void main() {
     await tester.tap(find.widgetWithText(TextButton, 'Authenticator (TOTP) application'));
     await tester.pump();
 
-    expect(find.text('Enter the code provided by Authenticator:'), findsOneWidget);
+    expect(find.text('Enter the code provided by your Authenticator:'), findsOneWidget);
 
     await tester.enterText(find.byKey(const Key('additionalMfaCode')),'123456');
 
