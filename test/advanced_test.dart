@@ -516,7 +516,7 @@ void main() {
     await tester.tap(find.widgetWithText(TextButton, 'Continue'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Setup authenticator by scanning code below:'), findsOneWidget);
+    expect(find.text('Set up your authenticator by scanning code below:'), findsOneWidget);
 
   });
 

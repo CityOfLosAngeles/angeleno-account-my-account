@@ -198,7 +198,7 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('Setup authenticator by scanning code below:',
+          const Text('Set up your authenticator by scanning code below:',
             style: TextStyle(
               decoration: TextDecoration.none,
               color: Colors.black,
