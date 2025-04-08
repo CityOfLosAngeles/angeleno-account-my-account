@@ -258,7 +258,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
             if (errorMsg.isNotEmpty)
               ErrorMessage(message: errorMsg),
             const SizedBox(height: 10.0),
-            ElevatedButton(
+            FilledButton(
               onPressed: _isButtonDisabled ? null : () => submitRequest(),
               child: const Text('Update Password and Logout'),
             )
