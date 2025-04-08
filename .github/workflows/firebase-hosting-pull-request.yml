@@ -48,6 +48,14 @@ jobs:
           old_hosting="HOSTING_PROJECT"
           new_hosting="${{secrets.HOSTING_PROJECT}}"
           sed -i "s/$old_hosting/$new_hosting/g" .firebaserc
+          
+          old_domain="AUTH0_DOMAIN"
+          new_domain="${{secrets.AUTH0_DOMAIN}}"
+          sed -i "s/$old_domain/$new_domain/g" firebase.json
+          
+          to_replace="AUTH0_CLIENT_ID"
+          be_replaced="${{secrets.CLIENT_ID}}"
+          sed -i "s/$to_replace/$be_replaced/g" firebase.json
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'

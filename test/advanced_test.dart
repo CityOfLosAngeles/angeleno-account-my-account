@@ -116,7 +116,7 @@ void main() {
     // Enrollment Dialog
     expect(find.byType(Dialog), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.close));
+    await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
     await tester.pumpAndSettle();
     expect(find.byType(MobileDialog), findsNothing);
 
@@ -179,7 +179,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(MobileDialog), findsOneWidget);
-    await tester.tap(find.byIcon(Icons.close));
+    await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
     await tester.pumpAndSettle();
     expect(find.byType(MobileDialog), findsNothing);
 
@@ -324,7 +324,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(MobileDialog), findsOneWidget);
-    await tester.tap(find.byIcon(Icons.close));
+    await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
     await tester.pumpAndSettle();
     expect(find.byType(MobileDialog), findsNothing);
 
@@ -492,12 +492,12 @@ void main() {
     await tester.tap(find.widgetWithText(TextButton, 'Continue'));
     await tester.pump();
 
-    expect(find.text('Please select an authentication method to verify your identity:'), findsOneWidget);
+    expect(find.text('Please select an authentication method to verify your request:'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(TextButton, 'SMS Message to 2135432454'));
     await tester.pump();
 
-    expect(find.text('Enter code provided:'), findsOneWidget);
+    expect(find.text('Enter the code sent to your phone:'), findsOneWidget);
 
     await tester.enterText(find.byKey(const Key('additionalMfaCode')),'123456');
 
@@ -516,7 +516,7 @@ void main() {
     await tester.tap(find.widgetWithText(TextButton, 'Continue'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Setup Authenticator. Scan code below:'), findsOneWidget);
+    expect(find.text('Set up your authenticator by scanning code below:'), findsOneWidget);
 
   });
 
@@ -581,12 +581,12 @@ void main() {
     await tester.tap(find.widgetWithText(TextButton, 'Continue'));
     await tester.pump();
 
-    expect(find.text('Please select an authentication method to verify your identity:'), findsOneWidget);
+    expect(find.text('Please select an authentication method to verify your request:'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(TextButton, 'Authenticator (TOTP) application'));
     await tester.pump();
 
-    expect(find.text('Enter code provided:'), findsOneWidget);
+    expect(find.text('Enter the code provided by your Authenticator:'), findsOneWidget);
 
     await tester.enterText(find.byKey(const Key('additionalMfaCode')),'123456');
 
@@ -603,7 +603,7 @@ void main() {
     await tester.tap(find.widgetWithText(TextButton, 'Continue'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Please enter the code received:'), findsOneWidget);
+    expect(find.text('Please enter the code sent to 2134325435:'), findsOneWidget);
 
   });
 }

@@ -58,6 +58,10 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
     api = widget.userApi;
     channel = widget.channel;
     authMethods = widget.authMethods;
+
+    setState(() {
+      methodBeingEnrolled = widget.channel == 'sms' ? 'SMS' : 'Voice';
+    });
   }
 
   @override
@@ -172,7 +176,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         behavior: SnackBarBehavior.floating,
         width: 280.0,
-        content: Text('$channel MFA has been enabled.')
+        content: Text('$methodBeingEnrolled MFA has been enabled.')
       ));
     } else {
       setState(() {
@@ -193,11 +197,15 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
 
     final response = await api.requestMFAToken(body);
 
-    setState(() {
+    if (response.statusCode == HttpStatus.ok) {
       mfaToken = jsonDecode(response.body)['access_token'] as String;
-    });
+      enrollMobile();
+    } else {
+      setState(() {
+        errorMessage = response.body;
+      });
+    }
 
-    enrollMobile();
   }
 
   Widget get phonePrompt =>
@@ -254,7 +262,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('Please enter the code received:'),
+          Text('Please enter the code sent to ${phoneField.text}:'),
           SizedBox(
             width: 250,
             child: TextFormField(
@@ -295,7 +303,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
     Align(
       child: Column(
         children: [
-          const Text('Please select an authentication method to verify your identity:',
+          const Text('Please select an authentication method to verify your request:',
             style: TextStyle(
               decoration: TextDecoration.none,
               color: Colors.black,
@@ -305,8 +313,8 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
           ),
           const SizedBox(height: 15),
           SizedBox(
-            width: double.maxFinite,
-            height: 80,
+            width: 300,
+            height: authMethods.length * 60,
             child: ListView.builder(
               itemCount: authMethods.length,
               padding: const EdgeInsets.all(20),
@@ -341,11 +349,16 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
                       };
 
                       final response = await api.challengeMFA(body);
-                      final jsonResponse = jsonDecode(response.body);
-                      setState(() {
+
+                      if (response.statusCode == HttpStatus.ok) {
+                        final jsonResponse = jsonDecode(response.body);
                         oobCode = jsonResponse['oob_code'] as String;
-                      });
-                      navigateToNextPage();
+                        navigateToNextPage();
+                      } else {
+                        setState(() {
+                          errorMessage = response.body;
+                        });
+                      }
                     }
                   },
                   child: Text(friendlyMfaMethodName),
@@ -362,8 +375,8 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
     Align(
       child: Column(
         children: [
-          const Text('Enter code provided:',
-            style: TextStyle(
+          Text('Enter the code provided by your ${useAuthenticatorSecondFactor ? 'Authenticator' : 'Phone'}:',
+            style: const TextStyle(
               decoration: TextDecoration.none,
               color: Colors.black,
               fontSize: 16.0,
@@ -377,7 +390,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
               key: const Key('additionalMfaCode'),
               autofocus: true,
               autovalidateMode: AutovalidateMode.onUserInteraction,
-              onFieldSubmitted: (final value) => getMfaToken(),
+              onFieldSubmitted: (final value) => getMfaToken,
               validator: (final value) {
                 if (value == null || value.trim().isEmpty) {
                   return 'Code is required';

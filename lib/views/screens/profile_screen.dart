@@ -35,6 +35,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final isNotTestMode = kIsWeb ||
       !Platform.environment.containsKey('FLUTTER_TEST');
 
+
   @override
   void initState() {
     super.initState();
@@ -71,11 +72,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     InputDecoration(
       labelText: label,
       border: const OutlineInputBorder(),
-      labelStyle: TextStyle(color: editMode ? null : disabledColor),
+      labelStyle: TextStyle(color: editMode ? null : Theme.of(context).colorScheme.onSurfaceVariant
+    ),
     );
 
   TextStyle textStyle (final bool editMode) =>
-    TextStyle(color: editMode ? null : disabledColor);
+    TextStyle(color: editMode ? null : Theme.of(context).colorScheme.onSurfaceVariant);
 
   @override
   Widget build(final BuildContext context) {
@@ -110,7 +112,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10),
-              child: FilledButton.tonal(
+              child: FilledButton(
                 onPressed: (editMode &&
                     ((user.phone!.isNotEmpty && !validPhoneNumber) ||
                         !isFormValid) && isNotTestMode

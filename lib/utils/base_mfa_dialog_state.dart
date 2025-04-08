@@ -19,6 +19,7 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
   late String oobCode = '';
   late String mfaCode = '';
   bool requireAdditionalAuthentication = false;
+  String methodBeingEnrolled = '';
 
   @override
   void initState() {
@@ -34,12 +35,11 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
     super.dispose();
   }
 
-  Widget get dialogClose => IconButton(
-    alignment: Alignment.centerLeft,
+  Widget get dialogClose => TextButton(
     onPressed: () {
       Navigator.pop(context);
     },
-    icon: const Icon(Icons.close),
+    child: const Text('Cancel'),
   );
 
   Widget get dialogBack => TextButton(
@@ -115,17 +115,40 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
     )
   );
 
+  List<Widget> get dialogActions {
+
+    final actions = [
+      dialogClose,
+    ];
+
+    if (pageIndex > 0) {
+      actions.add(
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            dialogBack,
+            dialogNext[pageIndex]
+          ],
+        )
+      );
+    } else {
+      actions.add(dialogNext[pageIndex]);
+    }
+
+    return actions;
+  }
+
   Widget modalBody(final Widget body) => Column(
     mainAxisSize: MainAxisSize.min,
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      dialogClose,
-      _isSmallScreen ? Expanded(child: body) : body,
-      if (_isSmallScreen)
+      if (_isSmallScreen) ...[
+        Expanded(child: body),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
-          children: pageIndex == 0 ? [dialogNext[pageIndex]] : [dialogBack, dialogNext[pageIndex]],
-        ),
+          children: dialogActions
+        )
+      ] else ...[body]
     ],
   );
   
@@ -141,9 +164,10 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
         Dialog.fullscreen(child: dialogBody)
         :
         AlertDialog(
+          title: Text('Enroll $methodBeingEnrolled'),
           content: dialogBody,
-          actionsAlignment: MainAxisAlignment.end,
-          actions: pageIndex == 0 ? [dialogNext[pageIndex]] : [dialogBack, dialogNext[pageIndex]],
+          actionsAlignment: MainAxisAlignment.spaceBetween,
+          actions: dialogActions
 
         );
   }
