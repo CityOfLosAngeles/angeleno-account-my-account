@@ -72,8 +72,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     InputDecoration(
       labelText: label,
       border: const OutlineInputBorder(),
-      labelStyle: TextStyle(color: editMode ? null : Theme.of(context).colorScheme.onSurfaceVariant
-    ),
+      // labelStyle: TextStyle(color: editMode ? null : Theme.of(context).colorScheme.onSurfaceVariant),
     );
 
   TextStyle textStyle (final bool editMode) =>
@@ -146,7 +145,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 25.0),
                     TextFormField(
                       enabled: editMode,
-                      decoration: inputDecoration('First Name', editMode),
+                      decoration: inputDecoration('First Name (required)', editMode),
                       style: textStyle(editMode),
                       initialValue: user.firstName,
                       maxLength: 300,
@@ -173,7 +172,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 25.0),
                     TextFormField(
                       enabled: editMode,
-                      decoration: inputDecoration('Last Name', editMode),
+                      decoration: inputDecoration('Last Name (required)', editMode),
                       style: textStyle(editMode),
                       initialValue: user.lastName,
                       maxLength: 150,
