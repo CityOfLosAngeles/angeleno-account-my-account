@@ -73,13 +73,13 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
   @override
   List<Widget> get dialogNext =>
     [
-      TextButton(
+      FilledButton.tonal(
         onPressed: !validPhoneNumber && isNotTestMode ? null : () {
           navigateToNextPage();
         },
         child: const Text('Continue'),
       ),
-      TextButton(
+      FilledButton.tonal(
         onPressed: passwordField.text.isEmpty ? null : () {
           enrollMobile();
         },
@@ -87,14 +87,15 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
       ),
       if (requireAdditionalAuthentication) ...[
         const SizedBox.shrink(),
-        TextButton(
+        FilledButton.tonal(
           onPressed: inFlightRequest ? null : () {
             getMfaToken();
           },
           child: const Text('Continue'),
         ),
       ],
-      TextButton(
+
+      FilledButton(
         onPressed: codeProvided.isEmpty ? null : () {
          confirmCode();
         },
