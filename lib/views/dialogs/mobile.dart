@@ -85,13 +85,15 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
         },
         child: const Text('Continue'),
       ),
-      const SizedBox.shrink(),
-      TextButton(
-        onPressed: inFlightRequest ? null : () {
-          getMfaToken();
-        },
-        child: const Text('Continue'),
-      ),
+      if (requireAdditionalAuthentication) ...[
+        const SizedBox.shrink(),
+        TextButton(
+          onPressed: inFlightRequest ? null : () {
+            getMfaToken();
+          },
+          child: const Text('Continue'),
+        ),
+      ],
       TextButton(
         onPressed: codeProvided.isEmpty ? null : () {
          confirmCode();
@@ -126,7 +128,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
       if (statusCode == HttpStatus.ok) {
         oobCode = mfaResponse.oobCode;
         mfaToken = mfaResponse.token;
-        navigateToNextPage(increment: !requireAdditionalAuthentication ? 3 : 1);
+        navigateToNextPage();
       } else if (statusCode == HttpStatus.unauthorized) {
         requireAdditionalAuthentication = true;
         if (mfaToken.isEmpty) {
@@ -378,7 +380,6 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
           Text('Enter the code provided by your ${useAuthenticatorSecondFactor ? 'Authenticator' : 'Phone'}:',
             style: const TextStyle(
               decoration: TextDecoration.none,
-              color: Colors.black,
               fontSize: 16.0,
               fontWeight: FontWeight.normal
             ),
@@ -416,14 +417,15 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
     )
   );
 
-  List<Widget> get screens =>
-      [
-        phonePrompt,
-        passwordPromptWidget,
-        authenticatorList,
-        mfaAuthCodeScreen,
-        codeScreen
-      ];
+  List<Widget> get screens => [
+    phonePrompt,
+    passwordPromptWidget,
+    if (requireAdditionalAuthentication) ...[
+      authenticatorList,
+      mfaAuthCodeScreen,
+    ],
+    codeScreen
+  ];
 
   @override
   Widget get dialogBody =>
