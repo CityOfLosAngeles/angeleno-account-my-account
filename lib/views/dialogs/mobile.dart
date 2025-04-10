@@ -96,7 +96,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
         onPressed: codeProvided.isEmpty ? null : () {
          confirmCode();
         },
-        child: const Text('Continue')
+        child: const Text('Finish')
       )
     ];
 
