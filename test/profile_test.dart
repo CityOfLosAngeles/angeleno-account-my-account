@@ -68,7 +68,7 @@ void main() {
     await tester.pump(const Duration());
     await tester.pumpAndSettle(const Duration(seconds: 3));
 
-    expect(find.text('First Name'), findsOneWidget);
+    expect(find.text('First Name (required)'), findsOneWidget);
 
     await tester.tap(find.byType(FilledButton));
     await tester.pump();

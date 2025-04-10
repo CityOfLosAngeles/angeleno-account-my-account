@@ -140,15 +140,15 @@ void main() {
     final refreshAuthenticatorPasswordField = tester.firstWidget<TextField>(authenticatorPasswordFinder);
     expect(refreshAuthenticatorPasswordField.obscureText, false);
 
-    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Continue'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Continue'));
     await tester.pumpAndSettle();
 
     await tester.enterText(find.byKey(const Key('totpCode')), '123456');
     await tester.pump();
-    await tester.tap(find.widgetWithText(TextButton, 'Finish'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Finish'));
     await tester.pumpAndSettle();
 
     // Snackbar on successful enrollment
@@ -189,7 +189,7 @@ void main() {
     final inputTextFieldFinder = find.byKey(const Key('phoneField'));
     await tester.enterText(inputTextFieldFinder, '2134325435');
 
-    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Continue'));
     await tester.pumpAndSettle();
 
     await tester.enterText(find.byKey(const Key('passwordField')), 'myPassword');
@@ -209,12 +209,12 @@ void main() {
     final refreshPhonePasswordField = tester.firstWidget<TextField>(phonePasswordFinder);
     expect(refreshPhonePasswordField.obscureText, false);
 
-    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Continue'));
     await tester.pumpAndSettle();
 
     await tester.enterText(find.byKey(const Key('phoneCode')), '483234');
     await tester.pump();
-    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Finish'));
     await tester.pumpAndSettle();
 
     expect(find.byType(SnackBar), findsOneWidget);
@@ -236,17 +236,17 @@ void main() {
 
     await tester.enterText(inputTextFieldFinder, '2134325435');
 
-    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Continue'));
     await tester.pumpAndSettle();
 
     await tester.enterText(find.byKey(const Key('passwordField')), 'myPassword');
     await tester.pump();
-    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Continue'));
     await tester.pumpAndSettle();
 
     await tester.enterText(find.byKey(const Key('phoneCode')), '483234');
     await tester.pump();
-    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Finish'));
     await tester.pumpAndSettle();
 
     expect(find.byType(SnackBar), findsOneWidget);
@@ -335,16 +335,16 @@ void main() {
     await tester.enterText(inputTextFieldFinder, '2134325435');
 
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Continue'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const Key('passwordField')), 'myPassword');
     await tester.pump();
-    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Continue'));
     await tester.pumpAndSettle();
 
     await tester.enterText(find.byKey(const Key('phoneCode')), '483234');
     await tester.pump();
-    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Finish'));
     await tester.pumpAndSettle();
 
     expect(find.byType(SnackBar), findsOneWidget);
@@ -384,12 +384,12 @@ void main() {
     final inputTextFieldFinder = find.byKey(const Key('phoneField'));
     await tester.enterText(inputTextFieldFinder, '2134325435');
     await tester.pump();
-    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Continue'));
     await tester.pump();
 
     await tester.enterText(find.byKey(const Key('passwordField')), 'wrongPassword');
     await tester.pump();
-    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Continue'));
     // await tester.pumpAndSettle();
     await tester.pump();
     expect(find.text('An error occurred'), findsOneWidget);
@@ -432,7 +432,7 @@ void main() {
     await tester.enterText(find.byType(TextFormField), 'WrongPassword');
     await tester.pump();
 
-    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Continue'));
     await tester.pumpAndSettle();
 
 
@@ -489,7 +489,7 @@ void main() {
     await tester.enterText(find.byType(TextFormField), 'userPassword');
     await tester.pump();
 
-    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Continue'));
     await tester.pump();
 
     expect(find.text('Please select an authentication method to verify your request:'), findsOneWidget);
@@ -513,7 +513,7 @@ void main() {
       )
     });
 
-    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Continue'));
     await tester.pumpAndSettle();
 
     expect(find.text('Set up your authenticator by scanning code below:'), findsOneWidget);
@@ -571,14 +571,14 @@ void main() {
     await tester.enterText(inputTextFieldFinder, '2134325435');
     await tester.pump();
 
-    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Continue'));
     await tester.pumpAndSettle();
 
 
     await tester.enterText(find.byType(TextFormField), 'userPassword');
     await tester.pump();
 
-    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Continue'));
     await tester.pump();
 
     expect(find.text('Please select an authentication method to verify your request:'), findsOneWidget);
@@ -600,7 +600,7 @@ void main() {
       )
     });
 
-    await tester.tap(find.widgetWithText(TextButton, 'Continue'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Continue'));
     await tester.pumpAndSettle();
 
     expect(find.text('Please enter the code sent to 2134325435:'), findsOneWidget);
