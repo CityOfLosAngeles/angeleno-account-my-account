@@ -1,15 +1,15 @@
 class User {
-  late String userId;
-  late String email;
-  late String? firstName;
-  late String? lastName;
-  late String? zip;
-  late String? address;
-  late String? address2;
-  late String? city;
-  late String? state;
-  late String? phone;
-  late Map<String, dynamic>? metadata;
+  String userId;
+  String email;
+  String? firstName;
+  String? lastName;
+  String? zip;
+  String? address;
+  String? address2;
+  String? city;
+  String? state;
+  String? phone;
+  Map<String, dynamic>? metadata;
 
   User({
       required this.userId,
@@ -75,4 +75,36 @@ class User {
     state.hashCode ^ phone.hashCode;
 
 
+}
+
+class Address {
+  String address;
+  String address2;
+  String city;
+  String state;
+  String zip;
+
+  Address({
+    this.address = '',
+    this.address2 = '',
+    this.city = '',
+    this.state = '',
+    this.zip = ''
+  });
+
+  Map<String, dynamic> toJson() => {
+    'address': address,
+    'address2': address2,
+    'city': city,
+    'state': state,
+    'zip': zip
+  };
+
+  factory Address.fromJson(final Map<String, dynamic> json) => Address(
+    address: json['address'] as String? ?? '',
+    address2: json['address2'] as String? ?? '',
+    city: json['city'] as String? ?? '',
+    state: json['state'] as String? ?? '',
+    zip: json['zip'] as String? ?? ''
+  );
 }
