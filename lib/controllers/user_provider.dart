@@ -35,31 +35,20 @@ class UserProvider extends ChangeNotifier {
 
   void setUser(final UserProfile user) {
 
-    String zip = '';
-    String address = '';
-    String address2 = '';
-    String city = '';
-    String state = '';
+    late Address userAddress;
     String phone = '';
 
     final metadata = user.customClaims?['user_metadata']
-                                  as Map<String, dynamic>;
+                                  as Map<String, dynamic>? ?? {};
 
     if (metadata.isNotEmpty) {
-      final primaryAddress = metadata['addresses']?['primary'];
+      final addressData = metadata['addresses']
+        as Map<String, dynamic>? ?? {};
 
-      if (primaryAddress != null) {
-        address = primaryAddress['address'] != null ?
-          primaryAddress['address'] as String : '';
-        address2 = primaryAddress['address2'] != null ?
-          primaryAddress['address2'] as String : '';
-        city =  primaryAddress['city'] != null ?
-          primaryAddress['city'] as String : '';
-        state = primaryAddress['state'] != null ?
-          primaryAddress['state'] as String : '';
-        zip = primaryAddress['zip'] != null ?
-          primaryAddress['zip'] as String : '';
-      }
+      final primaryAddress = addressData['primary']
+        as Map<String, dynamic>? ?? {};
+
+      userAddress = Address.fromJson(primaryAddress);
 
       phone = metadata['phone'] as String;
     }
@@ -69,11 +58,11 @@ class UserProvider extends ChangeNotifier {
         email: user.email!,
         firstName: user.givenName ?? '',
         lastName: user.familyName ?? '',
-        zip: zip,
-        address: address,
-        address2: address2,
-        city: city,
-        state: state,
+        zip: userAddress.zip,
+        address: userAddress.address,
+        address2: userAddress.address2,
+        city: userAddress.city,
+        state: userAddress.state,
         phone: phone,
         metadata: metadata
     );
