@@ -228,7 +228,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       autoValidateMode: isNotTestMode ?
                       AutovalidateMode.onUserInteraction
                           : AutovalidateMode.disabled,
-                      selectorTextStyle: const TextStyle(color: Colors.black),
                       initialValue: PhoneNumber(phoneNumber: user.phone, isoCode: 'US'),
                       keyboardType: const TextInputType.numberWithOptions(
                           signed: true,

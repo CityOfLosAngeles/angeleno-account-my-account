@@ -246,7 +246,6 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
               autoValidateMode: isNotTestMode ?
                 AutovalidateMode.onUserInteraction
                 : AutovalidateMode.disabled,
-              selectorTextStyle: const TextStyle(color: Colors.black),
               initialValue: number,
               textFieldController: phoneField,
               keyboardType: const TextInputType.numberWithOptions(
@@ -309,7 +308,6 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
           const Text('Please select an authentication method to verify your request:',
             style: TextStyle(
               decoration: TextDecoration.none,
-              color: Colors.black,
               fontSize: 16.0,
               fontWeight: FontWeight.normal
             ),
