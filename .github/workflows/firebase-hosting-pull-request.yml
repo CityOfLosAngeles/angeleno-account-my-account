@@ -5,17 +5,30 @@
 name: Deploy to Firebase Hosting on PR
 on:
   pull_request:
-    paths:
-      - 'lib/**'
-      - 'web/**'
-      - 'pubspec.*'
+#    paths:
+#      - 'lib/**'
+#      - 'web/**'
+#      - 'pubspec.*'
 jobs:
   build_and_preview:
-    if: '${{ github.event.pull_request.head.repo.full_name == github.repository &&
-      github.event.pull_request.draft == false }}'
+
+    strategy:
+      matrix:
+        branch: [ development, sandbox, production ]
+
+    if: |
+      (github.ref == format('refs/heads/{0}', matrix.branch)) ||
+      (github.event_name == 'pull_request' && github.event.pull_request.base.ref == matrix.branch)
+      &&
+      '${{ github.event.pull_request.head.repo.full_name == github.repository &&
+            github.event.pull_request.draft == false }}'
+    environment:
+      name: ${{ matrix.branch }}
+
     runs-on: ubuntu-latest
-    environment: development
     steps:
+      - run:
+          echo 'environment is ${{ matrix.branch }}'
       - uses: actions/checkout@v4
        # https://github.com/marketplace/actions/flutter-action
       - name: Setup Flutter
