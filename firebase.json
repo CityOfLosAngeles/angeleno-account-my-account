@@ -14,11 +14,6 @@
     }],
     "rewrites": [
       {
-        "source": "/maps/**",
-        "function": "maps",
-        "region": "us-west1"
-      },
-      {
         "source": "/auth0/**",
         "function": "auth0",
         "region": "us-west1"
@@ -29,16 +24,6 @@
     {
       "source": "functions/auth0",
       "codebase": "auth0",
-      "ignore": [
-        "node_modules",
-        ".git",
-        "firebase-debug.log",
-        "firebase-debug.*.log"
-      ]
-    },
-    {
-      "source": "functions/maps",
-      "codebase": "maps",
       "ignore": [
         "node_modules",
         ".git",
