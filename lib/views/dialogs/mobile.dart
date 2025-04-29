@@ -73,30 +73,32 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
   @override
   List<Widget> get dialogNext =>
     [
-      TextButton(
+      OutlinedButton(
         onPressed: !validPhoneNumber && isNotTestMode ? null : () {
           navigateToNextPage();
         },
         child: const Text('Continue'),
       ),
-      TextButton(
+      OutlinedButton(
         onPressed: passwordField.text.isEmpty ? null : () {
           enrollMobile();
         },
         child: const Text('Continue'),
       ),
-      const SizedBox.shrink(),
-      TextButton(
-        onPressed: inFlightRequest ? null : () {
-          getMfaToken();
-        },
-        child: const Text('Continue'),
-      ),
-      TextButton(
+      if (requireAdditionalAuthentication) ...[
+        const SizedBox.shrink(),
+        OutlinedButton(
+          onPressed: inFlightRequest ? null : () {
+            getMfaToken();
+          },
+          child: const Text('Continue'),
+        ),
+      ],
+      FilledButton(
         onPressed: codeProvided.isEmpty ? null : () {
          confirmCode();
         },
-        child: const Text('Continue')
+        child: const Text('Finish')
       )
     ];
 
@@ -126,7 +128,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
       if (statusCode == HttpStatus.ok) {
         oobCode = mfaResponse.oobCode;
         mfaToken = mfaResponse.token;
-        navigateToNextPage(increment: !requireAdditionalAuthentication ? 3 : 1);
+        navigateToNextPage();
       } else if (statusCode == HttpStatus.unauthorized) {
         requireAdditionalAuthentication = true;
         if (mfaToken.isEmpty) {
@@ -243,7 +245,6 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
               autoValidateMode: isNotTestMode ?
                 AutovalidateMode.onUserInteraction
                 : AutovalidateMode.disabled,
-              selectorTextStyle: const TextStyle(color: Colors.black),
               initialValue: number,
               textFieldController: phoneField,
               keyboardType: const TextInputType.numberWithOptions(
@@ -306,7 +307,6 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
           const Text('Please select an authentication method to verify your request:',
             style: TextStyle(
               decoration: TextDecoration.none,
-              color: Colors.black,
               fontSize: 16.0,
               fontWeight: FontWeight.normal
             ),
@@ -378,7 +378,6 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
           Text('Enter the code provided by your ${useAuthenticatorSecondFactor ? 'Authenticator' : 'Phone'}:',
             style: const TextStyle(
               decoration: TextDecoration.none,
-              color: Colors.black,
               fontSize: 16.0,
               fontWeight: FontWeight.normal
             ),
@@ -416,14 +415,15 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
     )
   );
 
-  List<Widget> get screens =>
-      [
-        phonePrompt,
-        passwordPromptWidget,
-        authenticatorList,
-        mfaAuthCodeScreen,
-        codeScreen
-      ];
+  List<Widget> get screens => [
+    phonePrompt,
+    passwordPromptWidget,
+    if (requireAdditionalAuthentication) ...[
+      authenticatorList,
+      mfaAuthCodeScreen,
+    ],
+    codeScreen
+  ];
 
   @override
   Widget get dialogBody =>

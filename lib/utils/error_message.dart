@@ -8,6 +8,6 @@ class ErrorMessage extends StatelessWidget {
   @override
   Widget build(final BuildContext context) => Text(
       message,
-      style: TextStyle(color: const ColorScheme.light().error),
+      style: TextStyle(color: Theme.of(context).colorScheme.error),
     );
 }

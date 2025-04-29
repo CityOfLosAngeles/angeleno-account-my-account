@@ -52,10 +52,10 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
     child: const Text('Back'),
   );
 
-  void navigateToNextPage({final int increment = 1}) {
+  void navigateToNextPage() {
     if (pageIndex <= 4) {
       setState(() {
-        pageIndex += increment;
+        pageIndex += 1;
       });
     } else {
       Navigator.pop(context);
@@ -161,7 +161,7 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
 
     return isSmallScreen
         ?
-        Dialog.fullscreen(child: dialogBody)
+        Dialog.fullscreen(child: Padding(padding: const EdgeInsets.all(20), child:dialogBody))
         :
         AlertDialog(
           title: Text('Enroll $methodBeingEnrolled'),

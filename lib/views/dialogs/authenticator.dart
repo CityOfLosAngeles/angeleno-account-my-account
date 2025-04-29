@@ -52,26 +52,27 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
 
   @override
   List<Widget> get dialogNext => [
-    TextButton(
+    OutlinedButton(
       onPressed: passwordField.text.isEmpty || inFlightRequest ? null : () {
         enrollAuthenticator();
       },
       child: const Text('Continue'),
     ),
+    if (requireAdditionalAuthentication) ...[
     const SizedBox.shrink(),
-    TextButton(
+    OutlinedButton(
       onPressed: inFlightRequest ? null : () {
         getMfaToken();
       },
       child: const Text('Continue'),
-    ),
-    TextButton(
+    )],
+    OutlinedButton(
       onPressed: () {
         navigateToNextPage();
       },
       child: const Text('Continue'),
     ),
-    TextButton(
+    FilledButton(
       onPressed: authenticatorCode.isEmpty || inFlightRequest ? null : () {
         confirmAuthenticator();
       },
@@ -107,7 +108,7 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
         qrCodeAltString = mfaResponse.barcodeString;
         inFlightRequest = false;
 
-        navigateToNextPage(increment: !requireAdditionalAuthentication ? 3 : 1);
+        navigateToNextPage();
       } else if (statusCode == HttpStatus.unauthorized) {
         requireAdditionalAuthentication = true;
         if (mfaToken.isEmpty) {
@@ -201,7 +202,6 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
           const Text('Set up your authenticator by scanning code below:',
             style: TextStyle(
               decoration: TextDecoration.none,
-              color: Colors.black,
               fontSize: 16.0,
               fontWeight: FontWeight.normal
             ),
@@ -221,7 +221,6 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
             qrCodeAltString,
             style: const TextStyle(
               decoration: TextDecoration.none,
-              color: Colors.black,
               fontSize: 14.0,
               fontWeight: FontWeight.normal
             )
@@ -278,7 +277,6 @@ Align(
           const Text('Please select an authentication method to verify your request:',
             style: TextStyle(
               decoration: TextDecoration.none,
-              color: Colors.black,
               fontSize: 16.0,
               fontWeight: FontWeight.normal
             ),
@@ -377,8 +375,10 @@ Align(
 
   List<Widget> get screens => [
     passwordPromptWidget,
-    authenticatorList,
-    mfaAuthCodeScreen,
+    if (requireAdditionalAuthentication) ...[
+      authenticatorList,
+      mfaAuthCodeScreen,
+    ],
     qrCodeScreen,
     confirmationScreen
   ];
