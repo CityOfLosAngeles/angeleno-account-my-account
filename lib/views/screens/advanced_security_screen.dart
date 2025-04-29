@@ -170,7 +170,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                   Semantics(
                     header: true,
                     child: const Text(
-                      'Multi-Factor Authentication',
+                      'Multi-factor authentication',
                       textAlign: TextAlign.left,
                       style: headerStyle
                     )
@@ -181,7 +181,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                     children: [
                       const Flexible(
                         child: Text(
-                          'Authenticator App (Timed One-Time Password)',
+                          'Authenticator app (Timed one-time password)',
                           softWrap: true,
                         ),
                       ),
@@ -266,7 +266,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                                   child: ListBody(
                                     children: <Widget>[
                                       // ignore: avoid_escaping_inner_quotes
-                                      Text('Do you confirm to remove SMS Text? This'
+                                      Text('Do you confirm to remove SMS text? This'
                                         ' action is irreversible. If you want to use this'
                                         ' factor again you will need to enroll the'
                                         ' factor again.'
@@ -339,7 +339,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                                   child: ListBody(
                                     children: <Widget>[
                                       // ignore: avoid_escaping_inner_quotes
-                                      Text('Do you confirm to remove Voice Calls? This'
+                                      Text('Do you confirm to remove voice calls? This'
                                         ' action is irreversible. If you want to use this'
                                         ' factor again you will need to enroll the'
                                         ' factor again.'

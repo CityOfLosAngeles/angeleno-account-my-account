@@ -65,7 +65,7 @@ void main() {
 
     expect(find.text('Current password'), findsOneWidget);
     expect(find.text('New password'), findsOneWidget);
-    expect(find.text('Confirm password'), findsOneWidget);
+    expect(find.text('Confirm new password'), findsOneWidget);
 
     final submitButtonFinder = find.byType(FilledButton);
     expect(submitButtonFinder, findsOneWidget);
