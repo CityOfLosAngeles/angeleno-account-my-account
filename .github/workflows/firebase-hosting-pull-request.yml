@@ -12,23 +12,15 @@ on:
 jobs:
   build_and_preview:
 
-    strategy:
-      matrix:
-        branch: [ development, sandbox, production ]
-
-    if: |
-      (github.ref == format('refs/heads/{0}', matrix.branch)) ||
-      (github.event_name == 'pull_request' && github.event.pull_request.base.ref == matrix.branch)
-      &&
-      '${{ github.event.pull_request.head.repo.full_name == github.repository &&
+    if: '${{ github.event.pull_request.head.repo.full_name == github.repository &&
             github.event.pull_request.draft == false }}'
     environment:
-      name: ${{ matrix.branch }}
+      name: ${{github.event.pull_request.base.ref}}
 
     runs-on: ubuntu-latest
     steps:
       - run:
-          echo 'environment is ${{ matrix.branch }}'
+          echo 'environment is ${{ github.event.pull_request.base.ref }}'
       - uses: actions/checkout@v4
        # https://github.com/marketplace/actions/flutter-action
       - name: Setup Flutter
