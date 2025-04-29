@@ -52,7 +52,7 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
 
   @override
   List<Widget> get dialogNext => [
-    FilledButton.tonal(
+    OutlinedButton(
       onPressed: passwordField.text.isEmpty || inFlightRequest ? null : () {
         enrollAuthenticator();
       },
@@ -60,13 +60,13 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
     ),
     if (requireAdditionalAuthentication) ...[
     const SizedBox.shrink(),
-    FilledButton.tonal(
+    OutlinedButton(
       onPressed: inFlightRequest ? null : () {
         getMfaToken();
       },
       child: const Text('Continue'),
     )],
-    FilledButton.tonal(
+    OutlinedButton(
       onPressed: () {
         navigateToNextPage();
       },
