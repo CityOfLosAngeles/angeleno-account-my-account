@@ -67,7 +67,7 @@ jobs:
           sed -i "s/$to_replace/$be_replaced/g" firebase.json
           
           if [[ "${{ github.event.pull_request.base.ref }}" == "development" ]]; then
-            old_redirect_uri="REDIRECT_URI"
+            old_redirect_uri="AUTH0_REDIRECT_URI"
             new_redirect_uri="https://dev.my.account.lacity.gov"
             sed -i "s/$old_redirect_uri/$new_redirect_uri/g" firebase.json
           fi
