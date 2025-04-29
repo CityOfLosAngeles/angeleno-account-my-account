@@ -111,7 +111,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
             child: Semantics(
                 header: true,
                 child: const Text(
-                    'Password Reset',
+                    'Password reset',
                     textAlign: TextAlign.left,
                     style: headerStyle
                 )
@@ -131,7 +131,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
           },
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
-            label: const Text('Current Password'),
+            label: const Text('Current password'),
             suffixIcon: IconButton(
               key: const Key('toggle_old_password'),
               tooltip: '${isPasswordVisible ? 'Hide' : 'Show'} password',
@@ -152,7 +152,24 @@ class _PasswordScreenState extends State<PasswordScreen> {
             });
           },
         ),
-        const SizedBox(height: 10.0),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            const Text('Password must:',
+                style: TextStyle(fontWeight: FontWeight.bold)
+            ),
+            const SizedBox(width: 10),
+            Text(
+                'Be at least $minPasswordLength characters',
+                style: TextStyle(
+                    color: acceptableLength
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.error
+                )
+            )
+          ],
+        ),
+        const SizedBox(height: 5),
         TextFormField(
           obscureText: !isNewPasswordVisible,
           autocorrect: false,
@@ -173,7 +190,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
           },
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
-            label: const Text('New Password'),
+            label: const Text('New password'),
             suffixIcon: IconButton(
               key: const Key('toggle_new_password'),
               tooltip: '${isNewPasswordVisible ? 'Hide' : 'Show'} new password',
@@ -195,23 +212,6 @@ class _PasswordScreenState extends State<PasswordScreen> {
             });
           },
         ),
-        const SizedBox(height: 5),
-        Row(
-          children: [
-            const Text('Password must:',
-              style: TextStyle(fontWeight: FontWeight.bold)
-            ),
-            const SizedBox(width: 10),
-            Text(
-              'Be at least $minPasswordLength characters',
-              style: TextStyle(
-              color: acceptableLength
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.error
-              )
-            )
-          ],
-        ),
         const SizedBox(height: 10.0),
         TextFormField(
           obscureText: !isPasswordMatchVisible,
@@ -230,7 +230,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
           },
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
-            label: const Text('Confirm New Password'),
+            label: const Text('Confirm new password'),
             suffixIcon: IconButton(
               key: const Key('toggle_match_password'),
               tooltip: '${isPasswordMatchVisible ? 'Hide' : 'Show'} new password confirmation',
@@ -258,9 +258,9 @@ class _PasswordScreenState extends State<PasswordScreen> {
             if (errorMsg.isNotEmpty)
               ErrorMessage(message: errorMsg),
             const SizedBox(height: 10.0),
-            ElevatedButton(
+            FilledButton(
               onPressed: _isButtonDisabled ? null : () => submitRequest(),
-              child: const Text('Update Password and Logout'),
+              child: const Text('Update password and logout'),
             )
           ],
         ),

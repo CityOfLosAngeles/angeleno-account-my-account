@@ -24,6 +24,20 @@ void main() {
       expect(themeData.colorScheme.onPrimary, const Color(0xff00382d));
     });
 
+    test('LightMediumContrast theme uses lightMediumConstrastScheme', () {
+      final themeData = materialTheme.lightMediumContrast();
+      expect(themeData.brightness, Brightness.light);
+      expect(themeData.colorScheme.primary, const Color(0xff003e33));
+      expect(themeData.colorScheme.onPrimary, const Color(0xffffffff));
+    });
+
+    test('DarkMediumContast theme uses darkMediumContrastScheme', () {
+      final themeData = materialTheme.darkMediumContrast();
+      expect(themeData.brightness, Brightness.dark);
+      expect(themeData.colorScheme.primary, const Color(0xff9becd5));
+      expect(themeData.colorScheme.onPrimary, const Color(0xff002c23));
+    });
+
     test('LightHighContrast theme uses lightHighContrastScheme', () {
       final themeData = materialTheme.lightHighContrast();
       expect(themeData.brightness, Brightness.light);
