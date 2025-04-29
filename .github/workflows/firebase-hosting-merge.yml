@@ -60,15 +60,17 @@ jobs:
           be_replaced="${{secrets.CLIENT_ID}}"
           sed -i "s/$to_replace/$be_replaced/g" firebase.json
           
-          if: ${{ github.event.pull_request.base.ref == 'development' }}
-          old_redirect_uri="REDIRECT_URI"
-          new_redirect_uri="https://dev.my.account.lacity.gov"
-          sed -i "s/$old_redirect_uri/$new_redirect_uri/g" firebase.json
-          
-          if: ${{ github.event.pull_request.base.ref == 'sandbox' }}
-          old_redirect_uri="REDIRECT_URI"
-          new_redirect_uri="https://sandbox.my.account.lacity.gov"
-          sed -i "s/$old_redirect_uri/$new_redirect_uri/g" firebase.json
+          if [[ "${{ github.event.pull_request.base.ref }}" == "development" ]]; then
+            old_redirect_uri="REDIRECT_URI"
+            new_redirect_uri="https://dev.my.account.lacity.gov"
+            sed -i "s/$old_redirect_uri/$new_redirect_uri/g" firebase.json
+          fi
+
+          if [[ "${{ github.event.pull_request.base.ref }}" == "sandbox" ]]; then
+            old_redirect_uri="REDIRECT_URI"
+            new_redirect_uri="https://sandbox.my.account.lacity.gov"
+            sed -i "s/$old_redirect_uri/$new_redirect_uri/g" firebase.json
+          fi
 
 
       - name: Deploy to Firebase Hosting (DEV)
