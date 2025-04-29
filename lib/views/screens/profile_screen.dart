@@ -30,7 +30,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late OverlayProvider overlayProvider;
   late UserProvider userProvider;
   late User user;
-  late bool isFormValid;
+  bool isFormValid = false;
   bool validPhoneNumber = false;
   final isNotTestMode = kIsWeb ||
       !Platform.environment.containsKey('FLUTTER_TEST');
@@ -111,22 +111,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10),
-              child: FilledButton(
-                onPressed: (editMode &&
-                    ((user.phone!.isNotEmpty && !validPhoneNumber) ||
-                        !isFormValid) && isNotTestMode
-                ) ? null : () {
-                  if (editMode) {
-                    updateUser();
-                  }
-                  setState(() {
-                    userProvider.toggleEditing();
-                  });
-                },
-                child: Text(
-                    editMode ? 'Save' : 'Edit'
-                ),
-              )
+              child: !editMode ?
+                FilledButton.tonal(
+                  onPressed: () {
+                    setState(() {
+                      userProvider.toggleEditing();
+                    });
+                  },
+                  child: const Text('Edit'),
+                )
+                :
+                FilledButton(
+                  onPressed: ((user.phone!.isNotEmpty && !validPhoneNumber) ||
+                          !isFormValid) && isNotTestMode
+                   ? null : () {
+                    if (editMode) {
+                      updateUser();
+                    }
+                    setState(() {
+                      userProvider.toggleEditing();
+                    });
+                  },
+                  child: const Text('Save'),
+                )
             )
           ]
         ),
@@ -145,7 +152,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 25.0),
                     TextFormField(
                       enabled: editMode,
-                      decoration: inputDecoration('First Name (required)', editMode),
+                      decoration: inputDecoration('First name (required)', editMode),
                       style: textStyle(editMode),
                       initialValue: user.firstName,
                       maxLength: 300,
@@ -172,7 +179,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 25.0),
                     TextFormField(
                       enabled: editMode,
-                      decoration: inputDecoration('Last Name (required)', editMode),
+                      decoration: inputDecoration('Last name (required)', editMode),
                       style: textStyle(editMode),
                       initialValue: user.lastName,
                       maxLength: 150,

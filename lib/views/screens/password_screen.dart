@@ -111,7 +111,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
             child: Semantics(
                 header: true,
                 child: const Text(
-                    'Reset Password',
+                    'Password reset',
                     textAlign: TextAlign.left,
                     style: headerStyle
                 )
@@ -230,7 +230,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
           },
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
-            label: const Text('Confirm password'),
+            label: const Text('Confirm new password'),
             suffixIcon: IconButton(
               key: const Key('toggle_match_password'),
               tooltip: '${isPasswordMatchVisible ? 'Hide' : 'Show'} new password confirmation',
