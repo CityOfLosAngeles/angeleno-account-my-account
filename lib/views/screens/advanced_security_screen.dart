@@ -254,7 +254,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('SMS Text'),
+                      const Text('SMS text'),
                       smsEnabled ?
                       FilledButton.tonal(
                         key: const Key('disableSMS'),
@@ -327,7 +327,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Phone Call'),
+                      const Text('Phone call'),
                       voiceEnabled ?
                       FilledButton.tonal(
                         key: const Key('disableVoice'),
