@@ -61,9 +61,19 @@ jobs:
           to_replace="AUTH0_CLIENT_ID"
           be_replaced="${{secrets.CLIENT_ID}}"
           sed -i "s/$to_replace/$be_replaced/g" firebase.json
-      - uses: FirebaseExtended/action-hosting-deploy@v0
+
+      - name: Deploy to Firebase Hosting (DEV)
+        if: ${{ github.event.pull_request.base.ref == 'development' }}
+        uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MY_ACCOUNT_DEV_402917   }}
           projectId: my-account-dev-402917
 
+      - name: Deploy to Firebase Hosting (Sandbox)
+        if: ${{ github.event.pull_request.base.ref == 'sandbox' }}
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MY_ACCOUNT_SANDBOX_422814 }}
+          projectId: my-account-sandbox-422814
