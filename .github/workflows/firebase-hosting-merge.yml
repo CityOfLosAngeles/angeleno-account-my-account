@@ -62,13 +62,13 @@ jobs:
           
           if [[ "${{ github.event.pull_request.base.ref }}" == "development" ]]; then
             old_redirect_uri="REDIRECT_URI"
-            new_redirect_uri="https://dev.my.account.lacity.gov"
+            new_redirect_uri=$(printf '%s\n' "https://dev.my.account.lacity.gov" | sed 's/[&/\]/\\&/g')
             sed -i "s/$old_redirect_uri/$new_redirect_uri/g" firebase.json
           fi
 
           if [[ "${{ github.event.pull_request.base.ref }}" == "sandbox" ]]; then
             old_redirect_uri="REDIRECT_URI"
-            new_redirect_uri="https://sandbox.my.account.lacity.gov"
+            new_redirect_uri=$(printf '%s\n' "https://sandbox.my.account.lacity.gov" | sed 's/[&/\]/\\&/g')
             sed -i "s/$old_redirect_uri/$new_redirect_uri/g" firebase.json
           fi
 
