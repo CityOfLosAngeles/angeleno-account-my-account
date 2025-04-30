@@ -58,6 +58,10 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
     api = widget.userApi;
     channel = widget.channel;
     authMethods = widget.authMethods;
+
+    setState(() {
+      methodBeingEnrolled = widget.channel == 'sms' ? 'SMS' : 'Voice';
+    });
   }
 
   @override
@@ -69,30 +73,32 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
   @override
   List<Widget> get dialogNext =>
     [
-      TextButton(
+      OutlinedButton(
         onPressed: !validPhoneNumber && isNotTestMode ? null : () {
           navigateToNextPage();
         },
         child: const Text('Continue'),
       ),
-      TextButton(
+      OutlinedButton(
         onPressed: passwordField.text.isEmpty ? null : () {
           enrollMobile();
         },
         child: const Text('Continue'),
       ),
-      const SizedBox.shrink(),
-      TextButton(
-        onPressed: inFlightRequest ? null : () {
-          getMfaToken();
-        },
-        child: const Text('Continue'),
-      ),
-      TextButton(
+      if (requireAdditionalAuthentication) ...[
+        const SizedBox.shrink(),
+        OutlinedButton(
+          onPressed: inFlightRequest ? null : () {
+            getMfaToken();
+          },
+          child: const Text('Continue'),
+        ),
+      ],
+      FilledButton(
         onPressed: codeProvided.isEmpty ? null : () {
          confirmCode();
         },
-        child: const Text('Continue')
+        child: const Text('Finish')
       )
     ];
 
@@ -122,7 +128,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
       if (statusCode == HttpStatus.ok) {
         oobCode = mfaResponse.oobCode;
         mfaToken = mfaResponse.token;
-        navigateToNextPage(increment: !requireAdditionalAuthentication ? 3 : 1);
+        navigateToNextPage();
       } else if (statusCode == HttpStatus.unauthorized) {
         requireAdditionalAuthentication = true;
         if (mfaToken.isEmpty) {
@@ -172,7 +178,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         behavior: SnackBarBehavior.floating,
         width: 280.0,
-        content: Text('$channel MFA has been enabled.')
+        content: Text('$methodBeingEnrolled MFA has been enabled.')
       ));
     } else {
       setState(() {
@@ -193,11 +199,15 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
 
     final response = await api.requestMFAToken(body);
 
-    setState(() {
+    if (response.statusCode == HttpStatus.ok) {
       mfaToken = jsonDecode(response.body)['access_token'] as String;
-    });
+      enrollMobile();
+    } else {
+      setState(() {
+        errorMessage = response.body;
+      });
+    }
 
-    enrollMobile();
   }
 
   Widget get phonePrompt =>
@@ -235,7 +245,6 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
               autoValidateMode: isNotTestMode ?
                 AutovalidateMode.onUserInteraction
                 : AutovalidateMode.disabled,
-              selectorTextStyle: const TextStyle(color: Colors.black),
               initialValue: number,
               textFieldController: phoneField,
               keyboardType: const TextInputType.numberWithOptions(
@@ -254,7 +263,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('Please enter the code received:'),
+          Text('Please enter the code sent to ${phoneField.text}:'),
           SizedBox(
             width: 250,
             child: TextFormField(
@@ -295,18 +304,17 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
     Align(
       child: Column(
         children: [
-          const Text('Please select an authentication method to verify your identity:',
+          const Text('Please select an authentication method to verify your request:',
             style: TextStyle(
               decoration: TextDecoration.none,
-              color: Colors.black,
               fontSize: 16.0,
               fontWeight: FontWeight.normal
             ),
           ),
           const SizedBox(height: 15),
           SizedBox(
-            width: double.maxFinite,
-            height: 80,
+            width: 300,
+            height: authMethods.length * 60,
             child: ListView.builder(
               itemCount: authMethods.length,
               padding: const EdgeInsets.all(20),
@@ -341,11 +349,16 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
                       };
 
                       final response = await api.challengeMFA(body);
-                      final jsonResponse = jsonDecode(response.body);
-                      setState(() {
+
+                      if (response.statusCode == HttpStatus.ok) {
+                        final jsonResponse = jsonDecode(response.body);
                         oobCode = jsonResponse['oob_code'] as String;
-                      });
-                      navigateToNextPage();
+                        navigateToNextPage();
+                      } else {
+                        setState(() {
+                          errorMessage = response.body;
+                        });
+                      }
                     }
                   },
                   child: Text(friendlyMfaMethodName),
@@ -362,10 +375,9 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
     Align(
       child: Column(
         children: [
-          const Text('Enter code provided:',
-            style: TextStyle(
+          Text('Enter the code provided by your ${useAuthenticatorSecondFactor ? 'Authenticator' : 'Phone'}:',
+            style: const TextStyle(
               decoration: TextDecoration.none,
-              color: Colors.black,
               fontSize: 16.0,
               fontWeight: FontWeight.normal
             ),
@@ -377,7 +389,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
               key: const Key('additionalMfaCode'),
               autofocus: true,
               autovalidateMode: AutovalidateMode.onUserInteraction,
-              onFieldSubmitted: (final value) => getMfaToken(),
+              onFieldSubmitted: (final value) => getMfaToken,
               validator: (final value) {
                 if (value == null || value.trim().isEmpty) {
                   return 'Code is required';
@@ -403,14 +415,15 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
     )
   );
 
-  List<Widget> get screens =>
-      [
-        phonePrompt,
-        passwordPromptWidget,
-        authenticatorList,
-        mfaAuthCodeScreen,
-        codeScreen
-      ];
+  List<Widget> get screens => [
+    phonePrompt,
+    passwordPromptWidget,
+    if (requireAdditionalAuthentication) ...[
+      authenticatorList,
+      mfaAuthCodeScreen,
+    ],
+    codeScreen
+  ];
 
   @override
   Widget get dialogBody =>

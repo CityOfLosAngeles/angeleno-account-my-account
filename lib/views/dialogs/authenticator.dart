@@ -44,30 +44,35 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
     userProvider = widget.userProvider;
     auth0UserApi = widget.auth0UserApi;
     authMethods = widget.authMethods;
+
+    setState(() {
+      methodBeingEnrolled = 'Authenticator Application';
+    });
   }
 
   @override
   List<Widget> get dialogNext => [
-    TextButton(
+    OutlinedButton(
       onPressed: passwordField.text.isEmpty || inFlightRequest ? null : () {
         enrollAuthenticator();
       },
       child: const Text('Continue'),
     ),
+    if (requireAdditionalAuthentication) ...[
     const SizedBox.shrink(),
-    TextButton(
+    OutlinedButton(
       onPressed: inFlightRequest ? null : () {
         getMfaToken();
       },
       child: const Text('Continue'),
-    ),
-    TextButton(
+    )],
+    OutlinedButton(
       onPressed: () {
         navigateToNextPage();
       },
       child: const Text('Continue'),
     ),
-    TextButton(
+    FilledButton(
       onPressed: authenticatorCode.isEmpty || inFlightRequest ? null : () {
         confirmAuthenticator();
       },
@@ -98,14 +103,12 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
       final mfaResponse = response['body'] as MfaResponse;
 
       if (statusCode == HttpStatus.ok) {
-        setState(() {
-          authenticatorQrCode = mfaResponse.barcode;
-          mfaToken = mfaResponse.token;
-          qrCodeAltString = mfaResponse.barcodeString;
-          inFlightRequest = false;
-        });
+        authenticatorQrCode = mfaResponse.barcode;
+        mfaToken = mfaResponse.token;
+        qrCodeAltString = mfaResponse.barcodeString;
+        inFlightRequest = false;
 
-        navigateToNextPage(increment: !requireAdditionalAuthentication ? 3 : 1);
+        navigateToNextPage();
       } else if (statusCode == HttpStatus.unauthorized) {
         requireAdditionalAuthentication = true;
         if (mfaToken.isEmpty) {
@@ -175,11 +178,15 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
 
     final response = await auth0UserApi.requestMFAToken(body);
 
-    setState(() {
+    if (response.statusCode == HttpStatus.ok) {
       mfaToken = jsonDecode(response.body)['access_token'] as String;
-    });
+      enrollAuthenticator();
+    } else {
+      setState(() {
+        errorMessage = response.body;
+      });
+    }
 
-    enrollAuthenticator();
   }
 
   Widget get passwordPromptWidget => passwordPrompt(
@@ -192,10 +199,9 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('Setup Authenticator. Scan code below:',
+          const Text('Set up your authenticator by scanning code below:',
             style: TextStyle(
               decoration: TextDecoration.none,
-              color: Colors.black,
               fontSize: 16.0,
               fontWeight: FontWeight.normal
             ),
@@ -215,7 +221,6 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
             qrCodeAltString,
             style: const TextStyle(
               decoration: TextDecoration.none,
-              color: Colors.black,
               fontSize: 14.0,
               fontWeight: FontWeight.normal
             )
@@ -230,7 +235,7 @@ Align(
       child:  Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('Enter code displayed from the application:',
+          const Text('Enter the code displayed from your application:',
               textAlign: TextAlign.center,
               softWrap: true
           ),
@@ -269,18 +274,17 @@ Align(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('Please select an authentication method to verify your identity:',
+          const Text('Please select an authentication method to verify your request:',
             style: TextStyle(
               decoration: TextDecoration.none,
-              color: Colors.black,
               fontSize: 16.0,
               fontWeight: FontWeight.normal
             ),
           ),
           const SizedBox(height: 15),
           SizedBox(
-            width: double.maxFinite,
-            height: 80,
+            width: 300,
+            height: authMethods.length * 60,
             child: ListView.builder(
               itemCount: authMethods.length,
               padding: const EdgeInsets.all(20),
@@ -307,11 +311,16 @@ Align(
                     };
 
                     final response = await auth0UserApi.challengeMFA(body);
-                    final jsonResponse = jsonDecode(response.body);
-                    setState(() {
+
+                    if (response.statusCode == HttpStatus.ok) {
+                      final jsonResponse = jsonDecode(response.body);
                       oobCode = jsonResponse['oob_code'] as String;
-                    });
-                    navigateToNextPage();
+                      navigateToNextPage();
+                    } else {
+                      setState(() {
+                        errorMessage = response.body;
+                      });
+                    }
                   },
                   child: Text(friendlyMfaMethodName),
                 );
@@ -327,7 +336,7 @@ Align(
     Align(
       child: Column(
         children: [
-          const Text('Enter code provided:',
+          const Text('Enter the code sent to your phone:',
             style: TextStyle(
               decoration: TextDecoration.none,
               color: Colors.black,
@@ -366,8 +375,10 @@ Align(
 
   List<Widget> get screens => [
     passwordPromptWidget,
-    authenticatorList,
-    mfaAuthCodeScreen,
+    if (requireAdditionalAuthentication) ...[
+      authenticatorList,
+      mfaAuthCodeScreen,
+    ],
     qrCodeScreen,
     confirmationScreen
   ];

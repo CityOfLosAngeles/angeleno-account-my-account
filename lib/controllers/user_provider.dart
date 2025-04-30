@@ -1,6 +1,7 @@
 import 'package:angeleno_project/models/user.dart';
 import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:auth0_flutter/auth0_flutter_web.dart';
+import 'package:datadog_flutter_plugin/datadog_flutter_plugin.dart';
 import 'package:flutter/foundation.dart';
 import '../utils/constants.dart';
 
@@ -18,6 +19,11 @@ class UserProvider extends ChangeNotifier {
             && await auth0Web.hasValidCredentials()) {
 
           setUser(credentials.user);
+
+          DatadogSdk.instance.setUserInfo(
+            email: credentials.user.email
+          );
+
           setCleanUser(_user!);
 
         } else {

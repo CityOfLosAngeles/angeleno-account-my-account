@@ -11,7 +11,8 @@ on:
       - production
 jobs:
   build_and_deploy:
-    environment: sandbox
+    environment: 
+      name: ${{github.event.pull_request.base.ref || github.ref_name}}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,7 +24,12 @@ jobs:
           flutter-version: '3.29.0'
           channel: 'stable'
           cache: true
-      - run: echo "Gituhb REF name ${GITHUB_REF_NAME}"
+
+      - name: Set environment variable
+        run: echo "DEPLOYMENT_ENV=${{github.event.pull_request.base.ref || github.ref_name}}" >> $GITHUB_ENV
+      - name: Print environment variable
+        run: echo 'environment is $DEPLOYMENT_ENV'
+      
       - run: flutter pub get
       - run: flutter config --enable-web
       - run: |
@@ -47,9 +53,46 @@ jobs:
           old_hosting="HOSTING_PROJECT"
           new_hosting="${{secrets.HOSTING_PROJECT}}"
           sed -i "s/$old_hosting/$new_hosting/g" .firebaserc
-      - uses: FirebaseExtended/action-hosting-deploy@v0
+          
+          old_hosting_targ="HOSTING_TARGET"
+          new_hosting_targ="${{secrets.HOSTING_PROJECT}}"
+          sed -i "s/$old_hosting_targ/$new_hosting_targ/g" firebase.json
+          
+          old_domain="AUTH0_DOMAIN"
+          new_domain="${{secrets.AUTH0_DOMAIN}}"
+          sed -i "s/$old_domain/$new_domain/g" firebase.json
+          
+          to_replace="AUTH0_CLIENT_ID"
+          be_replaced="${{secrets.CLIENT_ID}}"
+          sed -i "s/$to_replace/$be_replaced/g" firebase.json
+          
+          if [[ "$DEPLOYMENT_ENV" == "development" ]]; then
+            old_redirect_uri="AUTH0_REDIRECT_URI"
+            new_redirect_uri=$(printf '%s\n' "https://dev.my.account.lacity.gov" | sed 's/[&/\]/\\&/g')
+            sed -i "s/$old_redirect_uri/$new_redirect_uri/g" firebase.json
+          fi
+
+          if [[ "$DEPLOYMENT_ENV" == "sandbox" ]]; then
+            old_redirect_uri="AUTH0_REDIRECT_URI"
+            new_redirect_uri=$(printf '%s\n' "https://sandbox.my.account.lacity.gov" | sed 's/[&/\]/\\&/g')
+            sed -i "s/$old_redirect_uri/$new_redirect_uri/g" firebase.json
+          fi
+
+
+      - name: Deploy to Firebase Hosting (DEV)
+        if: ${{ env.DEPLOYMENT_ENV == 'development' }}
+        uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MY_ACCOUNT_DEV_402917   }}
+          channelId: live
+          projectId: my-account-dev-402917
+
+      - name: Deploy to Firebase Hosting (Sandbox)
+        if: ${{ env.DEPLOYMENT_ENV == 'sandbox' }}
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MY_ACCOUNT_SANDBOX_422814 }}
           channelId: live
           projectId: my-account-sandbox-422814

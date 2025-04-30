@@ -170,7 +170,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                   Semantics(
                     header: true,
                     child: const Text(
-                      'Multi-Factor Authentication',
+                      'Multi-factor authentication',
                       textAlign: TextAlign.left,
                       style: headerStyle
                     )
@@ -181,7 +181,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                     children: [
                       const Flexible(
                         child: Text(
-                          'Authenticator App (Timed One-Time Password)',
+                          'Authenticator app (Timed one-time password)',
                           softWrap: true,
                         ),
                       ),
@@ -252,147 +252,147 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                   const Divider(),
                   const SizedBox(height: 10),
                   Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text('SMS Text'),
-                        smsEnabled ?
-                        FilledButton.tonal(
-                          key: const Key('disableSMS'),
-                          onPressed: () => showDialog<int>(
-                              context: context,
-                              builder: (final BuildContext context) => AlertDialog(
-                                title: const Text('Remove SMS MFA?'),
-                                content: const SingleChildScrollView(
-                                    child: ListBody(
-                                      children: <Widget>[
-                                        // ignore: avoid_escaping_inner_quotes
-                                        Text('Do you confirm to remove SMS Text? This'
-                                          ' action is irreversible. If you want to use this'
-                                          ' factor again you will need to enroll the'
-                                          ' factor again.'
-                                        )
-                                      ],
-                                    )
-                                ),
-                                actions: <Widget>[
-                                  TextButton(
-                                    child: const Text('Cancel'),
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                  ),
-                                  TextButton(
-                                    child: const Text('Ok'),
-                                    onPressed: () {
-                                      disableMFA(smsAuthId, 'sms');
-                                    },
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('SMS text'),
+                      smsEnabled ?
+                      FilledButton.tonal(
+                        key: const Key('disableSMS'),
+                        onPressed: () => showDialog<int>(
+                            context: context,
+                            builder: (final BuildContext context) => AlertDialog(
+                              title: const Text('Remove SMS MFA?'),
+                              content: const SingleChildScrollView(
+                                  child: ListBody(
+                                    children: <Widget>[
+                                      // ignore: avoid_escaping_inner_quotes
+                                      Text('Do you confirm to remove SMS text? This'
+                                        ' action is irreversible. If you want to use this'
+                                        ' factor again you will need to enroll the'
+                                        ' factor again.'
+                                      )
+                                    ],
                                   )
-                                ],
-                              )
-                          ).then((final value) {
-                            if (value != null && value == HttpStatus.ok) {
-                              setState(() {
-                                smsEnabled = false;
-                              });
-                            }
-                          }),
-                          child: const Text('Disable'),
-                        )
-                            :
-                        FilledButton(
-                            key: const Key('enableSMS'),
-                            onPressed: () {
-                              showDialog<int>(
-                                  context: context,
-                                  builder: (final BuildContext context) =>
-                                    MobileDialog(
-                                      userProvider: userProvider,
-                                      userApi: auth0UserApi,
-                                      channel: 'sms',
-                                      authMethods: authenticators
-                                    )
-                              ).then((final value) {
-                                if (value != null && value == HttpStatus.ok){
-                                  _triggerAuthMethods();
-                                }
-                              });
-                            },
-                            child: const Text('Enable')
-                        )
-                      ]
+                              ),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: const Text('Cancel'),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                                TextButton(
+                                  child: const Text('Ok'),
+                                  onPressed: () {
+                                    disableMFA(smsAuthId, 'sms');
+                                  },
+                                )
+                              ],
+                            )
+                        ).then((final value) {
+                          if (value != null && value == HttpStatus.ok) {
+                            setState(() {
+                              smsEnabled = false;
+                            });
+                          }
+                        }),
+                        child: const Text('Disable'),
+                      )
+                          :
+                      FilledButton(
+                          key: const Key('enableSMS'),
+                          onPressed: () {
+                            showDialog<int>(
+                                context: context,
+                                builder: (final BuildContext context) =>
+                                  MobileDialog(
+                                    userProvider: userProvider,
+                                    userApi: auth0UserApi,
+                                    channel: 'sms',
+                                    authMethods: authenticators
+                                  )
+                            ).then((final value) {
+                              if (value != null && value == HttpStatus.ok){
+                                _triggerAuthMethods();
+                              }
+                            });
+                          },
+                          child: const Text('Enable')
+                      )
+                    ]
                   ),
                   const SizedBox(height: 10),
                   const Divider(),
                   const SizedBox(height: 10),
                   Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text('Phone Call'),
-                        voiceEnabled ?
-                        FilledButton.tonal(
-                          key: const Key('disableVoice'),
-                          onPressed: () => showDialog<int>(
-                              context: context,
-                              builder: (final BuildContext context) => AlertDialog(
-                                title: const Text('Remove Voice MFA?'),
-                                content: const SingleChildScrollView(
-                                    child: ListBody(
-                                      children: <Widget>[
-                                        // ignore: avoid_escaping_inner_quotes
-                                        Text('Do you confirm to remove Voice Calls? This'
-                                          ' action is irreversible. If you want to use this'
-                                          ' factor again you will need to enroll the'
-                                          ' factor again.'
-                                        )
-                                      ],
-                                    )
-                                ),
-                                actions: <Widget>[
-                                  TextButton(
-                                    child: const Text('Cancel'),
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                  ),
-                                  TextButton(
-                                    child: const Text('Ok'),
-                                    onPressed: () {
-                                      disableMFA(voiceAuthId, 'voice');
-                                    },
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Phone call'),
+                      voiceEnabled ?
+                      FilledButton.tonal(
+                        key: const Key('disableVoice'),
+                        onPressed: () => showDialog<int>(
+                            context: context,
+                            builder: (final BuildContext context) => AlertDialog(
+                              title: const Text('Remove Voice MFA?'),
+                              content: const SingleChildScrollView(
+                                  child: ListBody(
+                                    children: <Widget>[
+                                      // ignore: avoid_escaping_inner_quotes
+                                      Text('Do you confirm to remove voice calls? This'
+                                        ' action is irreversible. If you want to use this'
+                                        ' factor again you will need to enroll the'
+                                        ' factor again.'
+                                      )
+                                    ],
                                   )
-                                ],
-                              )
-                          ).then((final value) {
-                            if (value != null && value == HttpStatus.ok) {
-                              setState(() {
-                                voiceEnabled = false;
-                              });
-                            }
-                          }),
-                          child: const Text('Disable'),
-                        )
-                            :
-                        FilledButton(
-                            key: const Key('enableVoice'),
-                            onPressed: () {
-                              showDialog<int>(
-                                  context: context,
-                                  builder: (final BuildContext context) =>
-                                    MobileDialog(
-                                      userProvider: userProvider,
-                                      userApi: auth0UserApi,
-                                      channel: 'voice',
-                                      authMethods: authenticators
-                                    )
-                              ).then((final value) {
-                                if (value != null && value == HttpStatus.ok){
-                                  _triggerAuthMethods();
-                                }
-                              });
-                            },
-                            child: const Text('Enable')
-                        )
-                      ]
+                              ),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: const Text('Cancel'),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                                TextButton(
+                                  child: const Text('Ok'),
+                                  onPressed: () {
+                                    disableMFA(voiceAuthId, 'voice');
+                                  },
+                                )
+                              ],
+                            )
+                        ).then((final value) {
+                          if (value != null && value == HttpStatus.ok) {
+                            setState(() {
+                              voiceEnabled = false;
+                            });
+                          }
+                        }),
+                        child: const Text('Disable'),
+                      )
+                          :
+                      FilledButton(
+                          key: const Key('enableVoice'),
+                          onPressed: () {
+                            showDialog<int>(
+                                context: context,
+                                builder: (final BuildContext context) =>
+                                  MobileDialog(
+                                    userProvider: userProvider,
+                                    userApi: auth0UserApi,
+                                    channel: 'voice',
+                                    authMethods: authenticators
+                                  )
+                            ).then((final value) {
+                              if (value != null && value == HttpStatus.ok){
+                                _triggerAuthMethods();
+                              }
+                            });
+                          },
+                          child: const Text('Enable')
+                      )
+                    ]
                   )
                 ],
               )
