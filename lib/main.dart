@@ -35,6 +35,8 @@ class MyApp extends StatelessWidget {
     debugShowCheckedModeBanner: false,
     theme: MaterialTheme(Theme.of(context).textTheme)
         .theme(MaterialTheme.lightScheme()),
+    darkTheme: MaterialTheme(Theme.of(context).textTheme)
+        .theme(MaterialTheme.darkScheme()),
     navigatorObservers: [
       DatadogNavigationObserver(datadogSdk: DatadogSdk.instance),
     ],
