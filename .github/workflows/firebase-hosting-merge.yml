@@ -67,13 +67,13 @@ jobs:
           sed -i "s/$to_replace/$be_replaced/g" firebase.json
           
           if [[ "$DEPLOYMENT_ENV" == "development" ]]; then
-            old_redirect_uri="REDIRECT_URI"
+            old_redirect_uri="AUTH0_REDIRECT_URI"
             new_redirect_uri=$(printf '%s\n' "https://dev.my.account.lacity.gov" | sed 's/[&/\]/\\&/g')
             sed -i "s/$old_redirect_uri/$new_redirect_uri/g" firebase.json
           fi
 
           if [[ "$DEPLOYMENT_ENV" == "sandbox" ]]; then
-            old_redirect_uri="REDIRECT_URI"
+            old_redirect_uri="AUTH0_REDIRECT_URI"
             new_redirect_uri=$(printf '%s\n' "https://sandbox.my.account.lacity.gov" | sed 's/[&/\]/\\&/g')
             sed -i "s/$old_redirect_uri/$new_redirect_uri/g" firebase.json
           fi
