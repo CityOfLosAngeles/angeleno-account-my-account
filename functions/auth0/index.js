@@ -4,7 +4,7 @@ import express from 'express';
 
 admin.initializeApp();
 setGlobalOptions({
-  region: 'us-central1'
+  region: 'us-west1'
 })
 const app = express();
 
