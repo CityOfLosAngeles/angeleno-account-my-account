@@ -11,7 +11,8 @@ on:
       - production
 jobs:
   build_and_deploy:
-    environment: ${{github.event.pull_request.base.ref}}
+    environment: 
+      name: ${{github.event.pull_request.base.ref}}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,7 +24,7 @@ jobs:
           flutter-version: '3.29.0'
           channel: 'stable'
           cache: true
-      - run: echo "Gituhb REF name ${GITHUB_REF_NAME}"
+      - run: echo 'environment is ${{ github.event.pull_request.base.ref }}'
       - run: flutter pub get
       - run: flutter config --enable-web
       - run: |
@@ -79,6 +80,7 @@ jobs:
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MY_ACCOUNT_DEV_402917   }}
+          channelId: live
           projectId: my-account-dev-402917
 
       - name: Deploy to Firebase Hosting (Sandbox)
@@ -87,4 +89,5 @@ jobs:
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MY_ACCOUNT_SANDBOX_422814 }}
+          channelId: live
           projectId: my-account-sandbox-422814
