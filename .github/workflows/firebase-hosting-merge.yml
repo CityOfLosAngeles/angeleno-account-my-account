@@ -27,8 +27,9 @@ jobs:
 
       - name: Set environment variable
         run: echo "DEPLOYMENT_ENV=${{github.event.pull_request.base.ref || github.ref_name}}" >> $GITHUB_ENV
-      
+      - name: Print environment variable
       - run: echo 'environment is $DEPLOYMENT_ENV'
+      
       - run: flutter pub get
       - run: flutter config --enable-web
       - run: |
@@ -79,7 +80,7 @@ jobs:
 
 
       - name: Deploy to Firebase Hosting (DEV)
-        if: ${{ github.event.pull_request.base.ref == 'development' }}
+        if: ${{ env.DEPLOYMENT_ENV == 'development' }}
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
@@ -88,7 +89,7 @@ jobs:
           projectId: my-account-dev-402917
 
       - name: Deploy to Firebase Hosting (Sandbox)
-        if: ${{ github.event.pull_request.base.ref == 'sandbox' }}
+        if: ${{ env.DEPLOYMENT_ENV == 'sandbox' }}
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
