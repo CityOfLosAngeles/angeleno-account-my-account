@@ -65,19 +65,6 @@ jobs:
           to_replace="AUTH0_CLIENT_ID"
           be_replaced="${{secrets.CLIENT_ID}}"
           sed -i "s/$to_replace/$be_replaced/g" firebase.json
-          
-          if [[ "${{ env.DEPLOYMENT_ENV}}" == "development" ]]; then
-            old_redirect_uri="AUTH0_REDIRECT_URI"
-            new_redirect_uri=$(printf '%s\n' "https://dev.my.account.lacity.gov" | sed 's/[&/\]/\\&/g')
-            sed -i "s/$old_redirect_uri/$new_redirect_uri/g" firebase.json
-          fi
-
-          if [[ "${{ env.DEPLOYMENT_ENV}}" == "sandbox" ]]; then
-            old_redirect_uri="AUTH0_REDIRECT_URI"
-            new_redirect_uri=$(printf '%s\n' "https://sandbox.my.account.lacity.gov" | sed 's/[&/\]/\\&/g')
-            sed -i "s/$old_redirect_uri/$new_redirect_uri/g" firebase.json
-          fi
-
 
       - name: Deploy to Firebase Hosting (DEV)
         if: ${{ env.DEPLOYMENT_ENV == 'development' }}
