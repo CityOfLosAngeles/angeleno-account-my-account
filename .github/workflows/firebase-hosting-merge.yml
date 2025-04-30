@@ -28,7 +28,7 @@ jobs:
       - name: Set environment variable
         run: echo "DEPLOYMENT_ENV=${{github.event.pull_request.base.ref || github.ref_name}}" >> $GITHUB_ENV
       - name: Print environment variable
-      - run: echo 'environment is $DEPLOYMENT_ENV'
+        run: echo 'environment is $DEPLOYMENT_ENV'
       
       - run: flutter pub get
       - run: flutter config --enable-web
