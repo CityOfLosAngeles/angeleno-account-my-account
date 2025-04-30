@@ -28,7 +28,7 @@ jobs:
       - name: Set environment variable
         run: echo "DEPLOYMENT_ENV=${{github.event.pull_request.base.ref || github.ref_name}}" >> $GITHUB_ENV
       - name: Print environment variable
-        run: echo 'environment is $DEPLOYMENT_ENV'
+        run: echo 'environment is ${{ env.$DEPLOYMENT_ENV}}'
       
       - run: flutter pub get
       - run: flutter config --enable-web
@@ -66,13 +66,13 @@ jobs:
           be_replaced="${{secrets.CLIENT_ID}}"
           sed -i "s/$to_replace/$be_replaced/g" firebase.json
           
-          if [[ "$DEPLOYMENT_ENV" == "development" ]]; then
+          if [[ "${{ env.$DEPLOYMENT_ENV}}" == "development" ]]; then
             old_redirect_uri="AUTH0_REDIRECT_URI"
             new_redirect_uri=$(printf '%s\n' "https://dev.my.account.lacity.gov" | sed 's/[&/\]/\\&/g')
             sed -i "s/$old_redirect_uri/$new_redirect_uri/g" firebase.json
           fi
 
-          if [[ "$DEPLOYMENT_ENV" == "sandbox" ]]; then
+          if [[ "${{ env.$DEPLOYMENT_ENV}}" == "sandbox" ]]; then
             old_redirect_uri="AUTH0_REDIRECT_URI"
             new_redirect_uri=$(printf '%s\n' "https://sandbox.my.account.lacity.gov" | sed 's/[&/\]/\\&/g')
             sed -i "s/$old_redirect_uri/$new_redirect_uri/g" firebase.json
