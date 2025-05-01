@@ -5,12 +5,12 @@ import 'package:angeleno_project/utils/theme.dart';
 import 'package:angeleno_project/views/screens/home_screen.dart';
 import 'package:datadog_flutter_plugin/datadog_flutter_plugin.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:provider/provider.dart';
-import 'package:url_strategy/url_strategy.dart';
 
 
 Future<void> main() async {
-  setPathUrlStrategy();
+  usePathUrlStrategy();
 
   await DatadogSdk.runApp(datadogConfig, TrackingConsent.granted, () async {
     runApp(
