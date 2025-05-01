@@ -72,7 +72,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     InputDecoration(
       labelText: label,
       border: const OutlineInputBorder(),
-      // labelStyle: TextStyle(color: editMode ? null : Theme.of(context).colorScheme.onSurfaceVariant),
+      labelStyle: TextStyle(color: editMode ? null : Theme.of(context).colorScheme.onSurfaceVariant),
     );
 
   TextStyle textStyle (final bool editMode) =>
