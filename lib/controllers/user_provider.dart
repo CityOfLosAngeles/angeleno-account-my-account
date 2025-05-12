@@ -50,7 +50,7 @@ class UserProvider extends ChangeNotifier {
 
       userAddress = Address.fromJson(primaryAddress);
 
-      phone = metadata['phone'] as String;
+      phone = metadata['phone'] as String? ?? '';
     }
 
     _user = User(
