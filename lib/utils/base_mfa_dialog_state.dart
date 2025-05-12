@@ -140,14 +140,31 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
 
   Widget modalBody(final Widget body) => Column(
     mainAxisSize: MainAxisSize.min,
-    crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       if (_isSmallScreen) ...[
-        Expanded(child: body),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: dialogActions
+        Flexible(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Enroll $methodBeingEnrolled',
+                  textAlign: TextAlign.left,
+                  style: const TextStyle(
+                    fontSize: 22
+                  ),
+                ),
+                Expanded(
+                  child: body,
+                ),
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: dialogActions
+                )
+              ],
+            )
         )
+
       ] else ...[body]
     ],
   );
