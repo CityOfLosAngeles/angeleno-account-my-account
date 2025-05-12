@@ -35,7 +35,7 @@ class UserProvider extends ChangeNotifier {
 
   void setUser(final UserProfile user) {
 
-    late Address userAddress;
+    Address userAddress = Address();
     String phone = '';
 
     final metadata = user.customClaims?['user_metadata']
