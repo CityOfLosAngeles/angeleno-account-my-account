@@ -184,6 +184,69 @@ void main() {
 
       expect(user1 == user2, true);
     });
+
+    test('Returns correct string representation with all fields populated', () {
+      final user = User(
+        userId: '123',
+        email: 'test@example.com',
+        firstName: 'John',
+        lastName: 'Doe',
+        address: '123 Main St',
+        address2: 'Apt 4B',
+        city: 'Los Angeles',
+        state: 'CA',
+        zip: '90001',
+        phone: '1234567890',
+        metadata: {'key': 'value'},
+      );
+
+      expect(
+        user.toString(),
+        '{id: 123, email: test@example.com, firstName: John, lastName: Doe, zip: 90001, address: 123 Main St, address2: Apt 4B, city: Los Angeles, state: CA, phone: 1234567890}',
+      );
+    });
+
+    test('Handles null optional fields gracefully', () {
+      final user = User(
+        userId: '123',
+        email: 'test@example.com',
+        firstName: null,
+        lastName: null,
+        address: null,
+        address2: null,
+        city: null,
+        state: null,
+        zip: null,
+        phone: null,
+        metadata: null,
+      );
+
+      expect(
+        user.toString(),
+        '{id: 123, email: test@example.com, firstName: null, lastName: null, zip: null, address: null, address2: null, city: null, state: null, phone: null}',
+      );
+    });
+
+    test('Handles empty strings in optional fields', () {
+      final user = User(
+        userId: '123',
+        email: 'test@example.com',
+        firstName: '',
+        lastName: '',
+        address: '',
+        address2: '',
+        city: '',
+        state: '',
+        zip: '',
+        phone: '',
+        metadata: {},
+      );
+
+      expect(
+        user.toString(),
+        '{id: 123, email: test@example.com, firstName: , lastName: , zip: , address: , address2: , city: , state: , phone: }',
+      );
+    });
   });
 
   group('Address', () {
