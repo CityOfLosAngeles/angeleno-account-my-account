@@ -1,11 +1,13 @@
 import 'package:angeleno_project/controllers/user_provider.dart';
-import 'package:angeleno_project/models/api_exception.dart';
+import 'package:angeleno_project/models/api_exception.dart' as api_exception;
 import 'package:angeleno_project/models/connected_applications_model.dart';
 import 'package:angeleno_project/models/password_reset.dart';
 import 'package:angeleno_project/models/user.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:angeleno_project/models/mfa_response.dart';
 import 'package:angeleno_project/models/mfa_method.dart';
+import 'package:auth0_flutter/auth0_flutter.dart';
+import 'package:auth0_flutter/auth0_flutter_web.dart';
 
 
 void main() {
@@ -20,7 +22,7 @@ void main() {
     test('Should return error message from JSON body', () {
       const int statusCode = 404;
       const String responseBody = '{"error": "Resource not found"}';
-      final ApiException apiException = ApiException(statusCode, responseBody);
+      final api_exception.ApiException apiException = api_exception.ApiException(statusCode, responseBody);
 
       final error = apiException.error;
 
@@ -30,7 +32,7 @@ void main() {
     test('Should return default error message when JSON decoding fails', () {
       const int statusCode = 500;
       const String responseBody = 'Internal Server Error';
-      final ApiException apiException = ApiException(statusCode, responseBody);
+      final api_exception.ApiException apiException = api_exception.ApiException(statusCode, responseBody);
 
       final error = apiException.error;
 
@@ -40,7 +42,7 @@ void main() {
     test('Should return default error message when body is null', () {
 
       const int statusCode = 400;
-      final ApiException apiException = ApiException(statusCode, null);
+      final api_exception.ApiException apiException = api_exception.ApiException(statusCode, null);
 
       final error = apiException.error;
 
@@ -51,7 +53,7 @@ void main() {
 
       const int statusCode = 418;
       const String responseBody = '{"error": "I\'m a teapot"}';
-      final ApiException apiException = ApiException(statusCode, responseBody);
+      final api_exception.ApiException apiException = api_exception.ApiException(statusCode, responseBody);
 
       final error = apiException.error;
 
@@ -460,6 +462,116 @@ void main() {
       expect(method.active, true);
       expect(method.oobChannel, 'test_channel');
       expect(method.name, 'test_name');
+    });
+  });
+
+  group('UserProvider setUser', () {
+    test('Handles valid metadata with primary address', () {
+      final userProvider = UserProvider();
+      final userProfile = UserProfile(
+        sub: '123',
+        email: 'test@example.com',
+        givenName: 'John',
+        familyName: 'Doe',
+        customClaims: {
+          'user_metadata': {
+            'addresses': {
+              'primary': {
+                'address': '123 Main St',
+                'address2': 'Apt 4B',
+                'city': 'Los Angeles',
+                'state': 'CA',
+                'zip': '90001',
+              },
+            },
+            'phone': '1234567890',
+          },
+        },
+      );
+
+      userProvider.setUser(userProfile);
+
+      final user = userProvider.user!;
+      expect(user.address, '123 Main St');
+      expect(user.address2, 'Apt 4B');
+      expect(user.city, 'Los Angeles');
+      expect(user.state, 'CA');
+      expect(user.zip, '90001');
+      expect(user.phone, '1234567890');
+    });
+
+    test('Handles missing metadata gracefully', () {
+      final userProvider = UserProvider();
+      final userProfile = UserProfile(
+        sub: '123',
+        email: 'test@example.com',
+        givenName: 'John',
+        familyName: 'Doe',
+        customClaims: null,
+      );
+
+      userProvider.setUser(userProfile);
+
+      final user = userProvider.user!;
+      expect(user.address, isEmpty);
+      expect(user.address2, isEmpty);
+      expect(user.city, isEmpty);
+      expect(user.state, isEmpty);
+      expect(user.zip, isEmpty);
+      expect(user.phone, isEmpty);
+    });
+
+    test('Handles metadata without addresses', () {
+      final userProvider = UserProvider();
+      final userProfile = UserProfile(
+        sub: '123',
+        email: 'test@example.com',
+        givenName: 'John',
+        familyName: 'Doe',
+        customClaims: {
+          'user_metadata': {
+            'phone': '1234567890',
+          },
+        },
+      );
+
+      userProvider.setUser(userProfile);
+
+      final user = userProvider.user!;
+      expect(user.address, isEmpty);
+      expect(user.address2, isEmpty);
+      expect(user.city, isEmpty);
+      expect(user.state, isEmpty);
+      expect(user.zip, isEmpty);
+      expect(user.phone, '1234567890');
+    });
+
+    test('Handles metadata with empty primary address', () {
+      final userProvider = UserProvider();
+      final userProfile = UserProfile(
+        sub: '123',
+        email: 'test@example.com',
+        givenName: 'John',
+        familyName: 'Doe',
+        customClaims: {
+          'user_metadata': {
+            'addresses': {
+              'primary': <String, dynamic>{},
+            },
+            'phone': '1234567890',
+          },
+        },
+      );
+
+      userProvider.setUser(userProfile);
+
+      final user = userProvider.user!;
+      expect(user.address, isEmpty);
+      expect(user.address2, isEmpty);
+      expect(user.city, isEmpty);
+      expect(user.state, isEmpty);
+      expect(user.zip, isEmpty);
+      expect(user.phone, '1234567890');
     });
   });
 }
