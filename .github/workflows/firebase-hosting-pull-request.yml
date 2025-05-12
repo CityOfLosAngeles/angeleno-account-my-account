@@ -11,11 +11,16 @@ on:
       - 'pubspec.*'
 jobs:
   build_and_preview:
+
     if: '${{ github.event.pull_request.head.repo.full_name == github.repository &&
-      github.event.pull_request.draft == false }}'
+            github.event.pull_request.draft == false }}'
+    environment:
+      name: ${{github.event.pull_request.base.ref}}
+
     runs-on: ubuntu-latest
-    environment: development
     steps:
+      - run:
+          echo 'environment is ${{ github.event.pull_request.base.ref }}'
       - uses: actions/checkout@v4
        # https://github.com/marketplace/actions/flutter-action
       - name: Setup Flutter
@@ -49,6 +54,10 @@ jobs:
           new_hosting="${{secrets.HOSTING_PROJECT}}"
           sed -i "s/$old_hosting/$new_hosting/g" .firebaserc
           
+          old_hosting_targ="HOSTING_TARGET"
+          new_hosting_targ="${{secrets.HOSTING_PROJECT}}"
+          sed -i "s/$old_hosting_targ/$new_hosting_targ/g" firebase.json
+          
           old_domain="AUTH0_DOMAIN"
           new_domain="${{secrets.AUTH0_DOMAIN}}"
           sed -i "s/$old_domain/$new_domain/g" firebase.json
@@ -56,9 +65,30 @@ jobs:
           to_replace="AUTH0_CLIENT_ID"
           be_replaced="${{secrets.CLIENT_ID}}"
           sed -i "s/$to_replace/$be_replaced/g" firebase.json
-      - uses: FirebaseExtended/action-hosting-deploy@v0
+
+          old_redirect_uri="AUTH0_REDIRECT_URI"
+          if [[ "${{ github.event.pull_request.base.ref }}" == "development" ]]; then
+            new_redirect_uri=$(printf '%s\n' "https://dev.my.account.lacity.gov" | sed 's/[&/\]/\\&/g')
+          elif [[ "${{ github.event.pull_request.base.ref }}" == "sandbox" ]]; then
+            new_redirect_uri=$(printf '%s\n' "https://sandbox.my.account.lacity.gov" | sed 's/[&/\]/\\&/g')
+          else
+            echo "Branch name does not match 'development' or 'sandbox'. Exiting."
+            exit 1
+          fi
+          sed -i "s/$old_redirect_uri/$new_redirect_uri/g" firebase.json
+
+      - name: Deploy to Firebase Hosting (DEV)
+        if: ${{ github.event.pull_request.base.ref == 'development' }}
+        uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MY_ACCOUNT_DEV_402917   }}
           projectId: my-account-dev-402917
 
+      - name: Deploy to Firebase Hosting (Sandbox)
+        if: ${{ github.event.pull_request.base.ref == 'sandbox' }}
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MY_ACCOUNT_SANDBOX_422814 }}
+          projectId: my-account-sandbox-422814

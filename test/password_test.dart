@@ -63,20 +63,20 @@ void main() {
       )
     );
 
-    expect(find.text('Current Password'), findsOneWidget);
-    expect(find.text('New Password'), findsOneWidget);
-    expect(find.text('Confirm New Password'), findsOneWidget);
+    expect(find.text('Current password'), findsOneWidget);
+    expect(find.text('New password'), findsOneWidget);
+    expect(find.text('Confirm new password'), findsOneWidget);
 
-    final submitButtonFinder = find.byType(ElevatedButton);
+    final submitButtonFinder = find.byType(FilledButton);
     expect(submitButtonFinder, findsOneWidget);
-    expect(tester.widget<ElevatedButton>(submitButtonFinder).enabled, false);
+    expect(tester.widget<FilledButton>(submitButtonFinder).enabled, false);
 
     await tester.enterText(find.byType(TextFormField).at(0), 'oldPassword');
     await tester.enterText(find.byType(TextFormField).at(1), 'newPassword123');
     await tester.enterText(find.byType(TextFormField).at(2), 'newPassword123');
 
     await tester.pump();
-    expect(tester.widget<ElevatedButton>(submitButtonFinder).enabled, true);
+    expect(tester.widget<FilledButton>(submitButtonFinder).enabled, true);
 
     // Current Password
     final oldPasswordFinder = find.descendant(
