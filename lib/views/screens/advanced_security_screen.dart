@@ -224,7 +224,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                             });
                           }
                         }),
-                        child: const Text('Disable'),
+                        child: const Text('Disable', semanticsLabel: 'Disabled authenticator application'),
                       )
                           :
                       FilledButton(
@@ -244,7 +244,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                             }
                           });
                         },
-                        child: const Text('Enable')
+                        child: const Text('Enable', semanticsLabel: 'Enable authenticator application')
                       ),
                     ],
                   ),
@@ -296,7 +296,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                             });
                           }
                         }),
-                        child: const Text('Disable'),
+                        child: const Text('Disable', semanticsLabel: 'Disable sms mfa'),
                       )
                           :
                       FilledButton(
@@ -317,7 +317,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                               }
                             });
                           },
-                          child: const Text('Enable')
+                          child: const Text('Enable', semanticsLabel: 'Enable sms mfa')
                       )
                     ]
                   ),
@@ -369,7 +369,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                             });
                           }
                         }),
-                        child: const Text('Disable'),
+                        child: const Text('Disable', semanticsLabel: 'Disable voice authentication'),
                       )
                           :
                       FilledButton(
@@ -390,7 +390,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> {
                               }
                             });
                           },
-                          child: const Text('Enable')
+                          child: const Text('Enable', semanticsLabel: 'Enable voice authentication')
                       )
                     ]
                   )

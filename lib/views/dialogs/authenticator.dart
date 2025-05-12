@@ -287,7 +287,7 @@ Align(
             height: authMethods.length * 60,
             child: ListView.builder(
               itemCount: authMethods.length,
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(10),
               itemBuilder: (final BuildContext context, final int index) {
 
                 late final String friendlyMfaMethodName;
