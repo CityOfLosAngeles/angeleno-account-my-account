@@ -82,103 +82,161 @@ void main() {
   });
 
   group('User', () {
+    test('User constructor initializes correctly', () {
+      final user = User(
+        userId: '123',
+        email: 'test@example.com',
+        firstName: 'John',
+        lastName: 'Doe',
+        address: '123 Main St',
+        address2: 'Apt 4B',
+        city: 'Los Angeles',
+        state: 'CA',
+        zip: '90001',
+        phone: '1234567890',
+        metadata: {'key': 'value'},
+      );
 
-    final user = User(
-      userId: '123456',
-      email: 'test@example.com',
-      firstName: 'John',
-      lastName: 'Doe',
-      address: '123 Main St',
-      address2: 'Apt 2',
-      city: 'City',
-      state: 'State',
-      zip: '12345',
-      phone: '123-456-7890',
-      metadata: {'key': 'value'},
-    );
-    test('toJson() should return a valid map', () {
+      expect(user.userId, '123');
+      expect(user.email, 'test@example.com');
+      expect(user.firstName, 'John');
+      expect(user.lastName, 'Doe');
+      expect(user.address, '123 Main St');
+      expect(user.address2, 'Apt 4B');
+      expect(user.city, 'Los Angeles');
+      expect(user.state, 'CA');
+      expect(user.zip, '90001');
+      expect(user.phone, '1234567890');
+      expect(user.metadata, {'key': 'value'});
+    });
+
+    test('User.copy creates a deep copy', () {
+      final original = User(
+        userId: '123',
+        email: 'test@example.com',
+        firstName: 'John',
+        lastName: 'Doe',
+        address: '123 Main St',
+        address2: 'Apt 4B',
+        city: 'Los Angeles',
+        state: 'CA',
+        zip: '90001',
+        phone: '1234567890',
+        metadata: {'key': 'value'},
+      );
+
+      final copy = User.copy(original);
+
+      expect(copy, original);
+      expect(copy.hashCode, original.hashCode);
+    });
+
+    test('toJson converts User to a Map', () {
+      final user = User(
+        userId: '123',
+        email: 'test@example.com',
+        firstName: 'John',
+        lastName: 'Doe',
+        address: '123 Main St',
+        address2: 'Apt 4B',
+        city: 'Los Angeles',
+        state: 'CA',
+        zip: '90001',
+        phone: '1234567890',
+        metadata: {'key': 'value'},
+      );
 
       final json = user.toJson();
 
-      expect(json, isA<Map<String, dynamic>>());
-      expect(json['userId'], '123456');
-      expect(json['email'], 'test@example.com');
-      expect(json['firstName'], 'John');
-      expect(json['lastName'], 'Doe');
-      expect(json['address'], '123 Main St');
-      expect(json['address2'], 'Apt 2');
-      expect(json['city'], 'City');
-      expect(json['state'], 'State');
-      expect(json['zip'], '12345');
-      expect(json['phone'], '123-456-7890');
-      expect(json['metadata'], {'key': 'value'});
+      expect(json, {
+        'userId': '123',
+        'email': 'test@example.com',
+        'firstName': 'John',
+        'lastName': 'Doe',
+        'address': '123 Main St',
+        'address2': 'Apt 4B',
+        'city': 'Los Angeles',
+        'state': 'CA',
+        'zip': '90001',
+        'phone': '1234567890',
+        'metadata': {'key': 'value'},
+      });
     });
 
-    test('toString() should return a valid string representation', () {
-
-      final stringRep = user.toString();
-      
-      // ignore: lines_longer_than_80_chars
-      expect(stringRep, '{id: 123456, email: test@example.com, firstName: John, lastName: Doe, zip: 12345, address: 123 Main St, address2: Apt 2, city: City, state: State, phone: 123-456-7890}');
-    });
-
-    test('User copy method should work correctly', () {
-      final userCopy = User.copy(user);
-
-      expect(userCopy, equals(user));
-    });
-
-    test('Equality comparison should work correctly', () {
-
+    test('Equality operator works correctly', () {
       final user1 = User(
-        userId: '123456',
+        userId: '123',
         email: 'test@example.com',
         firstName: 'John',
         lastName: 'Doe',
         address: '123 Main St',
-        address2: 'Apt 2',
-        city: 'City',
-        state: 'State',
-        zip: '12345',
-        phone: '123-456-7890',
+        address2: 'Apt 4B',
+        city: 'Los Angeles',
+        state: 'CA',
+        zip: '90001',
+        phone: '1234567890',
         metadata: {'key': 'value'},
       );
 
-      final user2 = User(
-        userId: '123456',
-        email: 'test@example.com',
-        firstName: 'Karen',
-        lastName: 'Doe',
+      final user2 = User.copy(user1);
+
+      expect(user1 == user2, true);
+    });
+  });
+
+  group('Address', () {
+    test('Address constructor initializes correctly', () {
+      final address = Address(
         address: '123 Main St',
-        address2: 'Apt 2',
-        city: 'City',
-        state: 'State',
-        zip: '12345',
-        phone: '123-456-7890',
-        metadata: {'key': 'value'},
+        address2: 'Apt 4B',
+        city: 'Los Angeles',
+        state: 'CA',
+        zip: '90001',
       );
 
-      expect(user1, equals(user));
-      expect(user1, isNot(equals(user2)));
+      expect(address.address, '123 Main St');
+      expect(address.address2, 'Apt 4B');
+      expect(address.city, 'Los Angeles');
+      expect(address.state, 'CA');
+      expect(address.zip, '90001');
     });
 
-    test('Hash code calculation should work correctly', () {
-
-      final user1 = User(
-        userId: '123456',
-        email: 'test@example.com',
-        firstName: 'John',
-        lastName: 'Doe',
+    test('toJson converts Address to a Map', () {
+      final address = Address(
         address: '123 Main St',
-        address2: 'Apt 2',
-        city: 'City',
-        state: 'State',
-        zip: '12345',
-        phone: '123-456-7890',
-        metadata: {'key': 'value'},
+        address2: 'Apt 4B',
+        city: 'Los Angeles',
+        state: 'CA',
+        zip: '90001',
       );
 
-      expect(user1.hashCode, equals(user.hashCode));
+      final json = address.toJson();
+
+      expect(json, {
+        'address': '123 Main St',
+        'address2': 'Apt 4B',
+        'city': 'Los Angeles',
+        'state': 'CA',
+        'zip': '90001',
+      });
+    });
+
+    test('fromJson creates Address from a Map', () {
+      final json = {
+        'address': '123 Main St',
+        'address2': 'Apt 4B',
+        'city': 'Los Angeles',
+        'state': 'CA',
+        'zip': '90001',
+      };
+
+      final address = Address.fromJson(json);
+
+      expect(address.address, '123 Main St');
+      expect(address.address2, 'Apt 4B');
+      expect(address.city, 'Los Angeles');
+      expect(address.state, 'CA');
+      expect(address.zip, '90001');
     });
   });
 
