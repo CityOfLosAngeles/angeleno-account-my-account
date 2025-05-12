@@ -71,8 +71,10 @@ jobs:
             new_redirect_uri=$(printf '%s\n' "https://dev.my.account.lacity.gov" | sed 's/[&/\]/\\&/g')
           elif [[ "${{ github.event.pull_request.base.ref }}" == "sandbox" ]]; then
             new_redirect_uri=$(printf '%s\n' "https://sandbox.my.account.lacity.gov" | sed 's/[&/\]/\\&/g')
+          elif [[ "${{ github.event.pull_request.base.ref }}" == "production" ]]; then
+            new_redirect_uri=$(printf '%s\n' "https://my.account.lacity.gov" | sed 's/[&/\]/\\&/g')
           else
-            echo "Branch name does not match 'development' or 'sandbox'. Exiting."
+            echo "Branch name does not match 'development', 'sandbox', or 'production'. Exiting."
             exit 1
           fi
           sed -i "s/$old_redirect_uri/$new_redirect_uri/g" firebase.json
