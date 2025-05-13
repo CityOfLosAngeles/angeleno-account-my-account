@@ -11,7 +11,9 @@ include: package:flutter_lints/flutter.yaml
 
 analyzer:
    exclude: [
-      build/**
+      build/**,
+      test/**,
+      integration_test/
    ]
 
    language:
@@ -39,7 +41,6 @@ linter:
      avoid_print: false
      prefer_single_quotes: true
      unnecessary_statements: true
-     # Might need to remove when using shared City Header Issue #6.
      unsafe_html: true
      always_declare_return_types: true
      avoid_escaping_inner_quotes: true

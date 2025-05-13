@@ -1,0 +1,75 @@
+name: Flutter/Dart Test Suite
+
+on:
+  schedule:
+    - cron: "30 12 * * 1,5"
+
+  pull_request: {}
+
+jobs:
+  analyze_and_test:
+    # Skip any PR created by dependabot to avoid permission issues:
+    if: (github.actor != 'dependabot[bot]')
+
+    permissions:
+      # For actions/checkout to fetch code
+      contents: read 
+       # For github/codeql-action/upload-sarif to upload SARIF results
+      security-events: write
+      # Only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
+      actions: read 
+  
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+
+      # https://github.com/marketplace/actions/flutter-action
+      - name: Setup Flutter
+        # SHA for v2.10.0
+        uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa
+        with:
+          flutter-version: '3.29.0'
+          channel: 'stable'
+          cache: true
+
+      - run: flutter pub get
+
+      # Unit Tests
+      - name: Run Flutter Tests
+        run: flutter test --coverage
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  security-scan:
+    # OSV-Scanner 
+    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@e994fd8ab13fe1394942045f5945cd39c6c2d68e"
+    with:
+      scan-args: |-
+        --lockfile=pubspec.lock
+      upload-sarif: ${{ github.event_name == 'schedule' }}
+
+
+  semgrep:
+    # Skip any PR created by dependabot to avoid permission issues:
+    if: (github.actor != 'dependabot[bot]')
+    name: semgrep/ci
+
+    runs-on: ubuntu-latest
+
+    container:
+      image: returntocorp/semgrep
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: semgrep ci
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
