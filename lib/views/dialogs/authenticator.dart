@@ -339,7 +339,6 @@ Align(
           const Text('Enter the code sent to your phone:',
             style: TextStyle(
               decoration: TextDecoration.none,
-              color: Colors.black,
               fontSize: 16.0,
               fontWeight: FontWeight.normal
             ),
