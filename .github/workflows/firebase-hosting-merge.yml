@@ -69,9 +69,9 @@ jobs:
           old_redirect_uri="AUTH0_REDIRECT_URI"
           if [[ "$DEPLOYMENT_ENV" == "development" ]]; then
             new_redirect_uri=$(printf '%s\n' "https://dev.my.account.lacity.gov" | sed 's/[&/\]/\\&/g')
-          elif [[ "DEPLOYMENT_ENV" == "sandbox" ]]; then
+          elif [[ "$DEPLOYMENT_ENV" == "sandbox" ]]; then
             new_redirect_uri=$(printf '%s\n' "https://sandbox.my.account.lacity.gov" | sed 's/[&/\]/\\&/g')
-          elif [[ "DEPLOYMENT_ENV" == "production" ]]; then
+          elif [[ "$DEPLOYMENT_ENV" == "production" ]]; then
             new_redirect_uri=$(printf '%s\n' "https://my.account.lacity.gov" | sed 's/[&/\]/\\&/g')
           else
             echo "Branch name does not match 'development', 'sandbox', or 'production'. Exiting."
