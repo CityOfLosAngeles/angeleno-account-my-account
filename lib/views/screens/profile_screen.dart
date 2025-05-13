@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:angeleno_project/controllers/user_provider.dart';
 import 'package:angeleno_project/utils/constants.dart';
+import 'package:datadog_flutter_plugin/datadog_flutter_plugin.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,7 +25,13 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogRouteAwareMixin{
+
+  late DatadogNavigationObserver observer;
+
+  RumViewInfo? infoExtractor(final Route<dynamic> route) => RumViewInfo(
+      name: 'ProfileScreen'
+  );
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   late Auth0UserApi auth0UserApi;
   late OverlayProvider overlayProvider;
@@ -41,6 +48,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
 
     auth0UserApi = widget.auth0UserApi;
+    observer = DatadogNavigationObserver(
+      datadogSdk: DatadogSdk.instance,
+      viewInfoExtractor: infoExtractor,
+    );
   }
 
   Future<void> updateUser() async {
