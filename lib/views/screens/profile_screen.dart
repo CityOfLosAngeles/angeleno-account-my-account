@@ -30,7 +30,10 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
   late DatadogNavigationObserver observer;
 
   RumViewInfo? infoExtractor(final Route<dynamic> route) => RumViewInfo(
-      name: 'ProfileScreen'
+    name: 'ProfileScreen',
+    attributes: {
+      'signedIn': userProvider.user != null,
+    }
   );
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   late Auth0UserApi auth0UserApi;

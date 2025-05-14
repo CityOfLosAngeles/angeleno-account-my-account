@@ -156,16 +156,16 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Text('My Account - $userEmail'),
                 ),
                 const NavigationDrawerDestination(
-                    label: Text('Profile'),
-                    icon: Icon(Icons.person)
+                  label: Text('Profile', semanticsLabel: 'Profile'),
+                  icon: Icon(Icons.person)
                 ),
                 const NavigationDrawerDestination(
-                    label: Text('Password'),
-                    icon: Icon(Icons.password)
+                  label: Text('Password', semanticsLabel: 'Password'),
+                  icon: Icon(Icons.password)
                 ),
                 const NavigationDrawerDestination(
-                    label: Text('Security'),
-                    icon: Icon(Icons.security)
+                  label: Text('Security', semanticsLabel: 'Security'),
+                  icon: Icon(Icons.security)
                 ),
                 const Divider(),
                 const Padding(
@@ -173,24 +173,24 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Text('Angeleno'),
                 ),
                 const NavigationDrawerDestination(
-                    label: Text('Home'),
-                    icon: Icon(Icons.home)
+                  label: Text('Home'),
+                  icon: Icon(Icons.home)
                 ),
                 const NavigationDrawerDestination(
-                    label: Text('Services'),
-                    icon: Icon(Icons.grid_view)
+                  label: Text('Services'),
+                  icon: Icon(Icons.grid_view)
                 ),
                 const NavigationDrawerDestination(
-                    label: Text('Help'),
-                    icon: Icon(Icons.question_mark)
+                  label: Text('Help'),
+                  icon: Icon(Icons.question_mark)
                 ),
                 const Padding(
                   padding: EdgeInsets.fromLTRB(28, 16, 28, 10),
                   child: Divider(),
                 ),
                 const NavigationDrawerDestination(
-                    label: Text('Logout'),
-                    icon: Icon(Icons.logout)
+                  label: Text('Logout'),
+                  icon: Icon(Icons.logout)
                 )
               ],
             ),
@@ -205,9 +205,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
                           Expanded(
-                              child: Padding(
-                                  padding: const EdgeInsets.all(20.0),
-                                  child: screens[_selectedIndex])
+                            child: Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: screens[_selectedIndex])
                           )
                         ],
                       ),
