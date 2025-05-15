@@ -69,8 +69,12 @@ jobs:
           old_redirect_uri="AUTH0_REDIRECT_URI"
           if [[ "${{ github.event.pull_request.base.ref }}" == "development" ]]; then
             new_redirect_uri=$(printf '%s\n' "https://dev.my.account.lacity.gov" | sed 's/[&/\]/\\&/g')
+          
+            sed -i "s/RETURN_TO_URL/https://sandbox.account.lacity.gov/g" lib/controllers/user_provider.dart
           elif [[ "${{ github.event.pull_request.base.ref }}" == "sandbox" ]]; then
             new_redirect_uri=$(printf '%s\n' "https://sandbox.my.account.lacity.gov" | sed 's/[&/\]/\\&/g')
+          
+            sed -i "s/RETURN_TO_URL/https://sandbox.account.lacity.gov/g" lib/controllers/user_provider.dart
           elif [[ "${{ github.event.pull_request.base.ref }}" == "production" ]]; then
             new_redirect_uri=$(printf '%s\n' "https://my.account.lacity.gov" | sed 's/[&/\]/\\&/g')
           else
@@ -78,6 +82,7 @@ jobs:
             exit 1
           fi
           sed -i "s/$old_redirect_uri/$new_redirect_uri/g" firebase.json
+          
 
       - name: Deploy to Firebase Hosting (DEV)
         if: ${{ github.event.pull_request.base.ref == 'development' }}
