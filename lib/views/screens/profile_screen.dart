@@ -25,16 +25,10 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogRouteAwareMixin{
+class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogRouteAwareMixin {
 
-  late DatadogNavigationObserver observer;
-
-  RumViewInfo? infoExtractor(final Route<dynamic> route) => RumViewInfo(
-    name: 'ProfileScreen',
-    attributes: {
-      'signedIn': userProvider.user != null,
-    }
-  );
+  @override
+  RumViewInfo get rumViewInfo => RumViewInfo(name: 'ProfileScreen');
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   late Auth0UserApi auth0UserApi;
   late OverlayProvider overlayProvider;
@@ -45,16 +39,11 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
   final isNotTestMode = kIsWeb ||
       !Platform.environment.containsKey('FLUTTER_TEST');
 
-
   @override
   void initState() {
     super.initState();
 
     auth0UserApi = widget.auth0UserApi;
-    observer = DatadogNavigationObserver(
-      datadogSdk: DatadogSdk.instance,
-      viewInfoExtractor: infoExtractor,
-    );
   }
 
   Future<void> updateUser() async {
@@ -132,7 +121,7 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
                       userProvider.toggleEditing();
                     });
                   },
-                  child: const Text('Edit'),
+                  child: const Text('Edit', semanticsLabel: 'Edit profile'),
                 )
                 :
                 FilledButton(
@@ -146,7 +135,7 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
                       userProvider.toggleEditing();
                     });
                   },
-                  child: const Text('Save'),
+                  child: const Text('Save', semanticsLabel: 'Save profile'),
                 )
             )
           ]

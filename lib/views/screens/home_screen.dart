@@ -156,15 +156,15 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Text('My Account - $userEmail'),
                 ),
                 const NavigationDrawerDestination(
-                  label: Text('Profile', semanticsLabel: 'Profile'),
+                  label: Text('Profile', semanticsLabel: 'Navigate to edit profile page'),
                   icon: Icon(Icons.person)
                 ),
                 const NavigationDrawerDestination(
-                  label: Text('Password', semanticsLabel: 'Password'),
+                  label: Text('Password', semanticsLabel: 'Navigate to reset password page'),
                   icon: Icon(Icons.password)
                 ),
                 const NavigationDrawerDestination(
-                  label: Text('Security', semanticsLabel: 'Security'),
+                  label: Text('Security', semanticsLabel: 'Navigated to security page'),
                   icon: Icon(Icons.security)
                 ),
                 const Divider(),

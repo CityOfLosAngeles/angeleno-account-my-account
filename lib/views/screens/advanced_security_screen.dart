@@ -29,12 +29,8 @@ class AdvancedSecurityScreen extends StatefulWidget {
 
 class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAware, DatadogRouteAwareMixin {
 
-  late DatadogNavigationObserver observer;
-
-  RumViewInfo? infoExtractor(final Route<dynamic> route) => RumViewInfo(
-    name: 'AdvancedSecurityScreen'
-  );
-
+  @override
+  RumViewInfo get rumViewInfo => RumViewInfo(name: 'AdvancedSecurityScreen2');
 
   late Auth0UserApi auth0UserApi;
   late UserProvider userProvider;
@@ -57,11 +53,6 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
     userProvider = widget.userProvider;
     auth0UserApi = widget.auth0UserApi;
     _triggerAuthMethods();
-
-    observer = DatadogNavigationObserver(
-      datadogSdk: DatadogSdk.instance,
-      viewInfoExtractor: infoExtractor,
-    );
   }
 
   void _triggerAuthMethods() {
