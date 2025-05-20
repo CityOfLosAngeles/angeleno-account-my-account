@@ -38,6 +38,9 @@ class MyApp extends StatelessWidget {
     debugShowCheckedModeBanner: false,
     theme: MaterialTheme(Theme.of(context).textTheme)
         .theme(MaterialTheme.lightScheme()),
+    navigatorObservers: [
+      DatadogNavigationObserver(datadogSdk: DatadogSdk.instance),
+    ],
     onGenerateRoute: (final settings) => MaterialPageRoute(
       builder: (final context) => const MyHomePage(),
       settings: const RouteSettings(name: '/')
