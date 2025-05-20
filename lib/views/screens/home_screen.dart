@@ -73,17 +73,17 @@ class _MyHomePageState extends State<MyHomePage> {
         switch(index) {
           case 3:
             await launchUrl(
-              Uri.parse('https://sandbox.account.lacity.gov/')
+              Uri.parse('https://account.lacity.gov/')
             );
             break;
           case 4:
             await launchUrl(
-              Uri.parse('https://sandbox.account.lacity.gov/services')
+              Uri.parse('https://account.lacity.gov/services')
             );
             break;
           case 5:
             await launchUrl(
-              Uri.parse('https://sandbox.account.lacity.gov/help')
+              Uri.parse('https://account.lacity.gov/help')
             );
             break;
           case 6:
