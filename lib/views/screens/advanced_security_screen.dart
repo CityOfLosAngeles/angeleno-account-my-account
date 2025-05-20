@@ -237,7 +237,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
                             });
                           }
                         }),
-                        child: const Text('Disable', semanticsLabel: 'Disabled authenticator application'),
+                        child: const Text('Disable', semanticsLabel: 'Disable authenticator application'),
                       )
                           :
                       FilledButton(

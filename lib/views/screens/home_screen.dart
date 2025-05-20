@@ -156,15 +156,15 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Text('My Account - $userEmail'),
                 ),
                 const NavigationDrawerDestination(
-                  label: Text('Profile', semanticsLabel: 'Profile'),
+                  label: Text('Profile', semanticsLabel: 'Navigate to profile page'),
                   icon: Icon(Icons.person)
                 ),
                 const NavigationDrawerDestination(
-                  label: Text('Password', semanticsLabel: 'Password'),
+                  label: Text('Password', semanticsLabel: 'Navigate to password page'),
                   icon: Icon(Icons.password)
                 ),
                 const NavigationDrawerDestination(
-                  label: Text('Security', semanticsLabel: 'Security'),
+                  label: Text('Security', semanticsLabel: 'Navigate to security page'),
                   icon: Icon(Icons.security)
                 ),
                 const Divider(),
@@ -173,15 +173,15 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Text('Angeleno'),
                 ),
                 const NavigationDrawerDestination(
-                  label: Text('Home'),
+                  label: Text('Home', semanticsLabel: 'Link to angeleno home page'),
                   icon: Icon(Icons.home)
                 ),
                 const NavigationDrawerDestination(
-                  label: Text('Services'),
+                  label: Text('Services', semanticsLabel: 'Link to angeleno partner services page'),
                   icon: Icon(Icons.grid_view)
                 ),
                 const NavigationDrawerDestination(
-                  label: Text('Help'),
+                  label: Text('Help', semanticsLabel: 'Link to angeleno help page'),
                   icon: Icon(Icons.question_mark)
                 ),
                 const Padding(

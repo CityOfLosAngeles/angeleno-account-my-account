@@ -81,7 +81,7 @@ class UserProvider extends ChangeNotifier {
 
   Future<void> logout() => auth0Web.logout(
       federated: false,
-      returnToUrl: 'https://sandbox.account.lacity.gov/'
+      returnToUrl: 'https://account.lacity.gov/'
   );
 
   User? get user => _user;
