@@ -14,16 +14,13 @@ Future<void> main() async {
 
   await DatadogSdk.runApp(datadogConfig, TrackingConsent.granted, () async {
     runApp(
-      DatadogNavigationObserverProvider(
-        navObserver: DatadogNavigationObserver(datadogSdk: DatadogSdk.instance),
-        child: MultiProvider(
-          providers: [
-            ChangeNotifierProvider(create: (final _) => UserProvider()),
-            ChangeNotifierProvider(create: (final _) => OverlayProvider())
-          ],
-          child: const MyApp()
-        ),
-      ),
+        MultiProvider(
+            providers: [
+              ChangeNotifierProvider(create: (final _) => UserProvider()),
+              ChangeNotifierProvider(create: (final _) => OverlayProvider())
+            ],
+            child: const MyApp()
+        )
     );
   });
 }
@@ -38,6 +35,9 @@ class MyApp extends StatelessWidget {
     debugShowCheckedModeBanner: false,
     theme: MaterialTheme(Theme.of(context).textTheme)
         .theme(MaterialTheme.lightScheme()),
+    navigatorObservers: [
+      DatadogNavigationObserver(datadogSdk: DatadogSdk.instance),
+    ],
     onGenerateRoute: (final settings) => MaterialPageRoute(
       builder: (final context) => const MyHomePage(),
       settings: const RouteSettings(name: '/')
