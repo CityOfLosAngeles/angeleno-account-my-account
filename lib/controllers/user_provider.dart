@@ -21,7 +21,8 @@ class UserProvider extends ChangeNotifier {
           setUser(credentials.user);
 
           DatadogSdk.instance.setUserInfo(
-            email: credentials.user.email
+            email: credentials.user.email,
+            id: credentials.user.sub
           );
 
           setCleanUser(_user!);

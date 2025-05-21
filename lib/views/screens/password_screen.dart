@@ -31,6 +31,9 @@ class _PasswordScreenState extends State<PasswordScreen> with RouteAware, Datado
     name: 'PasswordScreen'
   );
 
+  @override
+  RumViewInfo get rumViewInfo => RumViewInfo(name: 'PasswordScreen');
+
   late OverlayProvider overlayProvider;
   late UserProvider userProvider;
   late Auth0UserApi auth0UserApi;
