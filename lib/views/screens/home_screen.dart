@@ -128,107 +128,107 @@ class _MyHomePageState extends State<MyHomePage> {
       child: RumUserActionDetector(
         rum: DatadogSdk.instance.rum,
         child: Scaffold(
-            key: scaffoldKey,
-            appBar: AppBar(
-                leadingWidth: 75,
-                leading:  TextButton(
-                    key: const Key('menuButton'),
-                    style: TextButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(0)
-                      ),
+          key: scaffoldKey,
+          appBar: AppBar(
+              leadingWidth: 75,
+              leading:  TextButton(
+                  key: const Key('menuButton'),
+                  style: TextButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(0)
                     ),
-                    onPressed: () { scaffoldKey.currentState!.openDrawer(); },
-                    child: const Text('Menu', style: TextStyle(
-                      fontSize: 16,
-                    ),)
-                ),
-                title: const Text('Angeleno Account',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                )
-            ),
-            drawer: NavigationDrawer(
-              onDestinationSelected: _navigationSelected,
-              selectedIndex: _selectedIndex,
-              children:  <Widget>[
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
-                  child: Text('My Account - $userEmail'),
-                ),
-                const NavigationDrawerDestination(
-                  label: Text('Profile', semanticsLabel: 'Navigate to profile page'),
-                  icon: Icon(Icons.person)
-                ),
-                const NavigationDrawerDestination(
-                  label: Text('Password', semanticsLabel: 'Navigate to password page'),
-                  icon: Icon(Icons.password)
-                ),
-                const NavigationDrawerDestination(
-                  label: Text('Security', semanticsLabel: 'Navigate to security page'),
-                  icon: Icon(Icons.security)
-                ),
-                const Divider(),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(28, 16, 16, 10),
-                  child: Text('Angeleno'),
-                ),
-                const NavigationDrawerDestination(
-                  label: Text('Home', semanticsLabel: 'Link to angeleno home page'),
-                  icon: Icon(Icons.home)
-                ),
-                const NavigationDrawerDestination(
-                  label: Text('Services', semanticsLabel: 'Link to angeleno partner services page'),
-                  icon: Icon(Icons.grid_view)
-                ),
-                const NavigationDrawerDestination(
-                  label: Text('Help', semanticsLabel: 'Link to angeleno help page'),
-                  icon: Icon(Icons.question_mark)
-                ),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(28, 16, 28, 10),
-                  child: Divider(),
-                ),
-                const NavigationDrawerDestination(
-                  label: Text('Logout'),
-                  icon: Icon(Icons.logout)
-                )
-              ],
-            ),
-            body: Stack(
-              children: [
+                  ),
+                  onPressed: () { scaffoldKey.currentState!.openDrawer(); },
+                  child: const Text('Menu', style: TextStyle(
+                    fontSize: 16,
+                  ),)
+              ),
+              title: const Text('Angeleno Account',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              )
+          ),
+          drawer: NavigationDrawer(
+            onDestinationSelected: _navigationSelected,
+            selectedIndex: _selectedIndex,
+            children:  <Widget>[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
+                child: Text('My Account - $userEmail'),
+              ),
+              const NavigationDrawerDestination(
+                label: Text('Profile', semanticsLabel: 'Navigate to profile page'),
+                icon: Icon(Icons.person)
+              ),
+              const NavigationDrawerDestination(
+                label: Text('Password', semanticsLabel: 'Navigate to password page'),
+                icon: Icon(Icons.password)
+              ),
+              const NavigationDrawerDestination(
+                label: Text('Security', semanticsLabel: 'Navigate to security page'),
+                icon: Icon(Icons.security)
+              ),
+              const Divider(),
+              const Padding(
+                padding: EdgeInsets.fromLTRB(28, 16, 16, 10),
+                child: Text('Angeleno'),
+              ),
+              const NavigationDrawerDestination(
+                label: Text('Home', semanticsLabel: 'Link to angeleno home page'),
+                icon: Icon(Icons.home)
+              ),
+              const NavigationDrawerDestination(
+                label: Text('Services', semanticsLabel: 'Link to angeleno partner services page'),
+                icon: Icon(Icons.grid_view)
+              ),
+              const NavigationDrawerDestination(
+                label: Text('Help', semanticsLabel: 'Link to angeleno help page'),
+                icon: Icon(Icons.question_mark)
+              ),
+              const Padding(
+                padding: EdgeInsets.fromLTRB(28, 16, 28, 10),
+                child: Divider(),
+              ),
+              const NavigationDrawerDestination(
+                label: Text('Logout', semanticsLabel: 'Logout'),
+                icon: Icon(Icons.logout)
+              )
+            ],
+          ),
+          body: Stack(
+            children: [
+              Center(
+                  child: Container(
+                    transformAlignment: Alignment.center,
+                    width: double.infinity,
+                    constraints: const BoxConstraints(maxWidth: 1280),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: screens[_selectedIndex])
+                        )
+                      ],
+                    ),
+                  )
+              ),
+              if (overlayProvider.isLoading)
                 Center(
                     child: Container(
-                      transformAlignment: Alignment.center,
+                      alignment: Alignment.topCenter,
                       width: double.infinity,
                       constraints: const BoxConstraints(maxWidth: 1280),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.all(20.0),
-                              child: screens[_selectedIndex])
-                          )
-                        ],
+                      padding: const EdgeInsets.fromLTRB(
+                          10, 0, 10, 0
                       ),
+                      color: Colors.black.withValues(alpha: 0.25),
+                      child: const LinearProgressIndicator(),
                     )
                 ),
-                if (overlayProvider.isLoading)
-                  Center(
-                      child: Container(
-                        alignment: Alignment.topCenter,
-                        width: double.infinity,
-                        constraints: const BoxConstraints(maxWidth: 1280),
-                        padding: const EdgeInsets.fromLTRB(
-                            10, 0, 10, 0
-                        ),
-                        color: Colors.black.withValues(alpha: 0.25),
-                        child: const LinearProgressIndicator(),
-                      )
-                  ),
-              ],
-            ),
-            bottomNavigationBar: Container(
+            ],
+          ),
+          bottomNavigationBar: Container(
                 padding: const EdgeInsets.all(16.0),
                 child: Wrap(
                   alignment: WrapAlignment.center,
