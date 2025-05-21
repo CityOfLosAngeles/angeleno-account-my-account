@@ -14,13 +14,16 @@ Future<void> main() async {
 
   await DatadogSdk.runApp(datadogConfig, TrackingConsent.granted, () async {
     runApp(
-        MultiProvider(
-            providers: [
-              ChangeNotifierProvider(create: (final _) => UserProvider()),
-              ChangeNotifierProvider(create: (final _) => OverlayProvider())
-            ],
-            child: const MyApp()
-        )
+      DatadogNavigationObserverProvider(
+        navObserver: DatadogNavigationObserver(datadogSdk: DatadogSdk.instance),
+        child: MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (final _) => UserProvider()),
+            ChangeNotifierProvider(create: (final _) => OverlayProvider())
+          ],
+          child: const MyApp()
+        ),
+      ),
     );
   });
 }

@@ -23,7 +23,14 @@ class PasswordScreen extends StatefulWidget {
   State<PasswordScreen> createState() => _PasswordScreenState();
 }
 
-class _PasswordScreenState extends State<PasswordScreen> {
+class _PasswordScreenState extends State<PasswordScreen> with RouteAware, DatadogRouteAwareMixin {
+
+  late DatadogNavigationObserver observer;
+
+  RumViewInfo? infoExtractor(final Route<dynamic> route) => RumViewInfo(
+    name: 'PasswordScreen'
+  );
+
   late OverlayProvider overlayProvider;
   late UserProvider userProvider;
   late Auth0UserApi auth0UserApi;
@@ -48,6 +55,11 @@ class _PasswordScreenState extends State<PasswordScreen> {
   void initState() {
     super.initState();
     auth0UserApi = widget.auth0UserApi;
+
+    observer = DatadogNavigationObserver(
+      datadogSdk: DatadogSdk.instance,
+      viewInfoExtractor: infoExtractor,
+    );
   }
 
   Future<void> submitRequest() async {
@@ -141,7 +153,8 @@ class _PasswordScreenState extends State<PasswordScreen> {
                 });
               },
               icon: Icon(
-                isPasswordVisible ? Icons.visibility_off : Icons.visibility
+                isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                semanticLabel: '${isPasswordVisible ? 'Hide' : 'Show'} password'
               )
             )
           ),
@@ -200,7 +213,8 @@ class _PasswordScreenState extends State<PasswordScreen> {
                 });
               },
               icon: Icon(
-                isNewPasswordVisible ? Icons.visibility_off : Icons.visibility
+                isNewPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                semanticLabel: '${isNewPasswordVisible ? 'Hide' : 'Show'} new password'
               )
             )
           ),
@@ -240,7 +254,8 @@ class _PasswordScreenState extends State<PasswordScreen> {
                 });
               },
               icon: Icon(
-                isPasswordMatchVisible ? Icons.visibility_off : Icons.visibility
+                isPasswordMatchVisible ? Icons.visibility_off : Icons.visibility,
+                semanticLabel: '${isPasswordMatchVisible ? 'Hide' : 'Show'} new password confirmation'
               )
             ),
 
