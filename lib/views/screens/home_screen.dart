@@ -73,17 +73,17 @@ class _MyHomePageState extends State<MyHomePage> {
         switch(index) {
           case 3:
             await launchUrl(
-              Uri.parse('https://sandbox.account.lacity.gov/')
+              Uri.parse('https://account.lacity.gov/')
             );
             break;
           case 4:
             await launchUrl(
-              Uri.parse('https://sandbox.account.lacity.gov/services')
+              Uri.parse('https://account.lacity.gov/services')
             );
             break;
           case 5:
             await launchUrl(
-              Uri.parse('https://sandbox.account.lacity.gov/help')
+              Uri.parse('https://account.lacity.gov/help')
             );
             break;
           case 6:
@@ -173,15 +173,15 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Text('Angeleno'),
                 ),
                 const NavigationDrawerDestination(
-                  label: Text('Home'),
+                  label: Text('Home', semanticsLabel: 'Link to angeleno home page'),
                   icon: Icon(Icons.home)
                 ),
                 const NavigationDrawerDestination(
-                  label: Text('Services'),
+                  label: Text('Services', semanticsLabel: 'Link to angeleno partner services page'),
                   icon: Icon(Icons.grid_view)
                 ),
                 const NavigationDrawerDestination(
-                  label: Text('Help'),
+                  label: Text('Help', semanticsLabel: 'Link to angeleno help page'),
                   icon: Icon(Icons.question_mark)
                 ),
                 const Padding(

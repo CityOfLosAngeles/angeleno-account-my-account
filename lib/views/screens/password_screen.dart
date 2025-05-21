@@ -144,7 +144,8 @@ class _PasswordScreenState extends State<PasswordScreen> with RouteAware, Datado
                 });
               },
               icon: Icon(
-                isPasswordVisible ? Icons.visibility_off : Icons.visibility
+                isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                semanticLabel: '${isPasswordVisible ? 'Hide' : 'Show'} password'
               )
             )
           ),
@@ -203,7 +204,8 @@ class _PasswordScreenState extends State<PasswordScreen> with RouteAware, Datado
                 });
               },
               icon: Icon(
-                isNewPasswordVisible ? Icons.visibility_off : Icons.visibility
+                isNewPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                semanticLabel: '${isNewPasswordVisible ? 'Hide' : 'Show'} new password'
               )
             )
           ),
@@ -243,7 +245,8 @@ class _PasswordScreenState extends State<PasswordScreen> with RouteAware, Datado
                 });
               },
               icon: Icon(
-                isPasswordMatchVisible ? Icons.visibility_off : Icons.visibility
+                isPasswordMatchVisible ? Icons.visibility_off : Icons.visibility,
+                semanticLabel: '${isPasswordMatchVisible ? 'Hide' : 'Show'} new password confirmation'
               )
             ),
 
