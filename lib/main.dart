@@ -5,6 +5,7 @@ import 'package:angeleno_project/utils/theme.dart';
 import 'package:angeleno_project/views/screens/home_screen.dart';
 import 'package:datadog_flutter_plugin/datadog_flutter_plugin.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_strategy/url_strategy.dart';
 
@@ -32,19 +33,30 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(final BuildContext context) => MaterialApp(
+  Widget build(final BuildContext context) => MaterialApp.router(
     title: 'Angeleno - My Account'
         '${environment == 'prod' ? '' : ' - $environment'}',
     debugShowCheckedModeBanner: false,
     theme: MaterialTheme(Theme.of(context).textTheme)
         .theme(MaterialTheme.lightScheme()),
-    navigatorObservers: [
-      DatadogNavigationObserver(datadogSdk: DatadogSdk.instance),
-    ],
-    onGenerateRoute: (final settings) => MaterialPageRoute(
-      builder: (final context) => const MyHomePage(),
-      settings: const RouteSettings(name: '/')
+    routerConfig: GoRouter(
+      observers: [
+        DatadogNavigationObserver(datadogSdk: DatadogSdk.instance),
+      ],
+      redirect: (BuildContext context, GoRouterState state) {
+      
+        if (state.uri.queryParameters.isNotEmpty) {
+          return '/'; // Strips query params
+        }
+
+        return null;
+      },
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, state) => const MyHomePage(),
+        ),
+      ],
     ),
-    home: const MyHomePage()
   );
 }

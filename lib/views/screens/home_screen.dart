@@ -38,6 +38,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    userProvider = Provider.of<UserProvider>(context, listen: false);
+    overlayProvider = Provider.of<OverlayProvider>(context, listen: false);
     if (_inactivityTimer == null || _logoutTimer == null) {
       _resetInactivityTimer();
     }
@@ -203,8 +205,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(final BuildContext context) {
     var userEmail = '';
-    overlayProvider = Provider.of<OverlayProvider>(context);
-    userProvider = context.watch<UserProvider>();
+    // overlayProvider = Provider.of<OverlayProvider>(context);
+    // userProvider = context.watch<UserProvider>();
     if (userProvider.user != null) {
       user = userProvider.user!;
       userEmail = user.email;
