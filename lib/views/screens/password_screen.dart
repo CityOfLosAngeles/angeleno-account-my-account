@@ -12,15 +12,13 @@ import '../../controllers/overlay_provider.dart';
 import '../../controllers/user_provider.dart';
 
 class PasswordScreen extends StatefulWidget {
-  final Auth0UserApi auth0UserApi;
 
   const PasswordScreen({
-    required this.auth0UserApi,
     super.key
   });
 
   @override
-  State<PasswordScreen> createState() => _PasswordScreenState();
+  _PasswordScreenState createState() => _PasswordScreenState();
 }
 
 class _PasswordScreenState extends State<PasswordScreen> with RouteAware, DatadogRouteAwareMixin {
@@ -43,21 +41,19 @@ class _PasswordScreenState extends State<PasswordScreen> with RouteAware, Datado
   String currentPassword = '';
   String newPassword = '';
   String passwordMatch = '';
+  String errorMsg = '';
 
   bool isPasswordVisible = false;
   bool isNewPasswordVisible = false;
   bool isPasswordMatchVisible = false;
+  bool _isButtonDisabled = true;
+  bool acceptableLength = false;
 
-  late bool _isButtonDisabled = true;
-
-  late bool acceptableLength = false;
-
-  late String errorMsg = '';
 
   @override
   void initState() {
     super.initState();
-    auth0UserApi = widget.auth0UserApi;
+    auth0UserApi = Auth0UserApi();
 
     observer = DatadogNavigationObserver(
       datadogSdk: DatadogSdk.instance,
@@ -110,14 +106,11 @@ class _PasswordScreenState extends State<PasswordScreen> with RouteAware, Datado
       && newPassword.trim() != '' && passwordMatch.trim() != ''
       && acceptableLength && passwordMatch == newPassword);
 
+
   @override
   Widget build(final BuildContext context) {
     overlayProvider = context.watch<OverlayProvider>();
     userProvider = context.watch<UserProvider>();
-
-    DatadogNavigationObserver(
-      datadogSdk: DatadogSdk.instance
-    );
 
     return ListView(
       children: [
@@ -145,21 +138,21 @@ class _PasswordScreenState extends State<PasswordScreen> with RouteAware, Datado
             return null;
           },
           decoration: InputDecoration(
-            border: const OutlineInputBorder(),
-            label: const Text('Current password'),
-            suffixIcon: IconButton(
-              key: const Key('toggle_old_password'),
-              tooltip: '${isPasswordVisible ? 'Hide' : 'Show'} password',
-              onPressed: () {
-                setState(() {
-                  isPasswordVisible = !isPasswordVisible;
-                });
-              },
-              icon: Icon(
-                isPasswordVisible ? Icons.visibility_off : Icons.visibility,
-                semanticLabel: '${isPasswordVisible ? 'Hide' : 'Show'} password'
+              border: const OutlineInputBorder(),
+              label: const Text('Current password'),
+              suffixIcon: IconButton(
+                  key: const Key('toggle_old_password'),
+                  tooltip: '${isPasswordVisible ? 'Hide' : 'Show'} password',
+                  onPressed: () {
+                    setState(() {
+                      isPasswordVisible = !isPasswordVisible;
+                    });
+                  },
+                  icon: Icon(
+                      isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                      semanticLabel: '${isPasswordVisible ? 'Hide' : 'Show'} password'
+                  )
               )
-            )
           ),
           onChanged: (final value) {
             setState(() {
@@ -205,21 +198,21 @@ class _PasswordScreenState extends State<PasswordScreen> with RouteAware, Datado
             return null;
           },
           decoration: InputDecoration(
-            border: const OutlineInputBorder(),
-            label: const Text('New password'),
-            suffixIcon: IconButton(
-              key: const Key('toggle_new_password'),
-              tooltip: '${isNewPasswordVisible ? 'Hide' : 'Show'} new password',
-              onPressed: () {
-                setState(() {
-                  isNewPasswordVisible = !isNewPasswordVisible;
-                });
-              },
-              icon: Icon(
-                isNewPasswordVisible ? Icons.visibility_off : Icons.visibility,
-                semanticLabel: '${isNewPasswordVisible ? 'Hide' : 'Show'} new password'
+              border: const OutlineInputBorder(),
+              label: const Text('New password'),
+              suffixIcon: IconButton(
+                  key: const Key('toggle_new_password'),
+                  tooltip: '${isNewPasswordVisible ? 'Hide' : 'Show'} new password',
+                  onPressed: () {
+                    setState(() {
+                      isNewPasswordVisible = !isNewPasswordVisible;
+                    });
+                  },
+                  icon: Icon(
+                      isNewPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                      semanticLabel: '${isNewPasswordVisible ? 'Hide' : 'Show'} new password'
+                  )
               )
-            )
           ),
           onChanged: (final value) {
             setState(() {
@@ -249,17 +242,17 @@ class _PasswordScreenState extends State<PasswordScreen> with RouteAware, Datado
             border: const OutlineInputBorder(),
             label: const Text('Confirm new password'),
             suffixIcon: IconButton(
-              key: const Key('toggle_match_password'),
-              tooltip: '${isPasswordMatchVisible ? 'Hide' : 'Show'} new password confirmation',
-              onPressed: () {
-                setState(() {
-                  isPasswordMatchVisible = !isPasswordMatchVisible;
-                });
-              },
-              icon: Icon(
-                isPasswordMatchVisible ? Icons.visibility_off : Icons.visibility,
-                semanticLabel: '${isPasswordMatchVisible ? 'Hide' : 'Show'} new password confirmation'
-              )
+                key: const Key('toggle_match_password'),
+                tooltip: '${isPasswordMatchVisible ? 'Hide' : 'Show'} new password confirmation',
+                onPressed: () {
+                  setState(() {
+                    isPasswordMatchVisible = !isPasswordMatchVisible;
+                  });
+                },
+                icon: Icon(
+                    isPasswordMatchVisible ? Icons.visibility_off : Icons.visibility,
+                    semanticLabel: '${isPasswordMatchVisible ? 'Hide' : 'Show'} new password confirmation'
+                )
             ),
 
           ),
@@ -285,4 +278,5 @@ class _PasswordScreenState extends State<PasswordScreen> with RouteAware, Datado
       ],
     );
   }
+
 }
