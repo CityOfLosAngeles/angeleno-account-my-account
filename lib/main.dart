@@ -4,14 +4,13 @@ import 'package:angeleno_project/utils/constants.dart';
 import 'package:angeleno_project/utils/theme.dart';
 import 'package:angeleno_project/views/screens/advanced_security_screen.dart';
 import 'package:angeleno_project/views/screens/home_screen.dart';
+import 'package:angeleno_project/views/screens/password_screen.dart';
+import 'package:angeleno_project/views/screens/profile_screen.dart';
 import 'package:datadog_flutter_plugin/datadog_flutter_plugin.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_strategy/url_strategy.dart';
 import 'package:go_router/go_router.dart';
-import 'package:angeleno_project/views/screens/password_screen.dart';
-import 'package:angeleno_project/views/screens/profile_screen.dart';
-
 
 Future<void> main() async {
 
@@ -33,10 +32,8 @@ Future<void> main() async {
   });
 }
 
-
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _sectionNavigatorKey = GlobalKey<NavigatorState>();
-
 
 final router = GoRouter(
   navigatorKey: _rootNavigatorKey,
@@ -48,6 +45,9 @@ final router = GoRouter(
       return '/profile'; // Strips query params
     }
     return null;
+  },
+  onException: (final BuildContext context, final GoRouterState state, final GoRouter router) {
+    router.go('/profile');
   },
   initialLocation: '/profile',
   routes: [
@@ -72,12 +72,12 @@ final router = GoRouter(
           ]
         ),
         StatefulShellBranch(
-            routes: <RouteBase>[
-              GoRoute(
-                path: '/advanced-security',
-                builder: (final context, final state) => const AdvancedSecurityScreen(),
-              )
-            ]
+          routes: <RouteBase>[
+            GoRoute(
+              path: '/advanced-security',
+              builder: (final context, final state) => const AdvancedSecurityScreen(),
+            )
+          ]
         )
       ]
     )
