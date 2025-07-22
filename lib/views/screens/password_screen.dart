@@ -18,7 +18,7 @@ class PasswordScreen extends StatefulWidget {
   });
 
   @override
-  _PasswordScreenState createState() => _PasswordScreenState();
+  State<PasswordScreen> createState() => _PasswordScreenState();
 }
 
 class _PasswordScreenState extends State<PasswordScreen> with RouteAware, DatadogRouteAwareMixin {
