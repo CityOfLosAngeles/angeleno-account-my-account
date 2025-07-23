@@ -15,7 +15,7 @@
       },
       {
         "source": "**",
-        "destination": "/index.html",
+        "destination": "/",
         "type": 301
       }
     ],
