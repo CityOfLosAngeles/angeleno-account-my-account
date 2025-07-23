@@ -14,9 +14,14 @@
         "type": 301
       },
       {
-        "source": "**",
+        "source": "/password-reset",
         "destination": "/",
-        "type": 301
+        "type": 200
+      },
+      {
+        "source": "/advanced-security",
+        "destination": "/",
+        "type": 200
       }
     ],
     "rewrites": [
