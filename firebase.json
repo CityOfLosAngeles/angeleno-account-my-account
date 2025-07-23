@@ -7,20 +7,23 @@
       "**/.*",
       "**/node_modules/**"
     ],
-    "redirects": [{
-      "source": "/signup",
-      "destination": "https://AUTH0_DOMAIN/authorize?response_type=code&client_id=AUTH0_CLIENT_ID&redirect_uri=AUTH0_REDIRECT_URI/&screen_hint=signup",
-      "type": 301
-    }],
+    "redirects": [
+      {
+        "source": "/signup",
+        "destination": "https://AUTH0_DOMAIN/authorize?response_type=code&client_id=AUTH0_CLIENT_ID&redirect_uri=AUTH0_REDIRECT_URI/&screen_hint=signup",
+        "type": 301
+      },
+      {
+        "source": "**",
+        "destination": "/index.html",
+        "type": 301
+      }
+    ],
     "rewrites": [
       {
         "source": "/auth0/**",
         "function": "auth0",
         "region": "us-west1"
-      },
-      {
-        "source": "/password-reset",
-        "dynamicLinks": true
       }
     ]
   },
