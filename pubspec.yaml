@@ -42,7 +42,6 @@ dependencies:
   url_strategy: ^0.2.0
   datadog_flutter_plugin: ^2.10.0
   datadog_tracking_http_client: ^2.2.0
-  go_router: ^15.1.2
 
 dev_dependencies:
   flutter_test:
