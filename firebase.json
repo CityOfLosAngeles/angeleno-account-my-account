@@ -17,6 +17,10 @@
         "source": "/auth0/**",
         "function": "auth0",
         "region": "us-west1"
+      },
+      {
+        "source": "/password-reset",
+        "dynamicLinks": true
       }
     ]
   },
