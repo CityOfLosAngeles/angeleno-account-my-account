@@ -6,6 +6,7 @@ import 'package:angeleno_project/views/dialogs/mobile.dart';
 import 'package:angeleno_project/views/screens/advanced_security_screen.dart';
 import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -78,10 +79,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: AdvancedSecurityScreen(
-              userProvider: userProvider,
-              auth0UserApi: mockUserApi
-          ),
+          body: AdvancedSecurityScreen(),
         )
       ),
     );
@@ -288,12 +286,9 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: AdvancedSecurityScreen(
-            userProvider: userProvider,
-            auth0UserApi: mockUserApi
-          ),
+          body: AdvancedSecurityScreen(),
         )
-      ),
+      )
     );
 
     await tester.pumpAndSettle();
@@ -367,10 +362,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
           home: Scaffold(
-            body: AdvancedSecurityScreen(
-                userProvider: userProvider,
-                auth0UserApi: mockUserApi
-            ),
+            body: AdvancedSecurityScreen(),
           )
       ),
     );
@@ -413,10 +405,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
           home: Scaffold(
-            body: AdvancedSecurityScreen(
-                userProvider: userProvider,
-                auth0UserApi: mockUserApi
-            ),
+            body: AdvancedSecurityScreen(),
           )
       ),
     );
@@ -469,10 +458,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
           home: Scaffold(
-            body: AdvancedSecurityScreen(
-                userProvider: userProvider,
-                auth0UserApi: mockUserApi
-            ),
+            body: AdvancedSecurityScreen(),
           )
       ),
     );
@@ -550,10 +536,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
           home: Scaffold(
-            body: AdvancedSecurityScreen(
-                userProvider: userProvider,
-                auth0UserApi: mockUserApi
-            ),
+            body: AdvancedSecurityScreen(),
           )
       ),
     );
