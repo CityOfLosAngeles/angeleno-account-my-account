@@ -55,14 +55,14 @@ final router = GoRouter(
       builder: (final context, final state, final navigationShell) => MyHomePage(navigationShell),
       branches: [
         StatefulShellBranch(
-        navigatorKey: _sectionNavigatorKey,
-        routes: <RouteBase>[
-          GoRoute(
-            path: '/profile',
-            builder: (final context, final state) => const ProfileScreen(),
-          ),
-        ],
-      ),
+          navigatorKey: _sectionNavigatorKey,
+          routes: <RouteBase>[
+            GoRoute(
+              path: '/profile',
+              builder: (final context, final state) => const ProfileScreen(),
+            ),
+          ],
+        ),
         StatefulShellBranch(
           routes: <RouteBase>[
             GoRoute(

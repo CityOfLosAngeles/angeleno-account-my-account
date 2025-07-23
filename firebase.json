@@ -12,16 +12,6 @@
         "source": "/signup",
         "destination": "https://AUTH0_DOMAIN/authorize?response_type=code&client_id=AUTH0_CLIENT_ID&redirect_uri=AUTH0_REDIRECT_URI/&screen_hint=signup",
         "type": 301
-      },
-      {
-        "source": "/password-reset",
-        "destination": "/",
-        "type": 308
-      },
-      {
-        "source": "/advanced-security",
-        "destination": "/",
-        "type": 308
       }
     ],
     "rewrites": [
@@ -29,6 +19,10 @@
         "source": "/auth0/**",
         "function": "auth0",
         "region": "us-west1"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
       }
     ]
   },
