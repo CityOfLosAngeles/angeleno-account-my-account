@@ -16,12 +16,12 @@
       {
         "source": "/password-reset",
         "destination": "/",
-        "type": 200
+        "type": 308
       },
       {
         "source": "/advanced-security",
         "destination": "/",
-        "type": 200
+        "type": 308
       }
     ],
     "rewrites": [
