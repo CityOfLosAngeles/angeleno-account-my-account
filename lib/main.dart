@@ -51,7 +51,7 @@ final router = GoRouter(
   onException: (final BuildContext context, final GoRouterState state, final GoRouter router) {
     router.go('/profile');
   },
-  initialLocation: '/profile',
+  // initialLocation: '/profile',
   routes: [
     StatefulShellRoute.indexedStack(
       builder: (final context, final state, final navigationShell) => MyHomePage(navigationShell),
