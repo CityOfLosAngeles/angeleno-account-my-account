@@ -43,7 +43,7 @@ final router = GoRouter(
   redirect: (final BuildContext context, final GoRouterState state) {
 
     if (state.uri.queryParameters.isNotEmpty &&
-      state.uri.queryParameters.containsKey('error')) {
+      state.uri.queryParameters.containsKey('code')) {
       return '/profile'; // Strips query params
     }
     return null;
