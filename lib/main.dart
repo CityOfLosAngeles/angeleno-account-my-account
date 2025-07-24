@@ -41,7 +41,9 @@ final router = GoRouter(
     DatadogNavigationObserver(datadogSdk: DatadogSdk.instance),
   ],
   redirect: (final BuildContext context, final GoRouterState state) {
-    if (state.uri.queryParameters.isNotEmpty) {
+
+    if (state.uri.queryParameters.isNotEmpty &&
+      state.uri.queryParameters.containsKey('error')) {
       return '/profile'; // Strips query params
     }
     return null;

@@ -126,144 +126,149 @@ class _MyHomePageState extends State<MyHomePage> {
       margin: const EdgeInsets.fromLTRB(0, 47.0, 0, 0),
       child: RumUserActionDetector(
         rum: DatadogSdk.instance.rum,
-        child: Scaffold(
-          key: scaffoldKey,
-          appBar: AppBar(
-              leadingWidth: 75,
-              leading:  TextButton(
-                  key: const Key('menuButton'),
-                  style: TextButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(0)
-                    ),
-                  ),
-                  onPressed: () { scaffoldKey.currentState!.openDrawer(); },
-                  child: const Text('Menu', style: TextStyle(
-                    fontSize: 16,
-                  ),)
-              ),
-              title: const Text('Angeleno Account',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              )
-          ),
-          drawer: NavigationDrawer(
-            onDestinationSelected: _navigationSelected,
-            selectedIndex: navigationShell.currentIndex,
-            children:  <Widget>[
-              Padding(
-                padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
-                child: Text('My Account - $userEmail'),
-              ),
-              const NavigationDrawerDestination(
-                label: Text('Profile', semanticsLabel: 'Navigate to profile page'),
-                icon: Icon(Icons.person)
-              ),
-              const NavigationDrawerDestination(
-                label: Text('Password', semanticsLabel: 'Navigate to password page'),
-                icon: Icon(Icons.password)
-              ),
-              const NavigationDrawerDestination(
-                label: Text('Security', semanticsLabel: 'Navigate to security page'),
-                icon: Icon(Icons.security)
-              ),
-              const Divider(),
-              const Padding(
-                padding: EdgeInsets.fromLTRB(28, 16, 16, 10),
-                child: Text('Angeleno'),
-              ),
-              const NavigationDrawerDestination(
-                label: Text('Home', semanticsLabel: 'Link to angeleno home page'),
-                icon: Icon(Icons.home)
-              ),
-              const NavigationDrawerDestination(
-                label: Text('Services', semanticsLabel: 'Link to angeleno partner services page'),
-                icon: Icon(Icons.grid_view)
-              ),
-              const NavigationDrawerDestination(
-                label: Text('Help', semanticsLabel: 'Link to angeleno help page'),
-                icon: Icon(Icons.question_mark)
-              ),
-              const Padding(
-                padding: EdgeInsets.fromLTRB(28, 16, 28, 10),
-                child: Divider(),
-              ),
-              const NavigationDrawerDestination(
-                label: Text('Logout', semanticsLabel: 'Logout'),
-                icon: Icon(Icons.logout)
-              )
-            ],
-          ),
-          body: Stack(
-            children: [
-              Center(
-                child: Container(
-                  transformAlignment: Alignment.center,
-                  width: double.infinity,
-                  constraints: const BoxConstraints(maxWidth: 1280),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: screens[navigationShell.currentIndex])
-                      )
-                    ],
-                  ),
-                )
-              ),
-              if (overlayProvider.isLoading)
-                Center(
-                  child: Container(
-                    alignment: Alignment.topCenter,
-                    width: double.infinity,
-                    constraints: const BoxConstraints(maxWidth: 1280),
-                    padding: const EdgeInsets.fromLTRB(
-                        10, 0, 10, 0
-                    ),
-                    color: Colors.black.withValues(alpha: 0.25),
-                    child: const LinearProgressIndicator(),
-                  )
-                ),
-            ],
-          ),
-          bottomNavigationBar: Container(
-            padding: const EdgeInsets.all(16.0),
-            child: Wrap(
-              alignment: WrapAlignment.center,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                const Text(
-                    'City of Los Angeles. '
-                ),
-                TextButton(
-                  style: TextButton.styleFrom(
-                    padding: EdgeInsets.zero,
-                    overlayColor: Colors.transparent
-                  ),
-                  onPressed: () async {
-                    await launchUrl(
-                        Uri.parse('https://disclaimer.lacity.org/disclaimer.htm')
-                    );
-                  },
-                  child: const Text('Disclaimer')
-                ),
-                const Text(' | '),
-                TextButton(
-                  style: TextButton.styleFrom(
-                    padding: EdgeInsets.zero,
-                    overlayColor: Colors.transparent
-                  ),
-                  onPressed: () async {
-                    await launchUrl(
-                        Uri.parse('https://disclaimer.lacity.org/privacy.htm')
-                    );
-                  },
-                  child: const Text('Privacy Policy')
-                ),
-              ],
-            )
+        child: userProvider.user == null ?
+          const Scaffold(
+            body: LinearProgressIndicator()
           )
+          :
+          Scaffold(
+            key: scaffoldKey,
+            appBar: AppBar(
+                leadingWidth: 75,
+                leading:  TextButton(
+                    key: const Key('menuButton'),
+                    style: TextButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(0)
+                      ),
+                    ),
+                    onPressed: () { scaffoldKey.currentState!.openDrawer(); },
+                    child: const Text('Menu', style: TextStyle(
+                      fontSize: 16,
+                    ),)
+                ),
+                title: const Text('Angeleno Account',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                )
+            ),
+            drawer: NavigationDrawer(
+              onDestinationSelected: _navigationSelected,
+              selectedIndex: navigationShell.currentIndex,
+              children:  <Widget>[
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
+                  child: Text('My Account - $userEmail'),
+                ),
+                const NavigationDrawerDestination(
+                    label: Text('Profile', semanticsLabel: 'Navigate to profile page'),
+                    icon: Icon(Icons.person)
+                ),
+                const NavigationDrawerDestination(
+                    label: Text('Password', semanticsLabel: 'Navigate to password page'),
+                    icon: Icon(Icons.password)
+                ),
+                const NavigationDrawerDestination(
+                    label: Text('Security', semanticsLabel: 'Navigate to security page'),
+                    icon: Icon(Icons.security)
+                ),
+                const Divider(),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(28, 16, 16, 10),
+                  child: Text('Angeleno'),
+                ),
+                const NavigationDrawerDestination(
+                    label: Text('Home', semanticsLabel: 'Link to angeleno home page'),
+                    icon: Icon(Icons.home)
+                ),
+                const NavigationDrawerDestination(
+                    label: Text('Services', semanticsLabel: 'Link to angeleno partner services page'),
+                    icon: Icon(Icons.grid_view)
+                ),
+                const NavigationDrawerDestination(
+                    label: Text('Help', semanticsLabel: 'Link to angeleno help page'),
+                    icon: Icon(Icons.question_mark)
+                ),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(28, 16, 28, 10),
+                  child: Divider(),
+                ),
+                const NavigationDrawerDestination(
+                    label: Text('Logout', semanticsLabel: 'Logout'),
+                    icon: Icon(Icons.logout)
+                )
+              ],
+            ),
+            body: Stack(
+              children: [
+                Center(
+                    child: Container(
+                      transformAlignment: Alignment.center,
+                      width: double.infinity,
+                      constraints: const BoxConstraints(maxWidth: 1280),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Expanded(
+                              child: Padding(
+                                  padding: const EdgeInsets.all(20.0),
+                                  child: screens[navigationShell.currentIndex])
+                          )
+                        ],
+                      ),
+                    )
+                ),
+                if (overlayProvider.isLoading)
+                  Center(
+                      child: Container(
+                        alignment: Alignment.topCenter,
+                        width: double.infinity,
+                        constraints: const BoxConstraints(maxWidth: 1280),
+                        padding: const EdgeInsets.fromLTRB(
+                            10, 0, 10, 0
+                        ),
+                        color: Colors.black.withValues(alpha: 0.25),
+                        child: const LinearProgressIndicator(),
+                      )
+                  ),
+              ],
+            ),
+            bottomNavigationBar: Container(
+                padding: const EdgeInsets.all(16.0),
+                child: Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    const Text(
+                        'City of Los Angeles. '
+                    ),
+                    TextButton(
+                        style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            overlayColor: Colors.transparent
+                        ),
+                        onPressed: () async {
+                          await launchUrl(
+                              Uri.parse('https://disclaimer.lacity.org/disclaimer.htm')
+                          );
+                        },
+                        child: const Text('Disclaimer')
+                    ),
+                    const Text(' | '),
+                    TextButton(
+                        style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            overlayColor: Colors.transparent
+                        ),
+                        onPressed: () async {
+                          await launchUrl(
+                              Uri.parse('https://disclaimer.lacity.org/privacy.htm')
+                          );
+                        },
+                        child: const Text('Privacy Policy')
+                    ),
+                  ],
+                )
+            )
         )
       ),
     );
