@@ -44,7 +44,7 @@ final router = GoRouter(
 
     if (state.uri.queryParameters.isNotEmpty &&
       state.uri.queryParameters.containsKey('code')) {
-      return '/profile'; // Strips query params
+      return state.uri.path; // Strips query params
     }
     return null;
   },
