@@ -164,11 +164,11 @@ class _MyHomePageState extends State<MyHomePage> {
                     icon: Icon(Icons.person)
                 ),
                 const NavigationDrawerDestination(
-                    label: Text('Password', semanticsLabel: 'Navigate to password page'),
+                    label: Text('Password change', semanticsLabel: 'Navigate to password page'),
                     icon: Icon(Icons.password)
                 ),
                 const NavigationDrawerDestination(
-                    label: Text('Security', semanticsLabel: 'Navigate to security page'),
+                    label: Text('Multi-factor authentication (MFA)', semanticsLabel: 'Navigate to mfa page'),
                     icon: Icon(Icons.security)
                 ),
                 const Divider(),

@@ -119,7 +119,7 @@ class _PasswordScreenState extends State<PasswordScreen> with RouteAware, Datado
             child: Semantics(
                 header: true,
                 child: const Text(
-                    'Password reset',
+                    'Password change',
                     textAlign: TextAlign.left,
                     style: headerStyle
                 )

@@ -68,7 +68,7 @@ final router = GoRouter(
         StatefulShellBranch(
           routes: <RouteBase>[
             GoRoute(
-              path: '/password-reset',
+              path: '/password-change',
               builder: (final context, final state) => const PasswordScreen(),
             )
           ]
@@ -76,7 +76,7 @@ final router = GoRouter(
         StatefulShellBranch(
           routes: <RouteBase>[
             GoRoute(
-              path: '/advanced-security',
+              path: '/multi-factor-authentication',
               builder: (final context, final state) => const AdvancedSecurityScreen(),
             )
           ]
