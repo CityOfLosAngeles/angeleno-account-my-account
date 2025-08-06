@@ -25,12 +25,8 @@ class _PasswordScreenState extends State<PasswordScreen> with RouteAware, Datado
 
   late DatadogNavigationObserver observer;
 
-  RumViewInfo? infoExtractor(final Route<dynamic> route) => RumViewInfo(
-    name: 'PasswordScreen'
-  );
-
   @override
-  RumViewInfo get rumViewInfo => RumViewInfo(name: 'PasswordScreen');
+  RumViewInfo get rumViewInfo => RumViewInfo(name: 'Password Screen');
 
   late OverlayProvider overlayProvider;
   late UserProvider userProvider;
@@ -56,8 +52,7 @@ class _PasswordScreenState extends State<PasswordScreen> with RouteAware, Datado
     auth0UserApi = Auth0UserApi();
 
     observer = DatadogNavigationObserver(
-      datadogSdk: DatadogSdk.instance,
-      viewInfoExtractor: infoExtractor,
+      datadogSdk: DatadogSdk.instance
     );
   }
 
