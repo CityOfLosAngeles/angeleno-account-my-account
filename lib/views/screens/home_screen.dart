@@ -38,8 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    userProvider = Provider.of<UserProvider>(context, listen: false);
-    overlayProvider = Provider.of<OverlayProvider>(context, listen: false);
+
     if (_inactivityTimer == null || _logoutTimer == null) {
       _resetInactivityTimer();
     }
@@ -56,10 +55,10 @@ class _MyHomePageState extends State<MyHomePage> {
     _inactivityTimer?.cancel();
     _logoutTimer?.cancel();
 
-    // Logout after 5 minutes
-    _logoutTimer = Timer(const Duration(minutes: 3), _handleAutoLogout);
-    // Show warning after 1 minute, when 1 minute remains
-    _inactivityTimer = Timer(const Duration(minutes: 1), _showInactivityWarning);
+    // Logout after 15 minutes
+    _logoutTimer = Timer(const Duration(minutes: 15), _handleAutoLogout);
+    // Show warning after 13 minutes, when 2 minute remains
+    _inactivityTimer = Timer(const Duration(minutes: 13), _showInactivityWarning);
   }
 
   void _showInactivityWarning() {
@@ -205,8 +204,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(final BuildContext context) {
     var userEmail = '';
-    // overlayProvider = Provider.of<OverlayProvider>(context);
-    // userProvider = context.watch<UserProvider>();
+    overlayProvider = Provider.of<OverlayProvider>(context);
+    userProvider = context.watch<UserProvider>();
     if (userProvider.user != null) {
       user = userProvider.user!;
       userEmail = user.email;
