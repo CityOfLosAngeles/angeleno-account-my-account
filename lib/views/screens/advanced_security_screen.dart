@@ -163,6 +163,10 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
   Widget build(final BuildContext context) {
     userProvider = context.watch<UserProvider>();
 
+    if (userProvider.user == null) {
+      return const LinearProgressIndicator();
+    }
+
     return FutureBuilder(
       future: _authMethods,
       builder:(final BuildContext context, final AsyncSnapshot<void> snapshot) =>
