@@ -25,8 +25,6 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogRouteAwareMixin{
 
-  late DatadogNavigationObserver observer;
-
   @override
   RumViewInfo get rumViewInfo => RumViewInfo(name: 'Profile Screen');
 
@@ -44,12 +42,7 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
   @override
   void initState() {
     super.initState();
-
     auth0UserApi = Auth0UserApi();
-
-    observer = DatadogNavigationObserver(
-      datadogSdk: DatadogSdk.instance
-    );
   }
 
   Future<void> updateUser() async {

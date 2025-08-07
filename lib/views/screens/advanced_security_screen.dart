@@ -1,16 +1,16 @@
 import 'dart:io';
 import 'dart:convert';
 
-import 'package:angeleno_project/controllers/auth0_user_api_implementation.dart';
-import 'package:angeleno_project/utils/constants.dart';
-import 'package:angeleno_project/views/dialogs/mobile.dart';
 import 'package:datadog_flutter_plugin/datadog_flutter_plugin.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../controllers/user_provider.dart';
+import '../../controllers/auth0_user_api_implementation.dart';
+import '../../utils/constants.dart';
 import '../../models/connected_applications_model.dart';
 import '../../models/mfa_method.dart';
+import '../dialogs/mobile.dart';
 import '../dialogs/authenticator.dart';
 
 class AdvancedSecurityScreen extends StatefulWidget {
@@ -26,7 +26,6 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
 
   @override
   RumViewInfo get rumViewInfo => RumViewInfo(name: 'MFA Screen');
-
 
   late Auth0UserApi auth0UserApi;
   late UserProvider userProvider;
@@ -46,10 +45,13 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
   @override
   void initState() {
     super.initState();
-
     auth0UserApi = Auth0UserApi();
-
-    _triggerAuthMethods();
+    userProvider = context.read<UserProvider>();
+    userProvider.addListener(() {
+      if (userProvider.user != null) {
+        _triggerAuthMethods();
+      }
+    });
   }
 
   void _triggerAuthMethods() {
@@ -61,10 +63,10 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
   Future<void> getAuthenticationMethods() async {
     _connectedServices = [];
     authenticators = [];
+
     await auth0UserApi.getAuthenticationMethods(userProvider.user!.userId)
       .then((final response) {
         final bool success = response.statusCode == HttpStatus.ok;
-
         if (success) {
           final String jsonString = response.body;
           final json = jsonDecode(jsonString) as Map<String, dynamic>;
@@ -75,10 +77,10 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
               ? json['services'] as List<dynamic> : [];
 
           final List<Service> connectedServices = services
-            .map((final e) =>
+              .map((final e) =>
               Service.fromJson(e as Map<String, dynamic>)
-            )
-            .toList();
+          )
+              .toList();
 
           _connectedServices.addAll(connectedServices);
 
@@ -99,7 +101,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
                 case 'phone':
                   mfaMethod.name = element['phone_number'] as String;
                   final prefMethod =
-                    element['preferred_authentication_method'] as String;
+                  element['preferred_authentication_method'] as String;
                   if (prefMethod == 'sms') {
                     smsEnabled = true;
                     smsAuthId = methodId;
@@ -115,7 +117,8 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
             }
           }
         }
-    });
+      });
+
   }
 
   Future<void> disableMFA(final String mfaAuthId, final String method) async {
@@ -223,9 +226,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
                             )
                           ).then((final value) {
                             if (value != null && value == HttpStatus.ok) {
-                              setState(() {
-                                authenticatorEnabled = false;
-                              });
+                              authenticatorEnabled = false;
                             }
                           }),
                           child: const Text('Disable', semanticsLabel: 'Disable authenticator application'),
@@ -237,11 +238,11 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
                             showDialog<int>(
                               context: context,
                               builder: (final BuildContext context) =>
-                                  AuthenticatorDialog(
-                                      userProvider: userProvider,
-                                      auth0UserApi: auth0UserApi,
-                                      authMethods: authenticators
-                                  ),
+                                AuthenticatorDialog(
+                                  userProvider: userProvider,
+                                  auth0UserApi: auth0UserApi,
+                                  authMethods: authenticators
+                                ),
                             ).then((final value) {
                               if (value != null && value == HttpStatus.ok){
                                 _triggerAuthMethods();
@@ -295,9 +296,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
                             )
                           ).then((final value) {
                             if (value != null && value == HttpStatus.ok) {
-                              setState(() {
-                                smsEnabled = false;
-                              });
+                              smsEnabled = false;
                             }
                           }),
                           child: const Text('Disable', semanticsLabel: 'Disable sms mfa'),
@@ -368,9 +367,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
                             )
                           ).then((final value) {
                             if (value != null && value == HttpStatus.ok) {
-                              setState(() {
-                                voiceEnabled = false;
-                              });
+                              voiceEnabled = false;
                             }
                           }),
                           child: const Text('Disable', semanticsLabel: 'Disable voice authentication'),

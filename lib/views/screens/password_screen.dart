@@ -23,8 +23,6 @@ class PasswordScreen extends StatefulWidget {
 
 class _PasswordScreenState extends State<PasswordScreen> with RouteAware, DatadogRouteAwareMixin {
 
-  late DatadogNavigationObserver observer;
-
   @override
   RumViewInfo get rumViewInfo => RumViewInfo(name: 'Password Screen');
 
@@ -50,10 +48,6 @@ class _PasswordScreenState extends State<PasswordScreen> with RouteAware, Datado
   void initState() {
     super.initState();
     auth0UserApi = Auth0UserApi();
-
-    observer = DatadogNavigationObserver(
-      datadogSdk: DatadogSdk.instance
-    );
   }
 
   Future<void> submitRequest() async {
