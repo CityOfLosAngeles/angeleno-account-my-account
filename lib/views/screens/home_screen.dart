@@ -200,12 +200,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(final BuildContext context) {
     var userEmail = '';
-    overlayProvider = Provider.of<OverlayProvider>(context);
-    userProvider = context.watch<UserProvider>();
-    if (userProvider.user != null) {
-      user = userProvider.user!;
-      userEmail = user.email;
-    }
 
     overlayProvider = context.watch<OverlayProvider>();
     userProvider = context.watch<UserProvider>();
@@ -214,6 +208,10 @@ class _MyHomePageState extends State<MyHomePage> {
     if (userProvider.user != null) {
       user = userProvider.user!;
       userEmail = user.email;
+    } else {
+      return const Center(
+        child: LinearProgressIndicator()
+      );
     }
 
     return Listener(
