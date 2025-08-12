@@ -47,11 +47,17 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
     super.initState();
     auth0UserApi = Auth0UserApi();
     userProvider = context.read<UserProvider>();
-    userProvider.addListener(() {
-      if (userProvider.user != null) {
-        _triggerAuthMethods();
-      }
-    });
+    _authMethods = Future.value();
+
+    if (userProvider.user != null) {
+      _triggerAuthMethods();
+    } else {
+      userProvider.addListener(() {
+        if (userProvider.user != null) {
+          _triggerAuthMethods();
+        }
+      });
+    }
   }
 
   void _triggerAuthMethods() {
@@ -63,7 +69,6 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
   Future<void> getAuthenticationMethods() async {
     _connectedServices = [];
     authenticators = [];
-
     await auth0UserApi.getAuthenticationMethods(userProvider.user!.userId)
       .then((final response) {
         final bool success = response.statusCode == HttpStatus.ok;
