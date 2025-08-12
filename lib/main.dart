@@ -2,7 +2,7 @@ import 'package:angeleno_project/controllers/overlay_provider.dart';
 import 'package:angeleno_project/controllers/user_provider.dart';
 import 'package:angeleno_project/utils/constants.dart';
 import 'package:angeleno_project/utils/theme.dart';
-import 'package:angeleno_project/views/screens/advanced_security_screen.dart';
+import 'package:angeleno_project/views/screens/mfa_screen.dart';
 import 'package:angeleno_project/views/screens/home_screen.dart';
 import 'package:angeleno_project/views/screens/password_screen.dart';
 import 'package:angeleno_project/views/screens/profile_screen.dart';

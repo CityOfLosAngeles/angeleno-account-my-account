@@ -1,6 +1,6 @@
 import 'package:angeleno_project/controllers/overlay_provider.dart';
 import 'package:angeleno_project/utils/constants.dart';
-import 'package:angeleno_project/views/screens/advanced_security_screen.dart';
+import 'package:angeleno_project/views/screens/mfa_screen.dart';
 import 'package:angeleno_project/views/screens/password_screen.dart';
 import 'package:angeleno_project/views/screens/profile_screen.dart';
 
@@ -72,7 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
       showDialog<void>(
         context: context,
         barrierDismissible: false,
-        builder: (context) => AlertDialog(
+        builder: (final context) => AlertDialog(
           // title: const Text('Inactivity Warning'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -80,8 +80,8 @@ class _MyHomePageState extends State<MyHomePage> {
               const Text('Need more time?', style: headerStyle),
                 const Icon(Icons.horizontal_rule),
                 StreamBuilder<int>(
-                stream: Stream.periodic(const Duration(seconds: 1), (x) => 120 - x - 1).take(120),
-                builder: (context, snapshot) {
+                stream: Stream.periodic(const Duration(seconds: 1), (final x) => 120 - x - 1).take(120),
+                builder: (final context, final snapshot) {
                   final secondsLeft = snapshot.data ?? 120;
                   final minutes = (secondsLeft ~/ 60).toString().padLeft(2, '0');
                   final seconds = (secondsLeft % 60).toString().padLeft(2, '0');
@@ -217,7 +217,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     return Listener(
-      onPointerDown: (_) => _resetInactivityTimer(),
+      onPointerDown: (final _) => _resetInactivityTimer(),
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: _resetInactivityTimer,

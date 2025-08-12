@@ -3,7 +3,7 @@ import 'package:angeleno_project/controllers/user_provider.dart';
 import 'package:angeleno_project/models/api_response.dart';
 import 'package:angeleno_project/models/mfa_response.dart';
 import 'package:angeleno_project/views/dialogs/mobile.dart';
-import 'package:angeleno_project/views/screens/advanced_security_screen.dart';
+import 'package:angeleno_project/views/screens/mfa_screen.dart';
 import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
