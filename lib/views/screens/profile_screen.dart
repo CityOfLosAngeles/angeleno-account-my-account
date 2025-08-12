@@ -14,10 +14,8 @@ import '../../controllers/overlay_provider.dart';
 import '../../models/user.dart';
 
 class ProfileScreen extends StatefulWidget {
-  final Auth0UserApi auth0UserApi;
 
   const ProfileScreen({
-    required this.auth0UserApi,
     super.key
   });
 
@@ -27,14 +25,9 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogRouteAwareMixin{
 
-  late DatadogNavigationObserver observer;
+  @override
+  RumViewInfo get rumViewInfo => RumViewInfo(name: 'Profile Screen');
 
-  RumViewInfo? infoExtractor(final Route<dynamic> route) => RumViewInfo(
-    name: 'ProfileScreen',
-    attributes: {
-      'signedIn': userProvider.user != null,
-    }
-  );
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   late Auth0UserApi auth0UserApi;
   late OverlayProvider overlayProvider;
@@ -49,12 +42,7 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
   @override
   void initState() {
     super.initState();
-
-    auth0UserApi = widget.auth0UserApi;
-    observer = DatadogNavigationObserver(
-      datadogSdk: DatadogSdk.instance,
-      viewInfoExtractor: infoExtractor,
-    );
+    auth0UserApi = Auth0UserApi();
   }
 
   Future<void> updateUser() async {
@@ -109,23 +97,24 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
       isFormValid = formKey.currentState!.validate();
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Semantics(
-              header: true,
-              child: const Text(
-                'Profile',
-                textAlign: TextAlign.left,
-                style: headerStyle
-              )
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: !editMode ?
+    return Scaffold(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Semantics(
+                header: true,
+                child: const Text(
+                  'Profile',
+                  textAlign: TextAlign.left,
+                  style: headerStyle
+                )
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: !editMode ?
                 FilledButton.tonal(
                   onPressed: () {
                     setState(() {
@@ -134,11 +123,11 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
                   },
                   child: const Text('Edit'),
                 )
-                :
+                    :
                 FilledButton(
                   onPressed: ((user.phone!.isNotEmpty && !validPhoneNumber) ||
-                          !isFormValid) && isNotTestMode
-                   ? null : () {
+                      !isFormValid) && isNotTestMode
+                      ? null : () {
                     if (editMode) {
                       updateUser();
                     }
@@ -148,182 +137,178 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
                   },
                   child: const Text('Save'),
                 )
-            )
-          ]
-        ),
-        Expanded(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.only(right: 15.0),
-              child: Form(
-                key: formKey,
-                onChanged: () {
-                  formKey.currentState!.save();
-                },
-                autovalidateMode: AutovalidateMode.disabled,
-                child: Column(
-                  children: [
-                    const SizedBox(height: 25.0),
-                    TextFormField(
-                      enabled: editMode,
-                      decoration: inputDecoration('First name (required)', editMode),
-                      style: textStyle(editMode),
-                      initialValue: user.firstName,
-                      maxLength: 300,
-                      maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                      keyboardType: TextInputType.name,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      validator: (final val) {
-                        if (val == null || val.trim().isEmpty) {
-                          return 'Please enter a first name';
-                        }
-
-                        if (!nameRegEx.hasMatch(val)) {
-                          return 'Invalid characters in first name';
-                        }
-
-                        return null;
-                      },
-                      onChanged: (final val) {
-                        setState(() {
-                          user.firstName = val;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 25.0),
-                    TextFormField(
-                      enabled: editMode,
-                      decoration: inputDecoration('Last name (required)', editMode),
-                      style: textStyle(editMode),
-                      initialValue: user.lastName,
-                      maxLength: 150,
-                      maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                      keyboardType: TextInputType.name,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      validator: (final val) {
-                        if (val == null || val.trim().isEmpty) {
-                          return 'Please enter a last name';
-                        }
-
-                        if (!nameRegEx.hasMatch(val)) {
-                          return 'Invalid characters in last name';
-                        }
-
-                        return null;
-                      },
-                      onChanged: (final val) {
-                        setState(() {
-                          user.lastName = val;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 25.0),
-                    InternationalPhoneNumberInput(
-                      selectorConfig: const SelectorConfig(
-                        selectorType: PhoneInputSelectorType.DIALOG,
-                        setSelectorButtonAsPrefixIcon: true,
-                        leadingPadding: 20.0,
-                      ),
-                      isEnabled: editMode,
-                      key: const Key('phoneField'),
-                      onInputChanged: (final PhoneNumber number) {
-                        if (number.parseNumber().isNotEmpty) {
-                          user.phone = number.phoneNumber!;
-                        } else {
-                          user.phone = '';
-                        }
-                      },
-                      onInputValidated: (final bool value) {
-                        if (user.phone!.isEmpty) {
-                          setState(() {
-                            validPhoneNumber = true;
-                          });
-                        } else {
-                          if (validPhoneNumber != value) {
-                            setState(() {
-                              validPhoneNumber = value;
-                            });
+              )
+            ]
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.only(right: 15.0),
+                child: Form(
+                  key: formKey,
+                  onChanged: () {
+                    formKey.currentState!.save();
+                  },
+                  autovalidateMode: AutovalidateMode.disabled,
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 25.0),
+                      TextFormField(
+                        enabled: editMode,
+                        decoration: inputDecoration('First name (required)', editMode),
+                        style: textStyle(editMode),
+                        initialValue: user.firstName,
+                        maxLength: 300,
+                        maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                        keyboardType: TextInputType.name,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        validator: (final val) {
+                          if (val == null || val.trim().isEmpty) {
+                            return 'Please enter a first name';
                           }
-                        }
-                      },
-                      autoValidateMode: isNotTestMode ?
-                      AutovalidateMode.onUserInteraction
-                          : AutovalidateMode.disabled,
-                      initialValue: PhoneNumber(phoneNumber: user.phone, isoCode: 'US'),
-                      keyboardType: const TextInputType.numberWithOptions(
-                          signed: true,
-                          decimal: true
+
+                          if (!nameRegEx.hasMatch(val)) {
+                            return 'Invalid characters in first name';
+                          }
+
+                          return null;
+                        },
+                        onChanged: (final val) {
+                          setState(() {
+                            user.firstName = val;
+                          });
+                        },
                       ),
-                      ignoreBlank: true,
-                      inputBorder: const OutlineInputBorder(),
-                    ),
-                    const SizedBox(height: 25.0),
-                    TextFormField(
-                      enabled: editMode,
-                      decoration: inputDecoration('Address', editMode),
-                      style: textStyle(editMode),
-                      keyboardType: TextInputType.streetAddress,
-                      initialValue: user.address,
-                      onChanged: (final val) {
-                        user.address = val;
-                      },
-                    ),
-                    const SizedBox(height: 25.0),
-                    TextFormField(
-                      enabled: editMode,
-                      decoration: inputDecoration('Address 2', editMode),
-                      style: textStyle(editMode),
-                      keyboardType: TextInputType.streetAddress,
-                      initialValue: user.address2,
-                      onChanged: (final val) {
-                        user.address2 = val;
-                      },
-                    ),
-                    const SizedBox(height: 25.0),
-                    TextFormField(
-                      enabled: editMode,
-                      decoration: inputDecoration('City', editMode),
-                      style: textStyle(editMode),
-                      keyboardType: TextInputType.streetAddress,
-                      initialValue: user.city,
-                      onChanged: (final val) {
-                        user.city = val;
-                      },
-                    ),
-                    const SizedBox(height: 25.0),
-                    TextFormField(
-                      enabled: editMode,
-                      decoration: inputDecoration('State', editMode),
-                      style: textStyle(editMode),
-                      keyboardType: TextInputType.streetAddress,
-                      initialValue: user.state,
-                      onChanged: (final val) {
-                        user.state = val;
-                      },
-                    ),
-                    const SizedBox(height: 25.0),
-                    TextFormField(
-                      enabled: editMode,
-                      decoration: inputDecoration('Zip', editMode),
-                      style: textStyle(editMode),
-                      initialValue: user.zip,
-                      onChanged: (final val) {
-                        user.zip = val;
-                      },
-                      keyboardType: TextInputType.number,
-                    ),
-                  ],
+                      const SizedBox(height: 25.0),
+                      TextFormField(
+                        enabled: editMode,
+                        decoration: inputDecoration('Last name (required)', editMode),
+                        style: textStyle(editMode),
+                        initialValue: user.lastName,
+                        maxLength: 150,
+                        maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                        keyboardType: TextInputType.name,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        validator: (final val) {
+                          if (val == null || val.trim().isEmpty) {
+                            return 'Please enter a last name';
+                          }
+
+                          if (!nameRegEx.hasMatch(val)) {
+                            return 'Invalid characters in last name';
+                          }
+
+                          return null;
+                        },
+                        onChanged: (final val) {
+                          setState(() {
+                            user.lastName = val;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 25.0),
+                      InternationalPhoneNumberInput(
+                        selectorConfig: const SelectorConfig(
+                          selectorType: PhoneInputSelectorType.DIALOG,
+                          setSelectorButtonAsPrefixIcon: true,
+                          leadingPadding: 20.0,
+                        ),
+                        isEnabled: editMode,
+                        key: const Key('phoneField'),
+                        onInputChanged: (final PhoneNumber number) {
+                          if (number.parseNumber().isNotEmpty) {
+                            user.phone = number.phoneNumber!;
+                          } else {
+                            user.phone = '';
+                          }
+                        },
+                        onInputValidated: (final bool value) {
+                          if (user.phone!.isEmpty) {
+                            setState(() {
+                              validPhoneNumber = true;
+                            });
+                          } else {
+                            if (validPhoneNumber != value) {
+                              setState(() {
+                                validPhoneNumber = value;
+                              });
+                            }
+                          }
+                        },
+                        autoValidateMode: isNotTestMode ?
+                        AutovalidateMode.onUserInteraction
+                            : AutovalidateMode.disabled,
+                        initialValue: PhoneNumber(phoneNumber: user.phone, isoCode: 'US'),
+                        keyboardType: const TextInputType.numberWithOptions(
+                            signed: true,
+                            decimal: true
+                        ),
+                        ignoreBlank: true,
+                        inputBorder: const OutlineInputBorder(),
+                      ),
+                      const SizedBox(height: 25.0),
+                      TextFormField(
+                        enabled: editMode,
+                        decoration: inputDecoration('Address', editMode),
+                        style: textStyle(editMode),
+                        keyboardType: TextInputType.streetAddress,
+                        initialValue: user.address,
+                        onChanged: (final val) {
+                          user.address = val;
+                        },
+                      ),
+                      const SizedBox(height: 25.0),
+                      TextFormField(
+                        enabled: editMode,
+                        decoration: inputDecoration('Address 2', editMode),
+                        style: textStyle(editMode),
+                        keyboardType: TextInputType.streetAddress,
+                        initialValue: user.address2,
+                        onChanged: (final val) {
+                          user.address2 = val;
+                        },
+                      ),
+                      const SizedBox(height: 25.0),
+                      TextFormField(
+                        enabled: editMode,
+                        decoration: inputDecoration('City', editMode),
+                        style: textStyle(editMode),
+                        keyboardType: TextInputType.streetAddress,
+                        initialValue: user.city,
+                        onChanged: (final val) {
+                          user.city = val;
+                        },
+                      ),
+                      const SizedBox(height: 25.0),
+                      TextFormField(
+                        enabled: editMode,
+                        decoration: inputDecoration('State', editMode),
+                        style: textStyle(editMode),
+                        keyboardType: TextInputType.streetAddress,
+                        initialValue: user.state,
+                        onChanged: (final val) {
+                          user.state = val;
+                        },
+                      ),
+                      const SizedBox(height: 25.0),
+                      TextFormField(
+                        enabled: editMode,
+                        decoration: inputDecoration('Zip', editMode),
+                        style: textStyle(editMode),
+                        initialValue: user.zip,
+                        onChanged: (final val) {
+                          user.zip = val;
+                        },
+                        keyboardType: TextInputType.number,
+                      ),
+                    ],
+                  )
                 )
               )
             )
           )
-        )
-      ],
+        ],
+      )
     );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }
