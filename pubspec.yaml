@@ -38,7 +38,10 @@ dependencies:
   auth0_flutter: '1.7.2'
   dart_jsonwebtoken: ^2.12.0
   qr_flutter: ^4.1.0
-  intl_phone_number_input: ^0.7.4
+  intl_phone_number_input:
+    git:
+      url: https://github.com/natintosh/intl_phone_number_input
+      ref: v0.8.0
   url_strategy: ^0.2.0
   datadog_flutter_plugin: ^2.10.0
   datadog_tracking_http_client: ^2.2.0
