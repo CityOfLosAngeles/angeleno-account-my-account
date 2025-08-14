@@ -46,7 +46,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
   void initState() {
     super.initState();
     auth0UserApi = Auth0UserApi();
-    userProvider = context.read<UserProvider>();
+    userProvider = Provider.of(context, listen: false);
     _authMethods = Future.value();
 
     if (userProvider.user != null) {
