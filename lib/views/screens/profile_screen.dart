@@ -226,22 +226,12 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
                             user.phone = '';
                           }
                         },
-                        validator: (final String? value) {
-                          if (value != null && value.isNotEmpty && user.phone!.length < 12) {
-                            return 'Please enter a valid phone number';
-                          }
-
-                          return null;
-                        },
                         onInputValidated: (final bool value) {
                           if (user.phone!.isEmpty) {
                             validPhoneNumberNotifier.value = true;
                             return;
                           } else {
-                            if (user.phone!.length < 12) {
-                              validPhoneNumberNotifier.value = false;
-                              return;
-                            } else {
+                            if (validPhoneNumberNotifier.value != value) {
                               validPhoneNumberNotifier.value = value;
                             }
                           }
