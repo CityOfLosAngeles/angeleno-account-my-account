@@ -35,6 +35,8 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
       'signedIn': userProvider.user != null,
     }
   );
+
+  ValueNotifier<bool> validPhoneNumberNotifier = ValueNotifier<bool>(true);
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   late Auth0UserApi auth0UserApi;
   late OverlayProvider overlayProvider;
@@ -135,19 +137,22 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
                   child: const Text('Edit'),
                 )
                 :
-                FilledButton(
-                  onPressed: ((user.phone!.isNotEmpty && !validPhoneNumber) ||
-                          !isFormValid) && isNotTestMode
-                   ? null : () {
-                    if (editMode) {
-                      updateUser();
-                    }
-                    setState(() {
-                      userProvider.toggleEditing();
-                    });
-                  },
-                  child: const Text('Save'),
-                )
+              ValueListenableBuilder<bool>(
+                  valueListenable: validPhoneNumberNotifier,
+                  builder: (final context, final valid, final child) => FilledButton(
+                    onPressed: ((user.phone!.isNotEmpty && !valid) ||
+                        !isFormValid) && isNotTestMode
+                        ? null : () {
+                      if (editMode) {
+                        updateUser();
+                      }
+                      setState(() {
+                        userProvider.toggleEditing();
+                      });
+                    },
+                    child: const Text('Save'),
+                  )
+              )
             )
           ]
         ),
@@ -235,14 +240,10 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
                       },
                       onInputValidated: (final bool value) {
                         if (user.phone!.isEmpty) {
-                          setState(() {
-                            validPhoneNumber = true;
-                          });
+                          validPhoneNumberNotifier.value = true;
                         } else {
-                          if (validPhoneNumber != value) {
-                            setState(() {
-                              validPhoneNumber = value;
-                            });
+                          if (validPhoneNumberNotifier.value != value) {
+                            validPhoneNumberNotifier.value = value;
                           }
                         }
                       },
