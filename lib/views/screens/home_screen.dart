@@ -209,8 +209,11 @@ class _MyHomePageState extends State<MyHomePage> {
       user = userProvider.user!;
       userEmail = user.email;
     } else {
-      return const Center(
-        child: LinearProgressIndicator()
+      return Center(
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width * 0.5,
+            child: const LinearProgressIndicator(),
+          )
       );
     }
 

@@ -28,16 +28,18 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
   @override
   RumViewInfo get rumViewInfo => RumViewInfo(name: 'Profile Screen');
 
+  ValueNotifier<bool> validPhoneNumberNotifier = ValueNotifier<bool>(true);
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
   late Auth0UserApi auth0UserApi;
   late OverlayProvider overlayProvider;
   late UserProvider userProvider;
   late User user;
+
   bool isFormValid = false;
   bool validPhoneNumber = false;
   final isNotTestMode = kIsWeb ||
       !Platform.environment.containsKey('FLUTTER_TEST');
-
 
   @override
   void initState() {
@@ -85,9 +87,7 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
     overlayProvider = context.watch<OverlayProvider>();
     userProvider = context.watch<UserProvider>();
 
-    if (userProvider.user == null) {
-      return const LinearProgressIndicator();
-    } else {
+    if (userProvider.user != null) {
       user = userProvider.user!;
     }
 
@@ -124,19 +124,23 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
                   child: const Text('Edit'),
                 )
                     :
-                FilledButton(
-                  onPressed: ((user.phone!.isNotEmpty && !validPhoneNumber) ||
-                      !isFormValid) && isNotTestMode
-                      ? null : () {
-                    if (editMode) {
-                      updateUser();
-                    }
-                    setState(() {
-                      userProvider.toggleEditing();
-                    });
-                  },
-                  child: const Text('Save'),
+                ValueListenableBuilder<bool>(
+                  valueListenable: validPhoneNumberNotifier,
+                  builder: (final context, final valid, final child) => FilledButton(
+                    onPressed: ((user.phone!.isNotEmpty && !valid) ||
+                        !isFormValid) && isNotTestMode
+                        ? null : () {
+                      if (editMode) {
+                        updateUser();
+                      }
+                      setState(() {
+                        userProvider.toggleEditing();
+                      });
+                    },
+                    child: const Text('Save'),
+                  )
                 )
+
               )
             ]
           ),
@@ -224,14 +228,11 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
                         },
                         onInputValidated: (final bool value) {
                           if (user.phone!.isEmpty) {
-                            setState(() {
-                              validPhoneNumber = true;
-                            });
+                            validPhoneNumberNotifier.value = true;
+                            return;
                           } else {
-                            if (validPhoneNumber != value) {
-                              setState(() {
-                                validPhoneNumber = value;
-                              });
+                            if (validPhoneNumberNotifier.value != value) {
+                              validPhoneNumberNotifier.value = value;
                             }
                           }
                         },
