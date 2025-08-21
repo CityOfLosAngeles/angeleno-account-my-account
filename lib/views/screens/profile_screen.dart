@@ -139,104 +139,102 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
                     },
                     child: const Text('Save'),
                   )
-                )
-
               )
-            ]
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.only(right: 15.0),
-                child: Form(
-                  key: formKey,
-                  onChanged: () {
-                    formKey.currentState!.save();
-                  },
-                  autovalidateMode: AutovalidateMode.disabled,
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 25.0),
-                      TextFormField(
-                        enabled: editMode,
-                        decoration: inputDecoration('First name (required)', editMode),
-                        style: textStyle(editMode),
-                        initialValue: user.firstName,
-                        maxLength: 300,
-                        maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                        keyboardType: TextInputType.name,
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        validator: (final val) {
-                          if (val == null || val.trim().isEmpty) {
-                            return 'Please enter a first name';
-                          }
+            )
+          ]
+        ),
+        Expanded(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.only(right: 15.0),
+              child: Form(
+                key: formKey,
+                onChanged: () {
+                  formKey.currentState!.save();
+                },
+                autovalidateMode: AutovalidateMode.disabled,
+                child: Column(
+                  children: [
+                    const SizedBox(height: 25.0),
+                    TextFormField(
+                      enabled: editMode,
+                      decoration: inputDecoration('First name (required)', editMode),
+                      style: textStyle(editMode),
+                      initialValue: user.firstName,
+                      maxLength: 300,
+                      maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                      keyboardType: TextInputType.name,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: (final val) {
+                        if (val == null || val.trim().isEmpty) {
+                          return 'Please enter a first name';
+                        }
 
-                          if (!nameRegEx.hasMatch(val)) {
-                            return 'Invalid characters in first name';
-                          }
+                        if (!nameRegEx.hasMatch(val)) {
+                          return 'Invalid characters in first name';
+                        }
 
-                          return null;
-                        },
-                        onChanged: (final val) {
-                          setState(() {
-                            user.firstName = val;
-                          });
-                        },
+                        return null;
+                      },
+                      onChanged: (final val) {
+                        setState(() {
+                          user.firstName = val;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 25.0),
+                    TextFormField(
+                      enabled: editMode,
+                      decoration: inputDecoration('Last name (required)', editMode),
+                      style: textStyle(editMode),
+                      initialValue: user.lastName,
+                      maxLength: 150,
+                      maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                      keyboardType: TextInputType.name,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: (final val) {
+                        if (val == null || val.trim().isEmpty) {
+                          return 'Please enter a last name';
+                        }
+
+                        if (!nameRegEx.hasMatch(val)) {
+                          return 'Invalid characters in last name';
+                        }
+
+                        return null;
+                      },
+                      onChanged: (final val) {
+                        setState(() {
+                          user.lastName = val;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 25.0),
+                    InternationalPhoneNumberInput(
+                      selectorConfig: const SelectorConfig(
+                        selectorType: PhoneInputSelectorType.DIALOG,
+                        setSelectorButtonAsPrefixIcon: true,
+                        leadingPadding: 20.0,
                       ),
-                      const SizedBox(height: 25.0),
-                      TextFormField(
-                        enabled: editMode,
-                        decoration: inputDecoration('Last name (required)', editMode),
-                        style: textStyle(editMode),
-                        initialValue: user.lastName,
-                        maxLength: 150,
-                        maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                        keyboardType: TextInputType.name,
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        validator: (final val) {
-                          if (val == null || val.trim().isEmpty) {
-                            return 'Please enter a last name';
+                      isEnabled: editMode,
+                      key: const Key('phoneField'),
+                      onInputChanged: (final PhoneNumber number) {
+                        if (number.parseNumber().isNotEmpty) {
+                          user.phone = number.phoneNumber!;
+                        } else {
+                          user.phone = '';
+                        }
+                      },
+                      onInputValidated: (final bool value) {
+                        if (user.phone!.isEmpty) {
+                          validPhoneNumberNotifier.value = true;
+                        } else {
+                          if (validPhoneNumberNotifier.value != value) {
+                            validPhoneNumberNotifier.value = value;
                           }
-
-                          if (!nameRegEx.hasMatch(val)) {
-                            return 'Invalid characters in last name';
-                          }
-
-                          return null;
-                        },
-                        onChanged: (final val) {
-                          setState(() {
-                            user.lastName = val;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 25.0),
-                      InternationalPhoneNumberInput(
-                        selectorConfig: const SelectorConfig(
-                          selectorType: PhoneInputSelectorType.DIALOG,
-                          setSelectorButtonAsPrefixIcon: true,
-                          leadingPadding: 20.0,
-                        ),
-                        isEnabled: editMode,
-                        key: const Key('phoneField'),
-                        onInputChanged: (final PhoneNumber number) {
-                          if (number.parseNumber().isNotEmpty) {
-                            user.phone = number.phoneNumber!;
-                          } else {
-                            user.phone = '';
-                          }
-                        },
-                        onInputValidated: (final bool value) {
-                          if (user.phone!.isEmpty) {
-                            validPhoneNumberNotifier.value = true;
-                            return;
-                          } else {
-                            if (validPhoneNumberNotifier.value != value) {
-                              validPhoneNumberNotifier.value = value;
-                            }
-                          }
-                        },
-                        autoValidateMode: isNotTestMode ?
+                        }
+                      },
+                      autoValidateMode: isNotTestMode ?
                         AutovalidateMode.onUserInteraction
                             : AutovalidateMode.disabled,
                         initialValue: PhoneNumber(phoneNumber: user.phone, isoCode: 'US'),
