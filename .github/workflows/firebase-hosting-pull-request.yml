@@ -36,7 +36,7 @@ jobs:
             touch .env
               echo AUTH0_DOMAIN=${{ secrets.AUTH0_DOMAIN }} >> .env
               echo CLIENT_ID=${{ secrets.CLIENT_ID }} >> .env
-              echo REDIRECT_URI=${{ secrets.PREVIEW_HOSTING_URL }} >> .env
+              echo REDIRECT_URI=${{ vars.PREVIEW_HOSTING_URL }} >> .env
               echo CLOUD_FUNCTIONS_URL=${{ secrets.CLOUD_FUNCTIONS_URL }} >> .env
               echo SA_EMAIL=${{ secrets.SA_EMAIL }} >> .env
               echo SA_SECRET_KEY="${{ secrets.SA_SECRET_KEY }}" >> .env
