@@ -37,7 +37,11 @@
         "region": "us-west1"
       },
       {
-        "source": "!/@(js|css)/**",
+        "source": "!/**/*.js",
+        "destination": "/index.html"
+      },
+      {
+        "source": "**",
         "destination": "/index.html"
       }
     ]
