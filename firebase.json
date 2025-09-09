@@ -37,8 +37,8 @@
         "region": "us-west1"
       },
       {
-        "source": "!/**/*.js",
-        "destination": "/index.html"
+        "source": "/assets/packages/libphonenumber_plugin/js/stringbuffer.js",
+        "destination": "/assets/packages/libphonenumber_plugin/js/stringbuffer.js"
       },
       {
         "source": "**",
