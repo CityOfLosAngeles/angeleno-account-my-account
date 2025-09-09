@@ -39,10 +39,6 @@
       {
         "source": "/assets/packages/libphonenumber_plugin/js/**",
         "destination": "/assets/packages/libphonenumber_plugin/js/:splat"
-      },
-      {
-        "source": "**",
-        "destination": "/index.html"
       }
     ]
   },
