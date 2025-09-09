@@ -35,10 +35,6 @@
         "source": "/auth0/**",
         "function": "auth0",
         "region": "us-west1"
-      },
-      {
-        "source": "/assets/packages/libphonenumber_plugin/js/**",
-        "destination": "/assets/packages/libphonenumber_plugin/js/:splat"
       }
     ]
   },
