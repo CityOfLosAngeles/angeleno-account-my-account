@@ -112,11 +112,21 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(final BuildContext context) {
      var userEmail = '';
+
      overlayProvider = Provider.of<OverlayProvider>(context);
      userProvider = context.watch<UserProvider>();
+     navigationShell = widget.navigationShell;
+
      if (userProvider.user != null) {
        user = userProvider.user!;
        userEmail = user.email;
+     } else {
+       return Center(
+           child: SizedBox(
+             width: MediaQuery.of(context).size.width * 0.5,
+             child: const LinearProgressIndicator(),
+           )
+       );
      }
 
     return Container(
@@ -160,7 +170,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 icon: Icon(Icons.password)
               ),
               const NavigationDrawerDestination(
-                label: Text('Security', semanticsLabel: 'Navigate to security page'),
+                label: Text('Multi-factor authentication (MFA)', semanticsLabel: 'Navigate to security page'),
                 icon: Icon(Icons.security)
               ),
               const Divider(),
