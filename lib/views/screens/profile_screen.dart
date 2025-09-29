@@ -14,10 +14,8 @@ import '../../controllers/overlay_provider.dart';
 import '../../models/user.dart';
 
 class ProfileScreen extends StatefulWidget {
-  final Auth0UserApi auth0UserApi;
 
   const ProfileScreen({
-    required this.auth0UserApi,
     super.key
   });
 
@@ -27,36 +25,26 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogRouteAwareMixin{
 
-  late DatadogNavigationObserver observer;
-
-  RumViewInfo? infoExtractor(final Route<dynamic> route) => RumViewInfo(
-    name: 'ProfileScreen',
-    attributes: {
-      'signedIn': userProvider.user != null,
-    }
-  );
+  @override
+  RumViewInfo get rumViewInfo => RumViewInfo(name: 'Profile Screen');
 
   ValueNotifier<bool> validPhoneNumberNotifier = ValueNotifier<bool>(true);
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
   late Auth0UserApi auth0UserApi;
   late OverlayProvider overlayProvider;
   late UserProvider userProvider;
   late User user;
+
   bool isFormValid = false;
   bool validPhoneNumber = false;
   final isNotTestMode = kIsWeb ||
       !Platform.environment.containsKey('FLUTTER_TEST');
 
-
   @override
   void initState() {
     super.initState();
-
-    auth0UserApi = widget.auth0UserApi;
-    observer = DatadogNavigationObserver(
-      datadogSdk: DatadogSdk.instance,
-      viewInfoExtractor: infoExtractor,
-    );
+    auth0UserApi = Auth0UserApi();
   }
 
   Future<void> updateUser() async {
@@ -99,9 +87,7 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
     overlayProvider = context.watch<OverlayProvider>();
     userProvider = context.watch<UserProvider>();
 
-    if (userProvider.user == null) {
-      return const LinearProgressIndicator();
-    } else {
+    if (userProvider.user != null) {
       user = userProvider.user!;
     }
 
@@ -111,23 +97,24 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
       isFormValid = formKey.currentState!.validate();
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Semantics(
-              header: true,
-              child: const Text(
-                'Profile',
-                textAlign: TextAlign.left,
-                style: headerStyle
-              )
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: !editMode ?
+    return Scaffold(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Semantics(
+                header: true,
+                child: const Text(
+                  'Profile',
+                  textAlign: TextAlign.left,
+                  style: headerStyle
+                )
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: !editMode ?
                 FilledButton.tonal(
                   onPressed: () {
                     setState(() {
@@ -136,8 +123,8 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
                   },
                   child: const Text('Edit'),
                 )
-                :
-              ValueListenableBuilder<bool>(
+                    :
+                ValueListenableBuilder<bool>(
                   valueListenable: validPhoneNumberNotifier,
                   builder: (final context, final valid, final child) => FilledButton(
                     onPressed: ((user.phone!.isNotEmpty && !valid) ||
@@ -248,83 +235,79 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
                         }
                       },
                       autoValidateMode: isNotTestMode ?
-                      AutovalidateMode.onUserInteraction
-                          : AutovalidateMode.disabled,
-                      initialValue: PhoneNumber(phoneNumber: user.phone, isoCode: 'US'),
-                      keyboardType: const TextInputType.numberWithOptions(
-                          signed: true,
-                          decimal: true
+                        AutovalidateMode.onUserInteraction
+                            : AutovalidateMode.disabled,
+                        initialValue: PhoneNumber(phoneNumber: user.phone, isoCode: 'US'),
+                        keyboardType: const TextInputType.numberWithOptions(
+                            signed: true,
+                            decimal: true
+                        ),
+                        ignoreBlank: true,
+                        inputBorder: const OutlineInputBorder(),
                       ),
-                      ignoreBlank: true,
-                      inputBorder: const OutlineInputBorder(),
-                    ),
-                    const SizedBox(height: 25.0),
-                    TextFormField(
-                      enabled: editMode,
-                      decoration: inputDecoration('Address', editMode),
-                      style: textStyle(editMode),
-                      keyboardType: TextInputType.streetAddress,
-                      initialValue: user.address,
-                      onChanged: (final val) {
-                        user.address = val;
-                      },
-                    ),
-                    const SizedBox(height: 25.0),
-                    TextFormField(
-                      enabled: editMode,
-                      decoration: inputDecoration('Address 2', editMode),
-                      style: textStyle(editMode),
-                      keyboardType: TextInputType.streetAddress,
-                      initialValue: user.address2,
-                      onChanged: (final val) {
-                        user.address2 = val;
-                      },
-                    ),
-                    const SizedBox(height: 25.0),
-                    TextFormField(
-                      enabled: editMode,
-                      decoration: inputDecoration('City', editMode),
-                      style: textStyle(editMode),
-                      keyboardType: TextInputType.streetAddress,
-                      initialValue: user.city,
-                      onChanged: (final val) {
-                        user.city = val;
-                      },
-                    ),
-                    const SizedBox(height: 25.0),
-                    TextFormField(
-                      enabled: editMode,
-                      decoration: inputDecoration('State', editMode),
-                      style: textStyle(editMode),
-                      keyboardType: TextInputType.streetAddress,
-                      initialValue: user.state,
-                      onChanged: (final val) {
-                        user.state = val;
-                      },
-                    ),
-                    const SizedBox(height: 25.0),
-                    TextFormField(
-                      enabled: editMode,
-                      decoration: inputDecoration('Zip', editMode),
-                      style: textStyle(editMode),
-                      initialValue: user.zip,
-                      onChanged: (final val) {
-                        user.zip = val;
-                      },
-                      keyboardType: TextInputType.number,
-                    ),
-                  ],
+                      const SizedBox(height: 25.0),
+                      TextFormField(
+                        enabled: editMode,
+                        decoration: inputDecoration('Address', editMode),
+                        style: textStyle(editMode),
+                        keyboardType: TextInputType.streetAddress,
+                        initialValue: user.address,
+                        onChanged: (final val) {
+                          user.address = val;
+                        },
+                      ),
+                      const SizedBox(height: 25.0),
+                      TextFormField(
+                        enabled: editMode,
+                        decoration: inputDecoration('Address 2', editMode),
+                        style: textStyle(editMode),
+                        keyboardType: TextInputType.streetAddress,
+                        initialValue: user.address2,
+                        onChanged: (final val) {
+                          user.address2 = val;
+                        },
+                      ),
+                      const SizedBox(height: 25.0),
+                      TextFormField(
+                        enabled: editMode,
+                        decoration: inputDecoration('City', editMode),
+                        style: textStyle(editMode),
+                        keyboardType: TextInputType.streetAddress,
+                        initialValue: user.city,
+                        onChanged: (final val) {
+                          user.city = val;
+                        },
+                      ),
+                      const SizedBox(height: 25.0),
+                      TextFormField(
+                        enabled: editMode,
+                        decoration: inputDecoration('State', editMode),
+                        style: textStyle(editMode),
+                        keyboardType: TextInputType.streetAddress,
+                        initialValue: user.state,
+                        onChanged: (final val) {
+                          user.state = val;
+                        },
+                      ),
+                      const SizedBox(height: 25.0),
+                      TextFormField(
+                        enabled: editMode,
+                        decoration: inputDecoration('Zip', editMode),
+                        style: textStyle(editMode),
+                        initialValue: user.zip,
+                        onChanged: (final val) {
+                          user.zip = val;
+                        },
+                        keyboardType: TextInputType.number,
+                      ),
+                    ],
+                  )
                 )
               )
             )
           )
-        )
-      ],
+        ],
+      )
     );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }

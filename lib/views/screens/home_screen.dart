@@ -1,9 +1,10 @@
 import 'package:angeleno_project/controllers/overlay_provider.dart';
-import 'package:angeleno_project/views/screens/advanced_security_screen.dart';
+import 'package:angeleno_project/views/screens/mfa_screen.dart';
 import 'package:angeleno_project/views/screens/password_screen.dart';
 import 'package:angeleno_project/views/screens/profile_screen.dart';
 import 'package:datadog_flutter_plugin/datadog_flutter_plugin.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -12,7 +13,9 @@ import '../../controllers/user_provider.dart';
 import '../../models/user.dart';
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+  final StatefulNavigationShell navigationShell;
+
+  const MyHomePage(this.navigationShell, {super.key});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -20,11 +23,13 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+
   final Auth0UserApi auth0UserApi = Auth0UserApi();
+
+  late StatefulNavigationShell navigationShell;
   late UserProvider userProvider;
   late User user;
   late OverlayProvider overlayProvider;
-  int _selectedIndex = 0;
 
   @override
   void initState() {
@@ -91,9 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
             break;
         }
       } else {
-        setState(() {
-          _selectedIndex = index;
-        });
+        navigationShell.goBranch(index);
       }
     }
 
@@ -101,26 +104,29 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   List<Widget> get screens => <Widget>[
-    ProfileScreen(
-      auth0UserApi: auth0UserApi,
-    ),
-    PasswordScreen(
-      auth0UserApi: auth0UserApi,
-    ),
-    AdvancedSecurityScreen(
-      userProvider: userProvider,
-      auth0UserApi: auth0UserApi,
-    )
+    const ProfileScreen(),
+    const PasswordScreen(),
+    const AdvancedSecurityScreen()
   ];
 
   @override
   Widget build(final BuildContext context) {
      var userEmail = '';
+
      overlayProvider = Provider.of<OverlayProvider>(context);
      userProvider = context.watch<UserProvider>();
+     navigationShell = widget.navigationShell;
+
      if (userProvider.user != null) {
        user = userProvider.user!;
        userEmail = user.email;
+     } else {
+       return Center(
+           child: SizedBox(
+             width: MediaQuery.of(context).size.width * 0.5,
+             child: const LinearProgressIndicator(),
+           )
+       );
      }
 
     return Container(
@@ -149,7 +155,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           drawer: NavigationDrawer(
             onDestinationSelected: _navigationSelected,
-            selectedIndex: _selectedIndex,
+            selectedIndex: navigationShell.currentIndex,
             children:  <Widget>[
               Padding(
                 padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
@@ -164,7 +170,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 icon: Icon(Icons.password)
               ),
               const NavigationDrawerDestination(
-                label: Text('Security', semanticsLabel: 'Navigate to security page'),
+                label: Text('Multi-factor authentication (MFA)', semanticsLabel: 'Navigate to security page'),
                 icon: Icon(Icons.security)
               ),
               const Divider(),
@@ -207,7 +213,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.all(20.0),
-                            child: screens[_selectedIndex])
+                            child: screens[navigationShell.currentIndex])
                         )
                       ],
                     ),
@@ -229,44 +235,44 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ),
           bottomNavigationBar: Container(
-                padding: const EdgeInsets.all(16.0),
-                child: Wrap(
-                  alignment: WrapAlignment.center,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    const Text(
-                        'City of Los Angeles. '
+            padding: const EdgeInsets.all(16.0),
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                const Text(
+                    'City of Los Angeles. '
+                ),
+                TextButton(
+                    style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        overlayColor: Colors.transparent
                     ),
-                    TextButton(
-                        style: TextButton.styleFrom(
-                            padding: EdgeInsets.zero,
-                            overlayColor: Colors.transparent
-                        ),
-                        onPressed: () async {
-                          await launchUrl(
-                              Uri.parse('https://disclaimer.lacity.org/disclaimer.htm')
-                          );
-                        },
-                        child: const Text('Disclaimer')
+                    onPressed: () async {
+                      await launchUrl(
+                          Uri.parse('https://disclaimer.lacity.org/disclaimer.htm')
+                      );
+                    },
+                    child: const Text('Disclaimer')
+                ),
+                const Text(' | '),
+                TextButton(
+                    style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        overlayColor: Colors.transparent
                     ),
-                    const Text(' | '),
-                    TextButton(
-                        style: TextButton.styleFrom(
-                            padding: EdgeInsets.zero,
-                            overlayColor: Colors.transparent
-                        ),
-                        onPressed: () async {
-                          await launchUrl(
-                              Uri.parse('https://disclaimer.lacity.org/privacy.htm')
-                          );
-                        },
-                        child: const Text('Privacy Policy')
-                    ),
-                  ],
-                )
+                    onPressed: () async {
+                      await launchUrl(
+                          Uri.parse('https://disclaimer.lacity.org/privacy.htm')
+                      );
+                    },
+                    child: const Text('Privacy Policy')
+                ),
+              ],
             )
+          )
         )
-      ),
+      )
     );
   }
 }
