@@ -14,6 +14,7 @@ import 'dart:async';
 import '../../controllers/auth0_user_api_implementation.dart';
 import '../../controllers/user_provider.dart';
 import '../../models/user.dart';
+import '../../widgets/navigation_button.dart';
 
 class MyHomePage extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
@@ -24,46 +25,55 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-
 class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   final Auth0UserApi auth0UserApi = Auth0UserApi();
+  final ValueNotifier<int> _secondsLeft = ValueNotifier<int>(0);
+  DateTime _lastActivityTime = DateTime.now();
 
   late StatefulNavigationShell navigationShell;
   late UserProvider userProvider;
   late User user;
   late OverlayProvider overlayProvider;
 
-  Timer? _inactivityTimer;
-  Timer? _logoutTimer;
+  Timer? _periodicCheckTimer;
   bool _isWarningDialogVisible = false;
-
 
   @override
   void initState() {
     super.initState();
-
-    if (_inactivityTimer == null || _logoutTimer == null) {
-      _resetInactivityTimer();
-    }
+    _startPeriodicCheck();
   }
 
   @override
   void dispose() {
-    _inactivityTimer?.cancel();
-    _logoutTimer?.cancel();
+    _periodicCheckTimer?.cancel();
     super.dispose();
   }
 
-  void _resetInactivityTimer() {
-    _inactivityTimer?.cancel();
-    _logoutTimer?.cancel();
+  void _updateActivityTime() {
+    _lastActivityTime = DateTime.now();
+    if (_isWarningDialogVisible) {
+      Navigator.of(context).pop();
+      _isWarningDialogVisible = false;
+    }
+  }
 
-    // Logout after 15 minutes
-    _logoutTimer = Timer(const Duration(minutes: 15), _handleAutoLogout);
-    // Show warning after 13 minutes, when 2 minute remains
-    _inactivityTimer = Timer(const Duration(minutes: 13), _showInactivityWarning);
+  void _startPeriodicCheck() {
+    _periodicCheckTimer = Timer.periodic(const Duration(seconds: 1), (final timer) {
+      final now = DateTime.now();
+      final elapsed = now.difference(_lastActivityTime);
+      const totalTimeout = Duration(minutes: 3);
+      final secondsLeft = totalTimeout.inSeconds - elapsed.inSeconds;
+      _secondsLeft.value = secondsLeft > 0 ? secondsLeft : 0;
+
+      if (elapsed >= totalTimeout) {
+        _handleAutoLogout();
+      } else if (elapsed >= const Duration(minutes: 1) && !_isWarningDialogVisible) {
+        _showInactivityWarning();
+      }
+    });
   }
 
   void _showInactivityWarning() {
@@ -79,18 +89,19 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               const Text('Need more time?', style: headerStyle),
                 const Icon(Icons.horizontal_rule),
-                StreamBuilder<int>(
-                stream: Stream.periodic(const Duration(seconds: 1), (final x) => 120 - x - 1).take(120),
-                builder: (final context, final snapshot) {
-                  final secondsLeft = snapshot.data ?? 120;
-                  final minutes = (secondsLeft ~/ 60).toString().padLeft(2, '0');
-                  final seconds = (secondsLeft % 60).toString().padLeft(2, '0');
-                  
-                  return Text(
-                  'For your security, we will sign you out\nin $minutes:$seconds unless you tell us otherwise.',
-                  textAlign: TextAlign.center,
-                  );
-                },
+              StreamBuilder<int>(
+                stream: null, // Remove the StreamBuilder
+                builder: (final context, final snapshot) => ValueListenableBuilder<int>(
+                  valueListenable: _secondsLeft,
+                  builder: (final context, final secondsLeft, final _) {
+                    final minutes = (secondsLeft ~/ 60).toString().padLeft(2, '0');
+                    final seconds = (secondsLeft % 60).toString().padLeft(2, '0');
+                    return Text(
+                      'For your security, we will sign you out\nin $minutes:$seconds unless you tell us otherwise.',
+                      textAlign: TextAlign.center,
+                    );
+                  },
+                  ),
               )
             ],
           ),
@@ -105,7 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 Navigator.of(context).pop();
                 _isWarningDialogVisible = false;
-                _resetInactivityTimer();
+                _updateActivityTime();
               },
               child: const Text('Stay logged in'),
             )
@@ -196,10 +207,13 @@ class _MyHomePageState extends State<MyHomePage> {
     const AdvancedSecurityScreen()
   ];
 
-
   @override
   Widget build(final BuildContext context) {
     var userEmail = '';
+
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double screenHeight = MediaQuery.of(context).size.height;
+    final bool isSmallScreen = screenWidth < smallScreenWidthBreakpoint || screenHeight < smallScreenWidthBreakpoint;
 
     overlayProvider = context.watch<OverlayProvider>();
     userProvider = context.watch<UserProvider>();
@@ -217,36 +231,64 @@ class _MyHomePageState extends State<MyHomePage> {
       );
     }
 
+    final body = Stack(
+      children: [
+        Center(
+            child: Container(
+              transformAlignment: Alignment.center,
+              width: double.infinity,
+              constraints: const BoxConstraints(maxWidth: 1280),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Expanded(
+                      child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: screens[navigationShell.currentIndex])
+                  )
+                ],
+              ),
+            )
+        ),
+        if (overlayProvider.isLoading)
+          Center(
+              child: Container(
+                alignment: Alignment.topCenter,
+                width: double.infinity,
+                constraints: const BoxConstraints(maxWidth: 1280),
+                padding: const EdgeInsets.fromLTRB(
+                    10, 0, 10, 0
+                ),
+                color: Colors.black.withValues(alpha: 0.25),
+                child: const LinearProgressIndicator(),
+              )
+          ),
+      ],
+    );
+
     return Listener(
-      onPointerDown: (final _) => _resetInactivityTimer(),
+      onPointerDown: (final _) => _updateActivityTime(),
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
-        onTap: _resetInactivityTimer,
+        onTap: _updateActivityTime,
         child: Container(
           margin: const EdgeInsets.fromLTRB(0, 47.0, 0, 0),
           child: RumUserActionDetector(
             rum: DatadogSdk.instance.rum,
             child: Scaffold(
               key: scaffoldKey,
-              appBar: AppBar(
-                leadingWidth: 75,
-                leading:  TextButton(
+              appBar: isSmallScreen ? AppBar(
+                leadingWidth: 50,
+                leading:  IconButton(
                     key: const Key('menuButton'),
-                    style: TextButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(0)
-                      ),
-                    ),
                     onPressed: () { scaffoldKey.currentState!.openDrawer(); },
-                    child: const Text('Menu', style: TextStyle(
-                      fontSize: 16,
-                    ),)
+                    icon: const Icon(Icons.menu, semanticLabel: 'Menu button',),
                 ),
                 title: const Text('Angeleno Account',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 )
-              ),
-              drawer: NavigationDrawer(
+              ) : null,
+              drawer: isSmallScreen ? NavigationDrawer(
                 onDestinationSelected: _navigationSelected,
                 selectedIndex: navigationShell.currentIndex,
                 children:  <Widget>[
@@ -292,39 +334,145 @@ class _MyHomePageState extends State<MyHomePage> {
                       icon: Icon(Icons.logout)
                   )
                 ],
-              ),
-              body: Stack(
+              ) : null,
+              body: isSmallScreen ? body : Row(
                 children: [
-                  Center(
-                    child: Container(
-                      transformAlignment: Alignment.center,
-                      width: double.infinity,
-                      constraints: const BoxConstraints(maxWidth: 1280),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.all(20.0),
-                              child: screens[navigationShell.currentIndex])
-                          )
-                        ],
-                      ),
-                    )
-                  ),
-                  if (overlayProvider.isLoading)
-                    Center(
-                      child: Container(
-                        alignment: Alignment.topCenter,
-                        width: double.infinity,
-                        constraints: const BoxConstraints(maxWidth: 1280),
-                        padding: const EdgeInsets.fromLTRB(
-                            10, 0, 10, 0
-                        ),
-                        color: Colors.black.withValues(alpha: 0.25),
-                        child: const LinearProgressIndicator(),
-                      )
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: 250
                     ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(10, 16, 10, 0),
+                          child:
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  userEmail,
+                                  softWrap: true,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.center,
+                                ),
+                              )
+                              ]
+                          )
+                        ),
+                        const SizedBox(height: 20),
+                        NavigationButton(
+                          icon: const Icon(Icons.person),
+                          text: const Text('Profile', semanticsLabel: 'Navigate to profile page'),
+                          onPressed: () {
+                            _navigationSelected(0);
+                          },
+                          isActive: navigationShell.currentIndex == 0
+                        ),
+                        const SizedBox(height: 10),
+                        NavigationButton(
+                          icon: const Icon(Icons.password),
+                          text: const Text('Password', semanticsLabel: 'Navigate to password page'),
+                          onPressed: () {
+                            _navigationSelected(1);
+                          },
+                          isActive: navigationShell.currentIndex == 1,
+                        ),
+                        const SizedBox(height: 10),
+                        NavigationButton(
+                          icon: const Icon(Icons.security),
+                          text: const Text('Multi factor\nauthentication',
+                            softWrap: true,
+                            semanticsLabel: 'Navigate to MFA page'
+                          ),
+                          onPressed: () {
+                            _navigationSelected(2);
+                          },
+                          isActive: navigationShell.currentIndex == 2
+                        ),
+                        const Spacer(),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              TextButton(
+                                onPressed: () {
+                                  _navigationSelected(3);
+                                },
+                                child: const Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text('Angeleno Home'),
+                                        SizedBox(width: 8),
+                                        Icon(Icons.open_in_new)
+                                      ],
+                                    ),
+                                  ],
+                                )
+                              ),
+                              const SizedBox(height: 5),
+                              TextButton(
+                                onPressed: () {
+                                  _navigationSelected(4);
+                                },
+                                child: const Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text('Services', softWrap: true, maxLines: 2,),
+                                        SizedBox(width: 8),
+                                        Icon(Icons.open_in_new)
+                                      ],
+                                    ),
+                                  ],
+                                )
+                              ),
+                              const SizedBox(height: 5),
+                              TextButton(
+                                onPressed: () {
+                                  _navigationSelected(5);
+                                },
+                                child: const Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text('Help'),
+                                        SizedBox(width: 8),
+                                        Icon(Icons.open_in_new)
+                                      ],
+                                    ),
+                                  ],
+                                )
+                              ),
+                              const SizedBox(height: 5),
+                              OutlinedButton(
+                                onPressed: () {
+                                  _navigationSelected(6);
+                                },
+                                child: const Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text('Logout'),
+                                        SizedBox(width: 8),
+                                        Icon(Icons.logout),
+                                      ],
+                                    ),
+                                  ],
+                                )
+                              )
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  Expanded(child: body)
                 ],
               ),
               bottomNavigationBar: Container(
@@ -368,6 +516,71 @@ class _MyHomePageState extends State<MyHomePage> {
           )
         )
       )
+    );
+  }
+}
+
+class CustomNavButton extends StatelessWidget {
+  const CustomNavButton({
+    super.key,
+    required this.icon,
+    required this.selectedIcon,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  /// The icon to display when the button is not selected.
+  final Widget icon;
+
+  /// The icon to display when the button is selected.
+  final Widget selectedIcon;
+
+  /// The text label to display below the icon.
+  final String label;
+
+  /// Whether this button is currently selected.
+  final bool isSelected;
+
+  /// The callback that is called when the button is tapped.
+  final VoidCallback onTap;
+
+  @override
+  Widget build(final BuildContext context) {
+    // Get the colors from the current theme
+    final Color selectedColor = Theme.of(context).colorScheme.primary;
+    final Color unselectedColor = Theme.of(context).colorScheme.onSurface.withOpacity(0.6);
+
+    // Determine the active color and icon based on the isSelected state
+    final Color activeColor = isSelected ? selectedColor : unselectedColor;
+    final Widget activeIcon = isSelected ? selectedIcon : icon;
+
+    return InkWell(
+      onTap: onTap,
+      // Use a circular splash effect for a cleaner look
+      // customBorder: const CircleBorder(),
+      child: Padding(
+        // Standard padding to mimic NavigationRailDestination
+        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Use IconTheme to apply the active color to the icon
+            IconTheme(
+              data: IconThemeData(color: activeColor),
+              child: activeIcon,
+            ),
+            const SizedBox(width: 4.0),
+            Text(
+              label,
+              // Use the theme's label text style and override the color
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: activeColor,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
