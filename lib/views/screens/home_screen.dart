@@ -88,21 +88,18 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text('Need more time?', style: headerStyle),
-                const Icon(Icons.horizontal_rule),
-              StreamBuilder<int>(
-                stream: null, // Remove the StreamBuilder
-                builder: (final context, final snapshot) => ValueListenableBuilder<int>(
-                  valueListenable: _secondsLeft,
-                  builder: (final context, final secondsLeft, final _) {
-                    final minutes = (secondsLeft ~/ 60).toString().padLeft(2, '0');
-                    final seconds = (secondsLeft % 60).toString().padLeft(2, '0');
-                    return Text(
-                      'For your security, we will sign you out\nin $minutes:$seconds unless you tell us otherwise.',
-                      textAlign: TextAlign.center,
-                    );
-                  },
-                  ),
-              )
+              const Icon(Icons.horizontal_rule),
+              ValueListenableBuilder<int>(
+                valueListenable: _secondsLeft,
+                builder: (final context, final secondsLeft, final _) {
+                  final minutes = (secondsLeft ~/ 60).toString().padLeft(2, '0');
+                  final seconds = (secondsLeft % 60).toString().padLeft(2, '0');
+                  return Text(
+                    'For your security, we will sign you out\nin $minutes:$seconds unless you tell us otherwise.',
+                    textAlign: TextAlign.center,
+                  );
+                },
+              ),
             ],
           ),
           actions: [
@@ -279,7 +276,7 @@ class _MyHomePageState extends State<MyHomePage> {
               key: scaffoldKey,
               appBar: isSmallScreen ? AppBar(
                 leadingWidth: 50,
-                leading:  IconButton(
+                leading: IconButton(
                     key: const Key('menuButton'),
                     onPressed: () { scaffoldKey.currentState!.openDrawer(); },
                     icon: const Icon(Icons.menu, semanticLabel: 'Menu button',),
@@ -519,71 +516,6 @@ class _MyHomePageState extends State<MyHomePage> {
           )
         )
       )
-    );
-  }
-}
-
-class CustomNavButton extends StatelessWidget {
-  const CustomNavButton({
-    super.key,
-    required this.icon,
-    required this.selectedIcon,
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  /// The icon to display when the button is not selected.
-  final Widget icon;
-
-  /// The icon to display when the button is selected.
-  final Widget selectedIcon;
-
-  /// The text label to display below the icon.
-  final String label;
-
-  /// Whether this button is currently selected.
-  final bool isSelected;
-
-  /// The callback that is called when the button is tapped.
-  final VoidCallback onTap;
-
-  @override
-  Widget build(final BuildContext context) {
-    // Get the colors from the current theme
-    final Color selectedColor = Theme.of(context).colorScheme.primary;
-    final Color unselectedColor = Theme.of(context).colorScheme.onSurface.withOpacity(0.6);
-
-    // Determine the active color and icon based on the isSelected state
-    final Color activeColor = isSelected ? selectedColor : unselectedColor;
-    final Widget activeIcon = isSelected ? selectedIcon : icon;
-
-    return InkWell(
-      onTap: onTap,
-      // Use a circular splash effect for a cleaner look
-      // customBorder: const CircleBorder(),
-      child: Padding(
-        // Standard padding to mimic NavigationRailDestination
-        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Use IconTheme to apply the active color to the icon
-            IconTheme(
-              data: IconThemeData(color: activeColor),
-              child: activeIcon,
-            ),
-            const SizedBox(width: 4.0),
-            Text(
-              label,
-              // Use the theme's label text style and override the color
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: activeColor,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
