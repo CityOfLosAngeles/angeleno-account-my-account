@@ -352,6 +352,9 @@ class _MyHomePageState extends State<MyHomePage> {
                             children: [
                               Expanded(
                                 child: Text(
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold
+                                  ),
                                   userEmail,
                                   softWrap: true,
                                   maxLines: 2,
