@@ -43,7 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    _startPeriodicCheck();
+    // _startPeriodicCheck();
   }
 
   @override
@@ -231,21 +231,22 @@ class _MyHomePageState extends State<MyHomePage> {
     final body = Stack(
       children: [
         Center(
-            child: Container(
-              transformAlignment: Alignment.center,
-              width: double.infinity,
-              constraints: const BoxConstraints(maxWidth: 1280),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Expanded(
-                      child: Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: screens[navigationShell.currentIndex])
+          child: Container(
+            transformAlignment: Alignment.center,
+            width: double.infinity,
+            constraints: const BoxConstraints(maxWidth: 1280),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: screens[navigationShell.currentIndex]
                   )
-                ],
-              ),
-            )
+                )
+              ],
+            ),
+          )
         ),
         if (overlayProvider.isLoading)
           Center(
@@ -332,44 +333,46 @@ class _MyHomePageState extends State<MyHomePage> {
                   )
                 ],
               ) : null,
-              body: isSmallScreen ? body : Row(
+              body: isSmallScreen ? body : Flex(
+                direction: Axis.horizontal,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ConstrainedBox(
                     constraints: const BoxConstraints(
-                      maxWidth: 250
+                        maxWidth: 250
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(10, 16, 10, 0),
-                          child:
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold
-                                  ),
-                                  userEmail,
-                                  softWrap: true,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
-                                ),
-                              )
-                              ]
-                          )
+                            padding: const EdgeInsets.fromLTRB(10, 16, 10, 0),
+                            child:
+                            Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold
+                                      ),
+                                      userEmail,
+                                      softWrap: true,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  )
+                                ]
+                            )
                         ),
                         const SizedBox(height: 20),
                         NavigationButton(
-                          icon: const Icon(Icons.person),
-                          text: const Text('Profile', semanticsLabel: 'Navigate to profile page'),
-                          onPressed: () {
-                            _navigationSelected(0);
-                          },
-                          isActive: navigationShell.currentIndex == 0
+                            icon: const Icon(Icons.person),
+                            text: const Text('Profile', semanticsLabel: 'Navigate to profile page'),
+                            onPressed: () {
+                              _navigationSelected(0);
+                            },
+                            isActive: navigationShell.currentIndex == 0
                         ),
                         const SizedBox(height: 10),
                         NavigationButton(
@@ -382,15 +385,15 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         const SizedBox(height: 10),
                         NavigationButton(
-                          icon: const Icon(Icons.security),
-                          text: const Text('Multi factor\nauthentication',
-                            softWrap: true,
-                            semanticsLabel: 'Navigate to MFA page'
-                          ),
-                          onPressed: () {
-                            _navigationSelected(2);
-                          },
-                          isActive: navigationShell.currentIndex == 2
+                            icon: const Icon(Icons.security),
+                            text: const Text('Multi factor\nauthentication',
+                                softWrap: true,
+                                semanticsLabel: 'Navigate to MFA page'
+                            ),
+                            onPressed: () {
+                              _navigationSelected(2);
+                            },
+                            isActive: navigationShell.currentIndex == 2
                         ),
                         const Spacer(),
                         Padding(
@@ -399,72 +402,72 @@ class _MyHomePageState extends State<MyHomePage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               TextButton(
-                                onPressed: () {
-                                  _navigationSelected(3);
-                                },
-                                child: const Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Text('Angeleno Home'),
-                                        SizedBox(width: 8),
-                                        Icon(Icons.open_in_new)
-                                      ],
-                                    ),
-                                  ],
-                                )
+                                  onPressed: () {
+                                    _navigationSelected(3);
+                                  },
+                                  child: const Column(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text('Angeleno Home'),
+                                          SizedBox(width: 8),
+                                          Icon(Icons.open_in_new)
+                                        ],
+                                      ),
+                                    ],
+                                  )
                               ),
                               const SizedBox(height: 5),
                               TextButton(
-                                onPressed: () {
-                                  _navigationSelected(4);
-                                },
-                                child: const Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Text('Services', softWrap: true, maxLines: 2,),
-                                        SizedBox(width: 8),
-                                        Icon(Icons.open_in_new)
-                                      ],
-                                    ),
-                                  ],
-                                )
+                                  onPressed: () {
+                                    _navigationSelected(4);
+                                  },
+                                  child: const Column(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text('Services', softWrap: true, maxLines: 2,),
+                                          SizedBox(width: 8),
+                                          Icon(Icons.open_in_new)
+                                        ],
+                                      ),
+                                    ],
+                                  )
                               ),
                               const SizedBox(height: 5),
                               TextButton(
-                                onPressed: () {
-                                  _navigationSelected(5);
-                                },
-                                child: const Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Text('Help'),
-                                        SizedBox(width: 8),
-                                        Icon(Icons.open_in_new)
-                                      ],
-                                    ),
-                                  ],
-                                )
+                                  onPressed: () {
+                                    _navigationSelected(5);
+                                  },
+                                  child: const Column(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text('Help'),
+                                          SizedBox(width: 8),
+                                          Icon(Icons.open_in_new)
+                                        ],
+                                      ),
+                                    ],
+                                  )
                               ),
                               const SizedBox(height: 5),
                               OutlinedButton(
-                                onPressed: () {
-                                  _navigationSelected(6);
-                                },
-                                child: const Column(
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Text('Logout'),
-                                        SizedBox(width: 8),
-                                        Icon(Icons.logout),
-                                      ],
-                                    ),
-                                  ],
-                                )
+                                  onPressed: () {
+                                    _navigationSelected(6);
+                                  },
+                                  child: const Column(
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text('Logout'),
+                                          SizedBox(width: 8),
+                                          Icon(Icons.logout),
+                                        ],
+                                      ),
+                                    ],
+                                  )
                               )
                             ],
                           ),
@@ -472,7 +475,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ],
                     ),
                   ),
-                  Expanded(child: body)
+                  screenWidth > 1550 ? body : Expanded(child: body)
                 ],
               ),
               bottomNavigationBar: Container(
