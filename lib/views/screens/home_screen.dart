@@ -345,6 +345,13 @@ class _MyHomePageState extends State<MyHomePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        const SizedBox(height: 10,),
+                        const Center(
+                          child: Text(
+                            'Angeleno Account',
+                            style: headerStyle,
+                          ),
+                        ),
                         Padding(
                             padding: const EdgeInsets.fromLTRB(10, 16, 10, 0),
                             child:
