@@ -254,9 +254,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 alignment: Alignment.topCenter,
                 width: double.infinity,
                 constraints: const BoxConstraints(maxWidth: 1280),
-                padding: const EdgeInsets.fromLTRB(
-                    10, 0, 10, 0
-                ),
+                padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                 color: Colors.black.withValues(alpha: 0.25),
                 child: const LinearProgressIndicator(),
               )
