@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:angeleno_project/controllers/overlay_provider.dart';
 import 'package:angeleno_project/utils/constants.dart';
 import 'package:angeleno_project/views/screens/mfa_screen.dart';
@@ -64,13 +66,13 @@ class _MyHomePageState extends State<MyHomePage> {
     _periodicCheckTimer = Timer.periodic(const Duration(seconds: 1), (final timer) {
       final now = DateTime.now();
       final elapsed = now.difference(_lastActivityTime);
-      const totalTimeout = Duration(minutes: 3);
+      const totalTimeout = Duration(minutes: 15);
       final secondsLeft = totalTimeout.inSeconds - elapsed.inSeconds;
       _secondsLeft.value = secondsLeft > 0 ? secondsLeft : 0;
 
       if (elapsed >= totalTimeout) {
         _handleAutoLogout();
-      } else if (elapsed >= const Duration(minutes: 1) && !_isWarningDialogVisible) {
+      } else if (elapsed >= const Duration(minutes: 15 - 2) && !_isWarningDialogVisible) {
         _showInactivityWarning();
       }
     });
@@ -274,11 +276,16 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Scaffold(
               key: scaffoldKey,
               appBar: isSmallScreen ? AppBar(
-                leadingWidth: 50,
-                leading: IconButton(
-                    key: const Key('menuButton'),
+                leadingWidth: 100,
+                leading: Padding(
+                  padding: const EdgeInsets.all(7.5),
+                  child: FilledButton(
                     onPressed: () { scaffoldKey.currentState!.openDrawer(); },
-                    icon: const Icon(Icons.menu, semanticLabel: 'Menu button',),
+                    child: const Text('Menu',
+                      style: TextStyle(
+                      )
+                    ),
+                  ),
                 ),
                 title: const Text('Angeleno Account',
                   style: TextStyle(fontWeight: FontWeight.bold),
@@ -290,7 +297,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 children:  <Widget>[
                   Padding(
                     padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
-                    child: Text('My Account - $userEmail'),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Angeleno Account', style: headerStyle,),
+                        Text( userEmail, style: const TextStyle(fontWeight: FontWeight.bold),)
+                      ],
+                    ),
                   ),
                   const NavigationDrawerDestination(
                       label: Text('Profile', semanticsLabel: 'Navigate to profile page'),
@@ -301,25 +314,21 @@ class _MyHomePageState extends State<MyHomePage> {
                       icon: Icon(Icons.password)
                   ),
                   const NavigationDrawerDestination(
-                      label: Text('Security', semanticsLabel: 'Navigate to security page'),
+                      label: Text('Multi-factor authentication', semanticsLabel: 'Navigate to multi-factor authentication page'),
                       icon: Icon(Icons.security)
                   ),
                   const Divider(),
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(28, 16, 16, 10),
-                    child: Text('Angeleno'),
-                  ),
                   const NavigationDrawerDestination(
                       label: Text('Home', semanticsLabel: 'Link to angeleno home page'),
-                      icon: Icon(Icons.home)
+                      icon: Icon(Icons.open_in_new)
                   ),
                   const NavigationDrawerDestination(
-                      label: Text('Services', semanticsLabel: 'Link to angeleno partner services page'),
-                      icon: Icon(Icons.grid_view)
+                      label: Text('Partner Services', semanticsLabel: 'Link to angeleno partner services page'),
+                      icon: Icon(Icons.open_in_new)
                   ),
                   const NavigationDrawerDestination(
                       label: Text('Help', semanticsLabel: 'Link to angeleno help page'),
-                      icon: Icon(Icons.question_mark)
+                      icon: Icon(Icons.open_in_new)
                   ),
                   const Padding(
                     padding: EdgeInsets.fromLTRB(28, 16, 28, 10),
@@ -337,7 +346,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 children: [
                   ConstrainedBox(
                     constraints: const BoxConstraints(
-                        maxWidth: 250
+                        maxWidth: 280
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -351,7 +360,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         ),
                         Padding(
-                            padding: const EdgeInsets.fromLTRB(10, 16, 10, 0),
+                            padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                             child:
                             Row(
                                 children: [
@@ -391,7 +400,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         const SizedBox(height: 10),
                         NavigationButton(
                             icon: const Icon(Icons.security),
-                            text: const Text('Multi factor\nauthentication',
+                            text: const Text('Multi-factor authentication',
                                 softWrap: true,
                                 semanticsLabel: 'Navigate to MFA page'
                             ),
@@ -414,7 +423,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     children: [
                                       Row(
                                         children: [
-                                          Text('Angeleno Home'),
+                                          Text('Home'),
                                           SizedBox(width: 8),
                                           Icon(Icons.open_in_new)
                                         ],
@@ -431,7 +440,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     children: [
                                       Row(
                                         children: [
-                                          Text('Services', softWrap: true, maxLines: 2,),
+                                          Text('Partner Services', softWrap: true, maxLines: 2,),
                                           SizedBox(width: 8),
                                           Icon(Icons.open_in_new)
                                         ],
@@ -480,7 +489,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ],
                     ),
                   ),
-                  screenWidth > 1550 ? body : Expanded(child: body)
+                  screenWidth > 1580 ? body : Expanded(child: body)
                 ],
               ),
               bottomNavigationBar: Container(
