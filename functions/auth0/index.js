@@ -38,7 +38,7 @@ function getKey(header, callback){
 app.use((req, res, next) => {
 
   const accessTokenHeader = req.headers['X-ACCESS-TOKEN'] || req.headers['x-access-token'];
-  const userId = req.body.userId;
+  const userId = req.body.userId || req.query.userId;
 
   if (!accessTokenHeader) {
     return res.status(401).send('Unauthorized: No token provided');
@@ -60,7 +60,7 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
-app.get('/auth0/authMethods/:userId', authMethods);
+app.get('/auth0/authMethods', authMethods);
 app.post('/auth0/updateUser', updateUser);
 app.post('/auth0/updatePassword', updatePassword);
 app.post('/auth0/enrollMFA', enrollMFA);
