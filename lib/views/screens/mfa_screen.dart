@@ -33,9 +33,10 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
   late List<Service> _connectedServices;
   late VoidCallback _userListener;
 
-  bool authenticatorEnabled = false;
-  bool smsEnabled = false;
-  bool voiceEnabled = false;
+  bool _authenticatorEnabled = false;
+  bool _smsEnabled = false;
+  bool _voiceEnabled = false;
+  bool _isInitialized = false;
 
   String totpAuthId = '';
   String smsAuthId = '';
@@ -52,21 +53,27 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    userProvider = Provider.of(context, listen: false);
-    auth0UserApi = Auth0UserApi(userProvider);
 
-    _userListener = () {
+    if (!_isInitialized) {
+      userProvider = Provider.of(context, listen: false);
+      auth0UserApi = Auth0UserApi(userProvider);
+
+      _userListener = () {
+        print('hey');
+        if (userProvider.user != null) {
+          _triggerAuthMethods();
+        }
+      };
+
+      userProvider.removeListener(_userListener);
+      userProvider.addListener(_userListener);
+
       if (userProvider.user != null) {
         _triggerAuthMethods();
       }
-    };
-
-    userProvider.removeListener(_userListener);
-    userProvider.addListener(_userListener);
-
-    if (userProvider.user != null) {
-     _triggerAuthMethods();
+      _isInitialized = true;
     }
+
   }
 
   @override
@@ -115,7 +122,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
 
               switch(type) {
                 case 'totp':
-                  authenticatorEnabled = true;
+                  _authenticatorEnabled = true;
                   totpAuthId = methodId;
                   break;
                 case 'phone':
@@ -123,11 +130,11 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
                   final prefMethod =
                   element['preferred_authentication_method'] as String;
                   if (prefMethod == 'sms') {
-                    smsEnabled = true;
+                    _smsEnabled = true;
                     smsAuthId = methodId;
                     mfaMethod.oobChannel = 'sms';
                   } else {
-                    voiceEnabled = true;
+                    _voiceEnabled = true;
                     voiceAuthId = methodId;
                     mfaMethod.oobChannel = 'voice';
                   }
@@ -215,7 +222,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
                             softWrap: true,
                           ),
                         ),
-                        authenticatorEnabled ?
+                        _authenticatorEnabled ?
                         FilledButton.tonal(
                           key: const Key('disableAuthenticator'),
                           onPressed: () => showDialog<int>(
@@ -249,7 +256,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
                             )
                           ).then((final value) {
                             if (value != null && value == HttpStatus.ok) {
-                              authenticatorEnabled = false;
+                              _authenticatorEnabled = false;
                             }
                           }),
                           child: const Text('Disable', semanticsLabel: 'Disable authenticator application'),
@@ -283,7 +290,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text('SMS text'),
-                        smsEnabled ?
+                        _smsEnabled ?
                         FilledButton.tonal(
                           key: const Key('disableSMS'),
                           onPressed: () => showDialog<int>(
@@ -319,7 +326,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
                             )
                           ).then((final value) {
                             if (value != null && value == HttpStatus.ok) {
-                              smsEnabled = false;
+                              _smsEnabled = false;
                             }
                           }),
                           child: const Text('Disable', semanticsLabel: 'Disable sms mfa'),
@@ -354,7 +361,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text('Phone call'),
-                        voiceEnabled ?
+                        _voiceEnabled ?
                         FilledButton.tonal(
                           key: const Key('disableVoice'),
                           onPressed: () => showDialog<int>(
@@ -390,7 +397,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
                             )
                           ).then((final value) {
                             if (value != null && value == HttpStatus.ok) {
-                              voiceEnabled = false;
+                              _voiceEnabled = false;
                             }
                           }),
                           child: const Text('Disable', semanticsLabel: 'Disable voice authentication'),
