@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 /* Environment variables */
 const auth0ClientId = String.fromEnvironment('CLIENT_ID');
 const auth0Domain = String.fromEnvironment('AUTH0_DOMAIN');
+const auth0NonCustomDomain = String.fromEnvironment('AUTH0_NON_CUSTOM_DOMAIN');
 const redirectUri = String.fromEnvironment('REDIRECT_URI');
 const cloudFunctionURL =
     String.fromEnvironment('CLOUD_FUNCTIONS_URL');
