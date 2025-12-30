@@ -31,6 +31,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
   late UserProvider userProvider;
   late Future<void> _authMethods;
   late List<Service> _connectedServices;
+  late VoidCallback _userListener;
 
   bool authenticatorEnabled = false;
   bool smsEnabled = false;
@@ -45,19 +46,33 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
   @override
   void initState() {
     super.initState();
-    auth0UserApi = Auth0UserApi();
-    userProvider = Provider.of(context, listen: false);
     _authMethods = Future.value();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    userProvider = Provider.of(context, listen: false);
+    auth0UserApi = Auth0UserApi(userProvider);
+
+    _userListener = () {
+      if (userProvider.user != null) {
+        _triggerAuthMethods();
+      }
+    };
+
+    userProvider.removeListener(_userListener);
+    userProvider.addListener(_userListener);
 
     if (userProvider.user != null) {
-      _triggerAuthMethods();
-    } else {
-      userProvider.addListener(() {
-        if (userProvider.user != null) {
-          _triggerAuthMethods();
-        }
-      });
+     _triggerAuthMethods();
     }
+  }
+
+  @override
+  void dispose() {
+    userProvider.removeListener(_userListener);
+    super.dispose();
   }
 
   void _triggerAuthMethods() {
@@ -166,7 +181,6 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
 
   @override
   Widget build(final BuildContext context) {
-    userProvider = context.watch<UserProvider>();
 
     if (userProvider.user == null) {
       return const LinearProgressIndicator();

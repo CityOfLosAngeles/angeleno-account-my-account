@@ -28,12 +28,11 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
-  final Auth0UserApi auth0UserApi = Auth0UserApi();
-
   late StatefulNavigationShell navigationShell;
+  late Auth0UserApi auth0UserApi;
   late UserProvider userProvider;
-  late User user;
   late OverlayProvider overlayProvider;
+  late User user;
 
   Timer? _inactivityTimer;
   Timer? _logoutTimer;
@@ -47,6 +46,14 @@ class _MyHomePageState extends State<MyHomePage> {
     if (_inactivityTimer == null || _logoutTimer == null) {
       _resetInactivityTimer();
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    userProvider = Provider.of<UserProvider>(context);
+    overlayProvider = context.watch<OverlayProvider>();
+    auth0UserApi = Auth0UserApi(userProvider);
   }
 
   @override
@@ -201,8 +208,6 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(final BuildContext context) {
     var userEmail = '';
 
-    overlayProvider = context.watch<OverlayProvider>();
-    userProvider = context.watch<UserProvider>();
     navigationShell = widget.navigationShell;
 
     if (userProvider.user != null) {
