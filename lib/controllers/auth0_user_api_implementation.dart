@@ -107,7 +107,7 @@ class Auth0UserApi extends Api {
           Uri.parse('/auth0/updateUser'),
           headers: headers,
           body: body
-      ).timeout(const Duration(seconds: 5));
+      ).timeout(const Duration(seconds: 20));
 
       if (response.statusCode == HttpStatus.ok) {
         print(response.body);
