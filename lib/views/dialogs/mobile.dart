@@ -113,6 +113,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
     }
 
     final Map<String, String> body = {
+      'userId': userProvider.user!.userId,
       'email': userProvider.user!.email,
       'password': passwordField.text,
       'mfaFactor': 'oob',
@@ -165,6 +166,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
     }
 
     final Map<String, String> body = {
+      'userId': userProvider.user!.userId,
       'mfaToken': mfaToken,
       'oobCode': oobCode,
       'userOtpCode': codeProvided
@@ -192,6 +194,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
 
   void getMfaToken() async {
     final Map<String, String> body = {
+      'userId': userProvider.user!.userId,
       'mfaToken': mfaToken,
       'oobCode': oobCode,
       'bindingCode': mfaCode
@@ -343,6 +346,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
                     } else {
 
                       final Map<String, String> body = {
+                        'userId': userProvider.user!.userId,
                         'mfaToken': mfaToken,
                         'authenticatorId': 'oob',
                         'bindingCode': oobCode
