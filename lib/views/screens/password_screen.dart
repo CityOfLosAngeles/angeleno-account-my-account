@@ -47,7 +47,14 @@ class _PasswordScreenState extends State<PasswordScreen> with RouteAware, Datado
   @override
   void initState() {
     super.initState();
-    auth0UserApi = Auth0UserApi();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    overlayProvider = context.watch<OverlayProvider>();
+    userProvider = context.watch<UserProvider>();
+    auth0UserApi = Auth0UserApi(userProvider);
   }
 
   Future<void> submitRequest() async {
@@ -97,175 +104,170 @@ class _PasswordScreenState extends State<PasswordScreen> with RouteAware, Datado
 
 
   @override
-  Widget build(final BuildContext context) {
-    overlayProvider = context.watch<OverlayProvider>();
-    userProvider = context.watch<UserProvider>();
-
-    return ListView(
-      children: [
-        Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            child: Semantics(
-                header: true,
-                child: const Text(
-                    'Password change',
-                    textAlign: TextAlign.left,
-                    style: headerStyle
-                )
+  Widget build(final BuildContext context) => ListView(
+    children: [
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Semantics(
+          header: true,
+          child: const Text(
+            'Password change',
+            textAlign: TextAlign.left,
+            style: headerStyle
+          )
+        )
+      ),
+      TextFormField(
+        obscureText: !isPasswordVisible,
+        autocorrect: false,
+        key: const Key('old_password'),
+        enableSuggestions: false,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        validator: (final value) {
+          if (value == null || value.trim().isEmpty) {
+            return 'Password is required';
+          }
+          return null;
+        },
+        decoration: InputDecoration(
+          border: const OutlineInputBorder(),
+          label: const Text('Current password'),
+          suffixIcon: IconButton(
+            key: const Key('toggle_old_password'),
+            tooltip: '${isPasswordVisible ? 'Hide' : 'Show'} password',
+            onPressed: () {
+              setState(() {
+                isPasswordVisible = !isPasswordVisible;
+              });
+            },
+            icon: Icon(
+              isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+              semanticLabel: '${isPasswordVisible ? 'Hide' : 'Show'} password'
             )
+          )
         ),
-        TextFormField(
-          obscureText: !isPasswordVisible,
-          autocorrect: false,
-          key: const Key('old_password'),
-          enableSuggestions: false,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          validator: (final value) {
-            if (value == null || value.trim().isEmpty) {
-              return 'Password is required';
-            }
-            return null;
-          },
-          decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              label: const Text('Current password'),
-              suffixIcon: IconButton(
-                  key: const Key('toggle_old_password'),
-                  tooltip: '${isPasswordVisible ? 'Hide' : 'Show'} password',
-                  onPressed: () {
-                    setState(() {
-                      isPasswordVisible = !isPasswordVisible;
-                    });
-                  },
-                  icon: Icon(
-                      isPasswordVisible ? Icons.visibility_off : Icons.visibility,
-                      semanticLabel: '${isPasswordVisible ? 'Hide' : 'Show'} password'
-                  )
-              )
+        onChanged: (final value) {
+          setState(() {
+            currentPassword = value;
+            _isButtonDisabled = enablePasswordSubmit();
+          });
+        },
+      ),
+      const SizedBox(height: 10),
+      Row(
+        children: [
+          const Text('Password must:',
+            style: TextStyle(fontWeight: FontWeight.bold)
           ),
-          onChanged: (final value) {
-            setState(() {
-              currentPassword = value;
-              _isButtonDisabled = enablePasswordSubmit();
-            });
-          },
-        ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            const Text('Password must:',
-                style: TextStyle(fontWeight: FontWeight.bold)
-            ),
-            const SizedBox(width: 10),
-            Text(
-                'Be at least $minPasswordLength characters',
-                style: TextStyle(
-                    color: acceptableLength
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.error
-                )
+          const SizedBox(width: 10),
+          Text(
+            'Be at least $minPasswordLength characters',
+            style: TextStyle(
+              color: acceptableLength
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.error
             )
-          ],
-        ),
-        const SizedBox(height: 5),
-        TextFormField(
-          obscureText: !isNewPasswordVisible,
-          autocorrect: false,
-          key: const Key('new_password'),
-          enableSuggestions: false,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          validator: (final value) {
-            if (value == null || value.trim().isEmpty) {
-              return 'Password is required';
-            }
+          )
+        ],
+      ),
+      const SizedBox(height: 5),
+      TextFormField(
+        obscureText: !isNewPasswordVisible,
+        autocorrect: false,
+        key: const Key('new_password'),
+        enableSuggestions: false,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        validator: (final value) {
+          if (value == null || value.trim().isEmpty) {
+            return 'Password is required';
+          }
 
-            if (value.length < minPasswordLength) {
-              // ignore: avoid_escaping_inner_quotes
-              return 'Password doesn\'t meet requirements';
-            }
+          if (value.length < minPasswordLength) {
+            // ignore: avoid_escaping_inner_quotes
+            return 'Password doesn\'t meet requirements';
+          }
 
-            return null;
-          },
-          decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              label: const Text('New password'),
-              suffixIcon: IconButton(
-                  key: const Key('toggle_new_password'),
-                  tooltip: '${isNewPasswordVisible ? 'Hide' : 'Show'} new password',
-                  onPressed: () {
-                    setState(() {
-                      isNewPasswordVisible = !isNewPasswordVisible;
-                    });
-                  },
-                  icon: Icon(
-                      isNewPasswordVisible ? Icons.visibility_off : Icons.visibility,
-                      semanticLabel: '${isNewPasswordVisible ? 'Hide' : 'Show'} new password'
-                  )
-              )
-          ),
-          onChanged: (final value) {
-            setState(() {
-              newPassword = value;
-              _isButtonDisabled = enablePasswordSubmit();
-              acceptableLength = value.length >= minPasswordLength;
-            });
-          },
-        ),
-        const SizedBox(height: 10.0),
-        TextFormField(
-          obscureText: !isPasswordMatchVisible,
-          autocorrect: false,
-          key: const Key('match_password'),
-          enableSuggestions: false,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          validator: (final value) {
-            if (value == null || value.trim().isEmpty) {
-              return 'Password is required';
-            }
-            if (newPassword != value) {
-              return "Passwords don't match";
-            }
-            return null;
-          },
-          decoration: InputDecoration(
-            border: const OutlineInputBorder(),
-            label: const Text('Confirm new password'),
-            suffixIcon: IconButton(
-                key: const Key('toggle_match_password'),
-                tooltip: '${isPasswordMatchVisible ? 'Hide' : 'Show'} new password confirmation',
-                onPressed: () {
-                  setState(() {
-                    isPasswordMatchVisible = !isPasswordMatchVisible;
-                  });
-                },
-                icon: Icon(
-                    isPasswordMatchVisible ? Icons.visibility_off : Icons.visibility,
-                    semanticLabel: '${isPasswordMatchVisible ? 'Hide' : 'Show'} new password confirmation'
-                )
-            ),
-
-          ),
-          onChanged: (final value) {
-            setState(() {
-              passwordMatch = value;
-              _isButtonDisabled = enablePasswordSubmit();
-            });
-          },
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (errorMsg.isNotEmpty)
-              ErrorMessage(message: errorMsg),
-            const SizedBox(height: 10.0),
-            FilledButton(
-              onPressed: _isButtonDisabled ? null : () => submitRequest(),
-              child: const Text('Update password and logout'),
+          return null;
+        },
+        decoration: InputDecoration(
+          border: const OutlineInputBorder(),
+          label: const Text('New password'),
+          suffixIcon: IconButton(
+            key: const Key('toggle_new_password'),
+            tooltip: '${isNewPasswordVisible ? 'Hide' : 'Show'} new password',
+            onPressed: () {
+              setState(() {
+                isNewPasswordVisible = !isNewPasswordVisible;
+              });
+            },
+            icon: Icon(
+              isNewPasswordVisible ? Icons.visibility_off : Icons.visibility,
+              semanticLabel: '${isNewPasswordVisible ? 'Hide' : 'Show'} new password'
             )
-          ],
+          )
         ),
-      ],
-    );
-  }
+        onChanged: (final value) {
+          setState(() {
+            newPassword = value;
+            _isButtonDisabled = enablePasswordSubmit();
+            acceptableLength = value.length >= minPasswordLength;
+          });
+        },
+      ),
+      const SizedBox(height: 10.0),
+      TextFormField(
+        obscureText: !isPasswordMatchVisible,
+        autocorrect: false,
+        key: const Key('match_password'),
+        enableSuggestions: false,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        validator: (final value) {
+          if (value == null || value.trim().isEmpty) {
+            return 'Password is required';
+          }
+          if (newPassword != value) {
+            return "Passwords don't match";
+          }
+          return null;
+        },
+        decoration: InputDecoration(
+          border: const OutlineInputBorder(),
+          label: const Text('Confirm new password'),
+          suffixIcon: IconButton(
+            key: const Key('toggle_match_password'),
+            tooltip: '${isPasswordMatchVisible ? 'Hide' : 'Show'} new password confirmation',
+            onPressed: () {
+              setState(() {
+                isPasswordMatchVisible = !isPasswordMatchVisible;
+              });
+            },
+            icon: Icon(
+              isPasswordMatchVisible ? Icons.visibility_off : Icons.visibility,
+              semanticLabel: '${isPasswordMatchVisible ? 'Hide' : 'Show'} new password confirmation'
+            )
+          ),
+
+        ),
+        onChanged: (final value) {
+          setState(() {
+            passwordMatch = value;
+            _isButtonDisabled = enablePasswordSubmit();
+          });
+        },
+      ),
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (errorMsg.isNotEmpty)
+            ErrorMessage(message: errorMsg),
+          const SizedBox(height: 10.0),
+          FilledButton(
+            onPressed: _isButtonDisabled ? null : () => submitRequest(),
+            child: const Text('Update password and logout'),
+          )
+        ],
+      ),
+    ],
+  );
 
 }

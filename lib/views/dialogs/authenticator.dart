@@ -92,6 +92,7 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
     }
 
     final Map<String, String> body = {
+      'userId': userProvider.user!.userId,
       'email': userProvider.user!.email,
       'password': passwordField.text,
       'mfaFactor': 'otp',
@@ -146,6 +147,7 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
     }
 
     final Map<String, String> body = {
+      'userId': userProvider.user!.userId,
       'mfaToken': mfaToken,
       'userOtpCode': authenticatorCode
     };
@@ -171,6 +173,7 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
 
   void getMfaToken() async {
     final Map<String, String> body = {
+      'userId': userProvider.user!.userId,
       'mfaToken': mfaToken,
       'oobCode': oobCode,
       'bindingCode': mfaCode
@@ -306,6 +309,7 @@ Align(
                 return TextButton(
                   onPressed: () async {
                     final Map<String, String> body = {
+                      'userId': userProvider.user!.userId,
                       'mfaToken': mfaToken,
                       'authenticatorId': 'oob'
                     };

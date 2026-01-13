@@ -24,16 +24,23 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
-  final Auth0UserApi auth0UserApi = Auth0UserApi();
-
   late StatefulNavigationShell navigationShell;
+  late Auth0UserApi auth0UserApi;
   late UserProvider userProvider;
-  late User user;
   late OverlayProvider overlayProvider;
+  late User user;
 
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    userProvider = Provider.of<UserProvider>(context);
+    overlayProvider = context.watch<OverlayProvider>();
+    auth0UserApi = Auth0UserApi(userProvider);
   }
 
   Future<void> _unsavedDataDialog(final int futureIndex) async =>
@@ -113,9 +120,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(final BuildContext context) {
      var userEmail = '';
 
-     overlayProvider = Provider.of<OverlayProvider>(context);
-     userProvider = context.watch<UserProvider>();
-     navigationShell = widget.navigationShell;
+    navigationShell = widget.navigationShell;
 
      if (userProvider.user != null) {
        user = userProvider.user!;
