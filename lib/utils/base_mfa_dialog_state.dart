@@ -53,7 +53,7 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
   );
 
   void navigateToNextPage() {
-    if (pageIndex <= 4) {
+    if (pageIndex <= dialogNext.length - 1) {
       setState(() {
         pageIndex += 1;
       });
