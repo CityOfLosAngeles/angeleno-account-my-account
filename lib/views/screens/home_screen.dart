@@ -1,11 +1,8 @@
-import 'dart:ui';
-
 import 'package:angeleno_project/controllers/overlay_provider.dart';
 import 'package:angeleno_project/utils/constants.dart';
 import 'package:angeleno_project/views/screens/mfa_screen.dart';
 import 'package:angeleno_project/views/screens/password_screen.dart';
 import 'package:angeleno_project/views/screens/profile_screen.dart';
-
 import 'package:datadog_flutter_plugin/datadog_flutter_plugin.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -30,15 +27,14 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
-  final Auth0UserApi auth0UserApi = Auth0UserApi();
+  late StatefulNavigationShell navigationShell;
+  late Auth0UserApi auth0UserApi;
+  late UserProvider userProvider;
+  late OverlayProvider overlayProvider;
+  late User user;
+
   final ValueNotifier<int> _secondsLeft = ValueNotifier<int>(0);
   DateTime _lastActivityTime = DateTime.now();
-
-  late StatefulNavigationShell navigationShell;
-  late UserProvider userProvider;
-  late User user;
-  late OverlayProvider overlayProvider;
-
   Timer? _periodicCheckTimer;
   bool _isWarningDialogVisible = false;
 
@@ -46,6 +42,14 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _startPeriodicCheck();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    userProvider = Provider.of<UserProvider>(context);
+    overlayProvider = context.watch<OverlayProvider>();
+    auth0UserApi = Auth0UserApi(userProvider);
   }
 
   @override
@@ -208,27 +212,25 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(final BuildContext context) {
-    var userEmail = '';
+     var userEmail = '';
 
     final double screenWidth = MediaQuery.of(context).size.width;
     final double screenHeight = MediaQuery.of(context).size.height;
     final bool isSmallScreen = screenWidth < smallScreenWidthBreakpoint || screenHeight < smallScreenWidthBreakpoint;
 
-    overlayProvider = context.watch<OverlayProvider>();
-    userProvider = context.watch<UserProvider>();
     navigationShell = widget.navigationShell;
 
-    if (userProvider.user != null) {
-      user = userProvider.user!;
-      userEmail = user.email;
-    } else {
-      return Center(
-          child: SizedBox(
-            width: MediaQuery.of(context).size.width * 0.5,
-            child: const LinearProgressIndicator(),
-          )
-      );
-    }
+     if (userProvider.user != null) {
+       user = userProvider.user!;
+       userEmail = user.email;
+     } else {
+       return Center(
+           child: SizedBox(
+             width: MediaQuery.of(context).size.width * 0.5,
+             child: const LinearProgressIndicator(),
+           )
+       );
+     }
 
     final body = Stack(
       children: [
@@ -508,7 +510,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       onPressed: () async {
                         await launchUrl(
-                          Uri.parse('https://disclaimer.lacity.org/disclaimer.htm')
+                            Uri.parse('https://disclaimer.lacity.org/disclaimer.htm')
                         );
                       },
                       child: const Text('Disclaimer')

@@ -43,7 +43,7 @@ dependencies:
       url: https://github.com/natintosh/intl_phone_number_input
       ref: v0.8.0
   url_strategy: ^0.2.0
-  datadog_flutter_plugin: ^2.10.0
+  datadog_flutter_plugin: ^2.14.0
   datadog_tracking_http_client: ^2.2.0
   go_router: ^16.0.0
 

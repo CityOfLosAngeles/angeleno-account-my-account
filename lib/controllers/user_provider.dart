@@ -8,17 +8,19 @@ import '../utils/constants.dart';
 class UserProvider extends ChangeNotifier {
   final Auth0Web auth0Web = Auth0Web(auth0Domain, auth0ClientId);
   User? _user;
+  String? _accessToken;
   User? _cleanUser;
   bool _isEditing = false;
 
   UserProvider() {
     // temporary, to skip tests
     if (auth0Domain.isNotEmpty) {
-      auth0Web.onLoad().then((final credentials) async {
+      auth0Web.onLoad(audience: 'https://$auth0NonCustomDomain/api/v2/').then((final credentials) async {
         if (credentials != null
             && await auth0Web.hasValidCredentials()) {
 
           setUser(credentials.user);
+          setAccessToken(credentials.accessToken);
 
           DatadogSdk.instance.setUserInfo(
             email: credentials.user.email,
@@ -55,21 +57,27 @@ class UserProvider extends ChangeNotifier {
     }
 
     _user = User(
-        userId: user.sub,
-        email: user.email!,
-        firstName: user.givenName ?? '',
-        lastName: user.familyName ?? '',
-        zip: userAddress.zip,
-        address: userAddress.address,
-        address2: userAddress.address2,
-        city: userAddress.city,
-        state: userAddress.state,
-        phone: phone,
-        metadata: metadata
+      userId: user.sub,
+      email: user.email!,
+      firstName: user.givenName ?? '',
+      lastName: user.familyName ?? '',
+      zip: userAddress.zip,
+      address: userAddress.address,
+      address2: userAddress.address2,
+      city: userAddress.city,
+      state: userAddress.state,
+      phone: phone,
+      metadata: metadata
     );
 
     notifyListeners();
   }
+
+  void setAccessToken(final String accessToken) {
+    _accessToken = accessToken;
+  }
+
+  String? getAccessToken() => _accessToken;
 
   void setCleanUser(final User user) {
     _cleanUser = User.copy(user);
