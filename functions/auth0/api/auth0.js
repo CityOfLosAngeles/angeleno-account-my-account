@@ -148,7 +148,7 @@ export const updatePassword = onRequest(async (req, res) => {
 });
 
 export const authMethods = onRequest(async (req, res) => {
-  const userId = req.params.userId;
+  const userId = req.query.userId;
 
   if (!userId) {
     res.status(400).send('Invalid request - missing required fields.');
