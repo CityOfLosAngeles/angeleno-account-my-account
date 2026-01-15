@@ -10,11 +10,12 @@ import 'package:datadog_flutter_plugin/datadog_flutter_plugin.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:url_strategy/url_strategy.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
+
 
 Future<void> main() async {
 
-  setPathUrlStrategy();
+  usePathUrlStrategy();
 
   await DatadogSdk.runApp(datadogConfig, TrackingConsent.granted, () async {
     runApp(
