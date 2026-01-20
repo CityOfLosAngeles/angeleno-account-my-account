@@ -34,7 +34,7 @@ final logger = DatadogSdk.instance.logs?.createLogger(logConfiguration);
 final RegExp nameRegEx = RegExp(r"^[a-zA-ZÀ-ÿ\s'\-\d]*$");
 
 /* Media Query Breakpoints */
-const double smallScreen = 575;
+const double smallScreenWidthBreakpoint = 575;
 
 /* Text Styles */
 const headerStyle = TextStyle(
