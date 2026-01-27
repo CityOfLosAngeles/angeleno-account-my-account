@@ -45,7 +45,6 @@ jobs:
               echo ENVIRONMENT="${{ secrets.ENVIRONMENT }}" >> .env
               echo DATADOG_CLIENT_TOKEN="${{ secrets.DATADOG_CLIENT_TOKEN }}" >> .env
               echo DATADOG_APP_ID="${{ secrets.DATADOG_APP_ID }}" >> .env
-      - run: flutter build web --dart-define-from-file=.env
 
       - name: Update .firebaserc
         run: |
@@ -73,6 +72,7 @@ jobs:
         run: |
           sed -i 's|https://account.lacity.gov|https://sandbox.account.lacity.gov|g' lib/controllers/user_provider.dart lib/views/screens/home_screen.dart
 
+      - run: flutter build web --dart-define-from-file=.env
 
       - name: Deploy to Firebase Hosting (DEV)
         if: ${{ github.event.pull_request.base.ref == 'development' }}
