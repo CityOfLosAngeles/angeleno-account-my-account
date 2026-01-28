@@ -247,27 +247,32 @@ class _PasswordScreenState extends State<PasswordScreen> with RouteAware, Datado
             )
           ),
 
+          ),
+          onChanged: (final value) {
+            setState(() {
+              passwordMatch = value;
+              _isButtonDisabled = enablePasswordSubmit();
+            });
+          },
         ),
-        onChanged: (final value) {
-          setState(() {
-            passwordMatch = value;
-            _isButtonDisabled = enablePasswordSubmit();
-          });
-        },
-      ),
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (errorMsg.isNotEmpty)
-            ErrorMessage(message: errorMsg),
-          const SizedBox(height: 10.0),
-          FilledButton(
-            onPressed: _isButtonDisabled ? null : () => submitRequest(),
-            child: const Text('Update password and logout'),
-          )
-        ],
-      ),
-    ],
-  );
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (errorMsg.isNotEmpty)
+              HtmlWidget(errorMsg,
+                textStyle: TextStyle(
+                  color: Theme.of(context).colorScheme.error
+                ),
+              ),
+            const SizedBox(height: 10.0),
+            FilledButton(
+              onPressed: _isButtonDisabled ? null : () => submitRequest(),
+              child: const Text('Update password and logout'),
+            )
+          ],
+        ),
+      ],
+    );
+  }
 
 }
