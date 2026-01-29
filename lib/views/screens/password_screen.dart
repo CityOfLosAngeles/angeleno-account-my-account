@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:angeleno_project/models/password_reset.dart';
 import 'package:angeleno_project/utils/constants.dart';
-import 'package:angeleno_project/utils/error_message.dart';
 import 'package:datadog_flutter_plugin/datadog_flutter_plugin.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:provider/provider.dart';
 
 import '../../controllers/auth0_user_api_implementation.dart';
@@ -273,6 +273,4 @@ class _PasswordScreenState extends State<PasswordScreen> with RouteAware, Datado
         ),
       ],
     );
-  }
-
 }
