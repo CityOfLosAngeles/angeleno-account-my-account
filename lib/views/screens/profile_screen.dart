@@ -44,7 +44,14 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
   @override
   void initState() {
     super.initState();
-    auth0UserApi = Auth0UserApi();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    overlayProvider = context.watch<OverlayProvider>();
+    userProvider = context.watch<UserProvider>();
+    auth0UserApi = Auth0UserApi(userProvider);
   }
 
   Future<void> updateUser() async {
@@ -84,8 +91,6 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
 
   @override
   Widget build(final BuildContext context) {
-    overlayProvider = context.watch<OverlayProvider>();
-    userProvider = context.watch<UserProvider>();
 
     if (userProvider.user != null) {
       user = userProvider.user!;
