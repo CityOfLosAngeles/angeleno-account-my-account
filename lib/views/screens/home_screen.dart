@@ -3,7 +3,6 @@ import 'package:angeleno_project/utils/constants.dart';
 import 'package:angeleno_project/views/screens/mfa_screen.dart';
 import 'package:angeleno_project/views/screens/password_screen.dart';
 import 'package:angeleno_project/views/screens/profile_screen.dart';
-
 import 'package:datadog_flutter_plugin/datadog_flutter_plugin.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -14,6 +13,7 @@ import 'dart:async';
 import '../../controllers/auth0_user_api_implementation.dart';
 import '../../controllers/user_provider.dart';
 import '../../models/user.dart';
+import '../../widgets/navigation_button.dart';
 
 class MyHomePage extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
@@ -24,46 +24,62 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-
 class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
-  final Auth0UserApi auth0UserApi = Auth0UserApi();
-
   late StatefulNavigationShell navigationShell;
+  late Auth0UserApi auth0UserApi;
   late UserProvider userProvider;
-  late User user;
   late OverlayProvider overlayProvider;
+  late User user;
 
-  Timer? _inactivityTimer;
-  Timer? _logoutTimer;
+  final ValueNotifier<int> _secondsLeft = ValueNotifier<int>(0);
+  DateTime _lastActivityTime = DateTime.now();
+  Timer? _periodicCheckTimer;
   bool _isWarningDialogVisible = false;
-
 
   @override
   void initState() {
     super.initState();
+    _startPeriodicCheck();
+  }
 
-    if (_inactivityTimer == null || _logoutTimer == null) {
-      _resetInactivityTimer();
-    }
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    userProvider = Provider.of<UserProvider>(context);
+    overlayProvider = context.watch<OverlayProvider>();
+    auth0UserApi = Auth0UserApi(userProvider);
   }
 
   @override
   void dispose() {
-    _inactivityTimer?.cancel();
-    _logoutTimer?.cancel();
+    _periodicCheckTimer?.cancel();
     super.dispose();
   }
 
-  void _resetInactivityTimer() {
-    _inactivityTimer?.cancel();
-    _logoutTimer?.cancel();
+  void _updateActivityTime() {
+    _lastActivityTime = DateTime.now();
+    if (_isWarningDialogVisible) {
+      Navigator.of(context).pop();
+      _isWarningDialogVisible = false;
+    }
+  }
 
-    // Logout after 15 minutes
-    _logoutTimer = Timer(const Duration(minutes: 15), _handleAutoLogout);
-    // Show warning after 13 minutes, when 2 minute remains
-    _inactivityTimer = Timer(const Duration(minutes: 13), _showInactivityWarning);
+  void _startPeriodicCheck() {
+    _periodicCheckTimer = Timer.periodic(const Duration(seconds: 1), (final timer) {
+      final now = DateTime.now();
+      final elapsed = now.difference(_lastActivityTime);
+      const totalTimeout = Duration(minutes: 15);
+      final secondsLeft = totalTimeout.inSeconds - elapsed.inSeconds;
+      _secondsLeft.value = secondsLeft > 0 ? secondsLeft : 0;
+
+      if (elapsed >= totalTimeout) {
+        _handleAutoLogout();
+      } else if (elapsed >= const Duration(minutes: 15 - 2) && !_isWarningDialogVisible) {
+        _showInactivityWarning();
+      }
+    });
   }
 
   void _showInactivityWarning() {
@@ -78,20 +94,18 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text('Need more time?', style: headerStyle),
-                const Icon(Icons.horizontal_rule),
-                StreamBuilder<int>(
-                stream: Stream.periodic(const Duration(seconds: 1), (final x) => 120 - x - 1).take(120),
-                builder: (final context, final snapshot) {
-                  final secondsLeft = snapshot.data ?? 120;
+              const Icon(Icons.horizontal_rule),
+              ValueListenableBuilder<int>(
+                valueListenable: _secondsLeft,
+                builder: (final context, final secondsLeft, final _) {
                   final minutes = (secondsLeft ~/ 60).toString().padLeft(2, '0');
                   final seconds = (secondsLeft % 60).toString().padLeft(2, '0');
-                  
                   return Text(
-                  'For your security, we will sign you out\nin $minutes:$seconds unless you tell us otherwise.',
-                  textAlign: TextAlign.center,
+                    'For your security, we will sign you out\nin $minutes:$seconds unless you tell us otherwise.',
+                    textAlign: TextAlign.center,
                   );
                 },
-              )
+              ),
             ],
           ),
           actions: [
@@ -105,7 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 Navigator.of(context).pop();
                 _isWarningDialogVisible = false;
-                _resetInactivityTimer();
+                _updateActivityTime();
               },
               child: const Text('Stay logged in'),
             )
@@ -196,63 +210,102 @@ class _MyHomePageState extends State<MyHomePage> {
     const AdvancedSecurityScreen()
   ];
 
-
   @override
   Widget build(final BuildContext context) {
-    var userEmail = '';
+     var userEmail = '';
 
-    overlayProvider = context.watch<OverlayProvider>();
-    userProvider = context.watch<UserProvider>();
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double screenHeight = MediaQuery.of(context).size.height;
+    final bool isSmallScreen = screenWidth < smallScreenWidthBreakpoint || screenHeight < smallScreenWidthBreakpoint;
+
     navigationShell = widget.navigationShell;
 
-    if (userProvider.user != null) {
-      user = userProvider.user!;
-      userEmail = user.email;
-    } else {
-      return Center(
-          child: SizedBox(
-            width: MediaQuery.of(context).size.width * 0.5,
-            child: const LinearProgressIndicator(),
+     if (userProvider.user != null) {
+       user = userProvider.user!;
+       userEmail = user.email;
+     } else {
+       return Center(
+           child: SizedBox(
+             width: MediaQuery.of(context).size.width * 0.5,
+             child: const LinearProgressIndicator(),
+           )
+       );
+     }
+
+    final body = Stack(
+      children: [
+        Center(
+          child: Container(
+            transformAlignment: Alignment.center,
+            width: double.infinity,
+            constraints: const BoxConstraints(maxWidth: 1280),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: screens[navigationShell.currentIndex]
+                  )
+                )
+              ],
+            ),
           )
-      );
-    }
+        ),
+        if (overlayProvider.isLoading)
+          Center(
+              child: Container(
+                alignment: Alignment.topCenter,
+                width: double.infinity,
+                constraints: const BoxConstraints(maxWidth: 1280),
+                padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                color: Colors.black.withValues(alpha: 0.25),
+                child: const LinearProgressIndicator(),
+              )
+          ),
+      ],
+    );
 
     return Listener(
-      onPointerDown: (final _) => _resetInactivityTimer(),
+      onPointerDown: (final _) => _updateActivityTime(),
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
-        onTap: _resetInactivityTimer,
+        onTap: _updateActivityTime,
         child: Container(
           margin: const EdgeInsets.fromLTRB(0, 47.0, 0, 0),
           child: RumUserActionDetector(
             rum: DatadogSdk.instance.rum,
             child: Scaffold(
               key: scaffoldKey,
-              appBar: AppBar(
-                leadingWidth: 75,
-                leading:  TextButton(
-                    key: const Key('menuButton'),
-                    style: TextButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(0)
-                      ),
-                    ),
+              appBar: isSmallScreen ? AppBar(
+                leadingWidth: 100,
+                leading: Padding(
+                  padding: const EdgeInsets.all(7.5),
+                  child: FilledButton(
                     onPressed: () { scaffoldKey.currentState!.openDrawer(); },
-                    child: const Text('Menu', style: TextStyle(
-                      fontSize: 16,
-                    ),)
+                    child: const Text('Menu',
+                      style: TextStyle(
+                      )
+                    ),
+                  ),
                 ),
                 title: const Text('Angeleno Account',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 )
-              ),
-              drawer: NavigationDrawer(
+              ) : null,
+              drawer: isSmallScreen ? NavigationDrawer(
                 onDestinationSelected: _navigationSelected,
                 selectedIndex: navigationShell.currentIndex,
                 children:  <Widget>[
                   Padding(
                     padding: const EdgeInsets.fromLTRB(28, 16, 16, 10),
-                    child: Text('My Account - $userEmail'),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Angeleno Account', style: headerStyle,),
+                        Text( userEmail, style: const TextStyle(fontWeight: FontWeight.bold),)
+                      ],
+                    ),
                   ),
                   const NavigationDrawerDestination(
                       label: Text('Profile', semanticsLabel: 'Navigate to profile page'),
@@ -263,25 +316,21 @@ class _MyHomePageState extends State<MyHomePage> {
                       icon: Icon(Icons.password)
                   ),
                   const NavigationDrawerDestination(
-                      label: Text('Security', semanticsLabel: 'Navigate to security page'),
+                      label: Text('Multi-factor authentication', semanticsLabel: 'Navigate to multi-factor authentication page'),
                       icon: Icon(Icons.security)
                   ),
                   const Divider(),
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(28, 16, 16, 10),
-                    child: Text('Angeleno'),
-                  ),
                   const NavigationDrawerDestination(
                       label: Text('Home', semanticsLabel: 'Link to angeleno home page'),
-                      icon: Icon(Icons.home)
+                      icon: Icon(Icons.open_in_new)
                   ),
                   const NavigationDrawerDestination(
-                      label: Text('Services', semanticsLabel: 'Link to angeleno partner services page'),
-                      icon: Icon(Icons.grid_view)
+                      label: Text('Partner Services', semanticsLabel: 'Link to angeleno partner services page'),
+                      icon: Icon(Icons.open_in_new)
                   ),
                   const NavigationDrawerDestination(
                       label: Text('Help', semanticsLabel: 'Link to angeleno help page'),
-                      icon: Icon(Icons.question_mark)
+                      icon: Icon(Icons.open_in_new)
                   ),
                   const Padding(
                     padding: EdgeInsets.fromLTRB(28, 16, 28, 10),
@@ -292,39 +341,157 @@ class _MyHomePageState extends State<MyHomePage> {
                       icon: Icon(Icons.logout)
                   )
                 ],
-              ),
-              body: Stack(
+              ) : null,
+              body: isSmallScreen ? body : Flex(
+                direction: Axis.horizontal,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Center(
-                    child: Container(
-                      transformAlignment: Alignment.center,
-                      width: double.infinity,
-                      constraints: const BoxConstraints(maxWidth: 1280),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.all(20.0),
-                              child: screens[navigationShell.currentIndex])
-                          )
-                        ],
-                      ),
-                    )
-                  ),
-                  if (overlayProvider.isLoading)
-                    Center(
-                      child: Container(
-                        alignment: Alignment.topCenter,
-                        width: double.infinity,
-                        constraints: const BoxConstraints(maxWidth: 1280),
-                        padding: const EdgeInsets.fromLTRB(
-                            10, 0, 10, 0
-                        ),
-                        color: Colors.black.withValues(alpha: 0.25),
-                        child: const LinearProgressIndicator(),
-                      )
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(
+                        maxWidth: 280
                     ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 10,),
+                        const Center(
+                          child: Text(
+                            'Angeleno Account',
+                            style: headerStyle,
+                          ),
+                        ),
+                        Padding(
+                            padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                            child:
+                            Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold
+                                      ),
+                                      userEmail,
+                                      softWrap: true,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  )
+                                ]
+                            )
+                        ),
+                        const SizedBox(height: 20),
+                        NavigationButton(
+                            icon: const Icon(Icons.person),
+                            text: const Text('Profile', semanticsLabel: 'Navigate to profile page'),
+                            onPressed: () {
+                              _navigationSelected(0);
+                            },
+                            isActive: navigationShell.currentIndex == 0
+                        ),
+                        const SizedBox(height: 10),
+                        NavigationButton(
+                          icon: const Icon(Icons.password),
+                          text: const Text('Password', semanticsLabel: 'Navigate to password page'),
+                          onPressed: () {
+                            _navigationSelected(1);
+                          },
+                          isActive: navigationShell.currentIndex == 1,
+                        ),
+                        const SizedBox(height: 10),
+                        NavigationButton(
+                            icon: const Icon(Icons.security),
+                            text: const Text('Multi-factor authentication',
+                                softWrap: true,
+                                semanticsLabel: 'Navigate to MFA page'
+                            ),
+                            onPressed: () {
+                              _navigationSelected(2);
+                            },
+                            isActive: navigationShell.currentIndex == 2
+                        ),
+                        const Spacer(),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              TextButton(
+                                  onPressed: () {
+                                    _navigationSelected(3);
+                                  },
+                                  child: const Column(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text('Home'),
+                                          SizedBox(width: 8),
+                                          Icon(Icons.open_in_new)
+                                        ],
+                                      ),
+                                    ],
+                                  )
+                              ),
+                              const SizedBox(height: 5),
+                              TextButton(
+                                  onPressed: () {
+                                    _navigationSelected(4);
+                                  },
+                                  child: const Column(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text('Partner Services', softWrap: true, maxLines: 2,),
+                                          SizedBox(width: 8),
+                                          Icon(Icons.open_in_new)
+                                        ],
+                                      ),
+                                    ],
+                                  )
+                              ),
+                              const SizedBox(height: 5),
+                              TextButton(
+                                  onPressed: () {
+                                    _navigationSelected(5);
+                                  },
+                                  child: const Column(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text('Help'),
+                                          SizedBox(width: 8),
+                                          Icon(Icons.open_in_new)
+                                        ],
+                                      ),
+                                    ],
+                                  )
+                              ),
+                              const SizedBox(height: 5),
+                              OutlinedButton(
+                                  onPressed: () {
+                                    _navigationSelected(6);
+                                  },
+                                  child: const Column(
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text('Logout'),
+                                          SizedBox(width: 8),
+                                          Icon(Icons.logout),
+                                        ],
+                                      ),
+                                    ],
+                                  )
+                              )
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  screenWidth > 1580 ? body : Expanded(child: body)
                 ],
               ),
               bottomNavigationBar: Container(
@@ -343,7 +510,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       onPressed: () async {
                         await launchUrl(
-                          Uri.parse('https://disclaimer.lacity.org/disclaimer.htm')
+                            Uri.parse('https://disclaimer.lacity.org/disclaimer.htm')
                         );
                       },
                       child: const Text('Disclaimer')
