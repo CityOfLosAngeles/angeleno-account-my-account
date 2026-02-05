@@ -48,6 +48,8 @@ void main() {
     });
 
     testWidgets('ErrorMessage handles empty message', (WidgetTester tester) async {
+      // Empty error message is allowed - component will render but display nothing
+      // This can be useful for conditional error display
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(

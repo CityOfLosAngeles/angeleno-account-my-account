@@ -75,7 +75,7 @@ void main() {
       expect(callbackInvoked, true);
     });
 
-    testWidgets('isActive true applies default background color', (WidgetTester tester) async {
+    testWidgets('Applies default background color when isActive is true', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -96,7 +96,7 @@ void main() {
       expect(backgroundColor, isNull);
     });
 
-    testWidgets('isActive false applies transparent background', (WidgetTester tester) async {
+    testWidgets('Applies transparent background when isActive is false', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
