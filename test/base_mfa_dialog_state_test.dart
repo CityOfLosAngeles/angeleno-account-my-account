@@ -213,8 +213,7 @@ void main() {
       expect(() => controller.text, throwsFlutterError);
     });
 
-    testWidgets('dialogActions contains Cancel and Next buttons on first page', 
-      (WidgetTester tester) async {
+    testWidgets('dialogActions contains Cancel and Next buttons on first page', (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: TestDialog(),
@@ -226,8 +225,7 @@ void main() {
       expect(find.text('Back'), findsNothing);
     });
 
-    testWidgets('dialogActions contains Cancel, Back and next button on subsequent pages', 
-      (WidgetTester tester) async {
+    testWidgets('dialogActions contains Cancel, Back and Next button on subsequent pages', (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: TestDialog(),
