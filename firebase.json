@@ -7,6 +7,13 @@
       "**/.*",
       "**/node_modules/**"
     ],
+    "headers": [{
+      "source": "/signup",
+      "headers": [{
+        "key": "Cache-Control",
+        "value": "max-age=0"
+      }]
+    }],
     "redirects": [
       {
         "source": "/signup",
