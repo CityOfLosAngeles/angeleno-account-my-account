@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:angeleno_project/models/password_reset.dart';
 import 'package:angeleno_project/utils/constants.dart';
-import 'package:angeleno_project/utils/error_message.dart';
 import 'package:datadog_flutter_plugin/datadog_flutter_plugin.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:provider/provider.dart';
 
 import '../../controllers/auth0_user_api_implementation.dart';
@@ -247,27 +247,30 @@ class _PasswordScreenState extends State<PasswordScreen> with RouteAware, Datado
             )
           ),
 
+          ),
+          onChanged: (final value) {
+            setState(() {
+              passwordMatch = value;
+              _isButtonDisabled = enablePasswordSubmit();
+            });
+          },
         ),
-        onChanged: (final value) {
-          setState(() {
-            passwordMatch = value;
-            _isButtonDisabled = enablePasswordSubmit();
-          });
-        },
-      ),
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (errorMsg.isNotEmpty)
-            ErrorMessage(message: errorMsg),
-          const SizedBox(height: 10.0),
-          FilledButton(
-            onPressed: _isButtonDisabled ? null : () => submitRequest(),
-            child: const Text('Update password and logout'),
-          )
-        ],
-      ),
-    ],
-  );
-
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (errorMsg.isNotEmpty)
+              HtmlWidget(errorMsg,
+                textStyle: TextStyle(
+                  color: Theme.of(context).colorScheme.error
+                ),
+              ),
+            const SizedBox(height: 10.0),
+            FilledButton(
+              onPressed: _isButtonDisabled ? null : () => submitRequest(),
+              child: const Text('Update password and logout'),
+            )
+          ],
+        ),
+      ],
+    );
 }
