@@ -24,6 +24,11 @@
         "source": ".well-known/change-password",
         "destination": "/password-change",
         "type": 302
+      },
+      {
+        "source": "/google",
+        "destination": "https://www.google.com",
+        "type": 301
       }
     ],
     "rewrites": [
