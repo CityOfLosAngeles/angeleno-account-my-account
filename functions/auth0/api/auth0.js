@@ -141,6 +141,16 @@ export const updatePassword = onRequest(async (req, res) => {
       data: {error_description, message},
     } = err?.response;
 
+    if (message.toLowerCase().includes('passwordbreachederror')) {
+      return res
+        .status(status)
+        .send(
+          `This combination of email address and password was detected in a public data breach on another site.\n` +
+          `To keep your Angeleno Account secure, please use a new, unique password. ` +
+          `For more information, visit help article <a href="https://account.lacity.gov/help/password-breach" target="_blank">Breached password on another site.</a>`
+        );
+    }
+
     res
       .status(status)
       .send(message || error_description || 'Error encountered');
