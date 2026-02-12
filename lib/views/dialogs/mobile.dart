@@ -272,6 +272,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
             child: TextFormField(
               key: const Key('phoneCode'),
               autofocus: true,
+              keyboardType: TextInputType.number,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (final value) {
                 if (value == null || value
@@ -393,6 +394,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
               key: const Key('additionalMfaCode'),
               autofocus: true,
               autovalidateMode: AutovalidateMode.onUserInteraction,
+              keyboardType: TextInputType.number,
               onFieldSubmitted: (final value) => getMfaToken,
               validator: (final value) {
                 if (value == null || value.trim().isEmpty) {

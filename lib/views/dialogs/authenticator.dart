@@ -248,6 +248,7 @@ Align(
                 key: const Key('totpCode'),
                 autofocus: true,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
+                keyboardType: TextInputType.number,
                 onFieldSubmitted: (final value) {
                   confirmAuthenticator();
                 },
@@ -355,6 +356,7 @@ Align(
               key: const Key('additionalMfaCode'),
               autofocus: true,
               autovalidateMode: AutovalidateMode.onUserInteraction,
+              keyboardType: TextInputType.number,
               onFieldSubmitted: (final value) => getMfaToken,
               validator: (final value) {
                 if (value == null || value.trim().isEmpty) {
