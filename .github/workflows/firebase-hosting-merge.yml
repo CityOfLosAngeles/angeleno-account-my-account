@@ -56,7 +56,7 @@ jobs:
       - name: update firebase.json
         run: |
           new_domain=$(printf '%s\n' "${{secrets.AUTH0_DOMAIN}}" | sed 's/[&/\]/\\&/g')
-          new_redirect_uri=$(printf '%s\n' "${{env.MY_ACCOUNT_URL}}" | sed 's/[&/\]/\\&/g')
+          new_redirect_uri=$(printf '%s\n' "${{vars.MY_ACCOUNT_URL}}" | sed 's/[&/\]/\\&/g')
           sed -i \
           -e "s/HOSTING_TARGET/${{secrets.HOSTING_PROJECT}}/g" \
           -e "s/AUTH0_DOMAIN/$new_domain/g" \
