@@ -27,8 +27,6 @@ jobs:
 
       - name: Set environment variable
         run: echo "DEPLOYMENT_ENV=${{github.event.pull_request.base.ref || github.ref_name}}" >> $GITHUB_ENV
-      - name: Print environment variable
-        run: echo 'environment is ${{ env.DEPLOYMENT_ENV}}'
       
       - run: flutter pub get
       - run: flutter config --enable-web
@@ -44,7 +42,7 @@ jobs:
             echo ENVIRONMENT="${{ secrets.ENVIRONMENT }}" >> .env
             echo DATADOG_CLIENT_TOKEN="${{ secrets.DATADOG_CLIENT_TOKEN }}" >> .env
             echo DATADOG_APP_ID="${{ secrets.DATADOG_APP_ID }}" >> .env
-      - run: flutter build web --dart-define-from-file=.env
+
       - name: Update .firebaserc
         run: |
           old_project="DEFAULT_PROJECT"
@@ -55,30 +53,23 @@ jobs:
           new_hosting="${{secrets.HOSTING_PROJECT}}"
           sed -i "s/$old_hosting/$new_hosting/g" .firebaserc
           
-          old_hosting_targ="HOSTING_TARGET"
-          new_hosting_targ="${{secrets.HOSTING_PROJECT}}"
-          sed -i "s/$old_hosting_targ/$new_hosting_targ/g" firebase.json
-          
-          old_domain="AUTH0_DOMAIN"
+      - name: update firebase.json
+        run: |
           new_domain=$(printf '%s\n' "${{secrets.AUTH0_DOMAIN}}" | sed 's/[&/\]/\\&/g')
-          sed -i "s/$old_domain/$new_domain/g" firebase.json
-          
-          to_replace="AUTH0_CLIENT_ID"
-          be_replaced="${{secrets.CLIENT_ID}}"
-          sed -i "s/$to_replace/$be_replaced/g" firebase.json
+          new_redirect_uri=$(printf '%s\n' "${{env.MY_ACCOUNT_URL}}" | sed 's/[&/\]/\\&/g')
+          sed -i \
+          -e "s/HOSTING_TARGET/${{secrets.HOSTING_PROJECT}}/g" \
+          -e "s/AUTH0_DOMAIN/$new_domain/g" \
+          -e "s/AUTH0_CLIENT_ID/${{secrets.CLIENT_ID}}/g" \
+          -e "s/AUTH0_REDIRECT_URI/$new_redirect_uri/g" \
+          firebase.json
 
-          old_redirect_uri="AUTH0_REDIRECT_URI"
-          if [[ "$DEPLOYMENT_ENV" == "development" ]]; then
-            new_redirect_uri=$(printf '%s\n' "https://dev.my.account.lacity.gov" | sed 's/[&/\]/\\&/g')
-          elif [[ "$DEPLOYMENT_ENV" == "sandbox" ]]; then
-            new_redirect_uri=$(printf '%s\n' "https://sandbox.my.account.lacity.gov" | sed 's/[&/\]/\\&/g')
-          elif [[ "$DEPLOYMENT_ENV" == "production" ]]; then
-            new_redirect_uri=$(printf '%s\n' "https://my.account.lacity.gov" | sed 's/[&/\]/\\&/g')
-          else
-            echo "Branch name does not match 'development', 'sandbox', or 'production'. Exiting."
-            exit 1
-          fi
-          sed -i "s/$old_redirect_uri/$new_redirect_uri/g" firebase.json
+      - name: Update URLs
+        if: ${{ env.DEPLOYMENT_ENV == 'development' || env.DEPLOYMENT_ENV == 'sandbox' }}
+        run: |
+          sed -i 's|https://account.lacity.gov|https://sandbox.account.lacity.gov|g' lib/controllers/user_provider.dart lib/views/screens/home_screen.dart
+
+      - run: flutter build web --dart-define-from-file=.env
 
       - name: Deploy to Firebase Hosting (DEV)
         if: ${{ env.DEPLOYMENT_ENV == 'development' }}
