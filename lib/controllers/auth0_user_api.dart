@@ -10,7 +10,7 @@ abstract class Api {
 
   void updatePassword(final PasswordBody body);
 
-  void getAuthenticationMethods(final String userId);
+  void getAuthenticationMethods(final String userId, final String applicationIds);
 
   void enrollMFA(final Map<String, String> body);
 
@@ -18,5 +18,5 @@ abstract class Api {
 
   void unenrollMFA(final Map<String, String> body);
 
-  void removeConnection(final String connectionId);
+  void removeConnection(final String userId, final Map<String, dynamic> body);
 }

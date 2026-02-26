@@ -163,7 +163,7 @@ class Auth0UserApi extends Api {
   }
 
   @override
-  Future<ApiResponse> getAuthenticationMethods(final String userId) async {
+  Future<ApiResponse> getAuthenticationMethods(final String userId, final String applicationIds) async {
 
     final token = await getOAuthToken();
 
@@ -372,7 +372,7 @@ class Auth0UserApi extends Api {
   }
 
   @override
-  Future<ApiResponse> removeConnection(final String connectionId) async {
+  Future<ApiResponse> removeConnection(final String userId, final Map<String, dynamic> body) async {
 
     final token = await getOAuthToken();
 
@@ -383,12 +383,12 @@ class Auth0UserApi extends Api {
     };
 
     final reqBody = json.encode({
-      'connectionId': connectionId
+      'app_metadata': body,
     });
 
     try {
       final request = await http.post(
-          Uri.parse('/auth0/removeConnection'),
+          Uri.parse('/auth0/updateUser?userId=$userId'),
           headers: headers,
           body: reqBody
       ).timeout(const Duration(seconds: 5));

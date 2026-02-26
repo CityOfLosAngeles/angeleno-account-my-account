@@ -13,7 +13,6 @@ import {
   confirmMFA,
   authMethods,
   unenrollMFA,
-  removeConnection,
   challengeMfa,
   requestMFAToken
 } from './api/auth0.js';
@@ -70,7 +69,6 @@ app.post('/auth0/updatePassword', updatePassword);
 app.post('/auth0/enrollMFA', enrollMFA);
 app.post('/auth0/confirmMFA', confirmMFA);
 app.post('/auth0/unenrollMFA', unenrollMFA);
-app.post('/auth0/removeConnection', removeConnection);
 app.post('/auth0/challengeMfa', challengeMfa);
 app.post('/auth0/requestMFAToken', requestMFAToken);
 

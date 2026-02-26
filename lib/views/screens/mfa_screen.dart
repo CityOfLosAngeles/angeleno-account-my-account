@@ -91,7 +91,8 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
   Future<void> getAuthenticationMethods() async {
     _connectedServices = [];
     authenticators = [];
-    await auth0UserApi.getAuthenticationMethods(userProvider.user!.userId)
+
+    await auth0UserApi.getAuthenticationMethods(userProvider.user!.userId, userProvider.user!.consentedAppIds.join(','))
       .then((final response) {
         final bool success = response.statusCode == HttpStatus.ok;
         if (success) {
@@ -104,10 +105,9 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
               ? json['services'] as List<dynamic> : [];
 
           final List<Service> connectedServices = services
-              .map((final e) =>
-              Service.fromJson(e as Map<String, dynamic>)
-          )
-              .toList();
+            .map((final e) =>
+             Service.fromJson(e as Map<String, dynamic>)
+          ).toList();
 
           _connectedServices.addAll(connectedServices);
 
@@ -183,6 +183,28 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
         width: 280.0,
         content: Text('$authMethod has been removed.')
       ));
+    }
+  }
+
+  Future<void> removeConnection(String id) async {
+    final consentData = userProvider.user!.appMetadata.remove('consent') as Map<String, dynamic>? ?? {};
+    final appMetadataCopy = Map<String, dynamic>.from(consentData);
+    appMetadataCopy.remove(id);
+    userProvider.user!.appMetadata.addAll({'consent': appMetadataCopy});
+
+    final response = await auth0UserApi.removeConnection(userProvider.user!.userId, userProvider.user!.appMetadata);
+
+    if (response.statusCode == HttpStatus.ok) {
+      Navigator.pop(context, response.statusCode);
+      setState(() {
+        _connectedServices.removeWhere((final service) => service.id == id);
+      });
+      ScaffoldMessenger.of(context).showSnackBar( const SnackBar(
+        behavior: SnackBarBehavior.floating,
+        width: 280.0,
+        content: Text('Service has been disconnected.')
+      ));
+
     }
   }
 
@@ -424,6 +446,104 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
                           child: const Text('Enable', semanticsLabel: 'Enable voice authentication')
                         )
                       ]
+                    ),
+                const SizedBox(height: 20),
+                _connectedServices.isEmpty ?
+                const Text('No connected services')
+                    :
+                Semantics(
+                    header: true,
+                    child: const Text(
+                        'Your connected services',
+                        textAlign: TextAlign.left,
+                        style: headerStyle
+                    )
+                ),
+                ListView.builder(
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.all(0),
+                    itemCount: _connectedServices.length,
+                    itemBuilder: (final BuildContext context, final int index) {
+                      final service = _connectedServices[index];
+                      return ListTile(
+                        contentPadding: const EdgeInsets.all(0),
+                        leading: service.icon.isNotEmpty ? ClipRRect(
+                          borderRadius: BorderRadius.circular(100),
+                          child: Image.network(
+                            semanticLabel: '${service.name} logo',
+                            service.icon,
+                            width: 50,
+                            height: 50,
+                            errorBuilder: (context, exception, stackTrace) => const SizedBox.shrink(),
+                          ),
+                        ) : null,
+                        title: Text(service.name),
+                        subtitle: Text(service.scope),
+                        trailing: TextButton(
+                            // key: Key('disconnect_${service.grantId}'),
+                            onPressed: () =>
+                                showDialog<int>(
+                                    context: context,
+                                    builder: (final BuildContext context) =>
+                                        AlertDialog(
+                                          title: Text(
+                                              'Revoke consent for ${service
+                                                  .name}?'),
+                                          content: Container(
+                                              width: MediaQuery
+                                                  .of(context)
+                                                  .size
+                                                  .width * 0.4,
+                                              child: SingleChildScrollView(
+                                                  child: ListBody(
+                                                    children: <Widget>[
+                                                      // ignore: avoid_escaping_inner_quotes
+                                                      // ignore: lines_longer_than_80_chars
+                                                      Text(
+                                                          'Your Angeleno Account information will no longer be shared with ${service
+                                                              .name}.',
+                                                          style: const TextStyle(
+                                                              fontWeight: FontWeight
+                                                                  .bold)),
+                                                      const SizedBox(
+                                                          height: 10),
+                                                      // ignore: lines_longer_than_80_chars
+                                                      Text(
+                                                          'The information you already shared with ${service
+                                                              .name} will not be deleted. If you want to delete the information you shared with ${service
+                                                              .name}, you will need to contact ${service
+                                                              .name}.'),
+                                                      const SizedBox(
+                                                          height: 10),
+                                                      // ignore: lines_longer_than_80_chars
+                                                      Text('To access ${service
+                                                          .name} again in the future, you will need to give your consent to share your Angeleno Account information again. You can give consent again by going to the ${service
+                                                          .name} site and logging in.')
+                                                    ],
+                                                  )
+                                              )
+                                          ),
+                                          actions: <Widget>[
+                                            TextButton(
+                                              child: const Text('Cancel'),
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                            TextButton(
+                                              child: const Text('Ok'),
+                                              onPressed: () {
+                                                removeConnection(service.id);
+                                                print('Not implemented');
+                                              },
+                                            )
+                                          ],
+                                        )
+                                ),
+                            child: const Text('Disconnect')
+                        ),
+                      );
+                    }
                     )
                   ],
                 )

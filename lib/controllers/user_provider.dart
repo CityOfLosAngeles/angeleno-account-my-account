@@ -40,9 +40,13 @@ class UserProvider extends ChangeNotifier {
 
     Address userAddress = Address();
     String phone = '';
+    final consentedAppIds = <String>[];
 
     final metadata = user.customClaims?['user_metadata']
                                   as Map<String, dynamic>? ?? {};
+
+    final appData = user.customClaims?['app_metadata']
+          as Map<String, dynamic>? ?? {};
 
     if (metadata.isNotEmpty) {
       final addressData = metadata['addresses']
@@ -56,6 +60,18 @@ class UserProvider extends ChangeNotifier {
       phone = metadata['phone'] as String? ?? '';
     }
 
+    if (appData.isNotEmpty) {
+
+      final consentedApplications = appData['consent']
+        as Map<String, dynamic>? ?? {};
+
+      print(consentedApplications);
+
+      for (final appId in consentedApplications.keys) {
+        consentedAppIds.add(appId);
+      }
+    }
+
     _user = User(
       userId: user.sub,
       email: user.email!,
@@ -67,7 +83,9 @@ class UserProvider extends ChangeNotifier {
       city: userAddress.city,
       state: userAddress.state,
       phone: phone,
-      metadata: metadata
+      metadata: metadata,
+      appMetadata: appData,
+      consentedAppIds: consentedAppIds
     );
 
     notifyListeners();
