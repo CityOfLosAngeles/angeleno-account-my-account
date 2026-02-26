@@ -175,7 +175,7 @@ class Auth0UserApi extends Api {
 
     try {
       final request = await http.get(
-          Uri.parse('/auth0/authMethods?userId=$userId'),
+          Uri.parse('/auth0/authMethods?userId=$userId&apps=$applicationIds'),
           headers: headers
       ).timeout(const Duration(seconds: 5));
 
