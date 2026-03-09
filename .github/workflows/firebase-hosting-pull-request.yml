@@ -85,8 +85,9 @@ jobs:
       - name: Get Hosting URL
         if: ${{ github.event.pull_request.base.ref == 'development' }}
         run: |
-          echo "preview channel url ${{ steps.deploy_dev.outputs.result.url }}"
-          echo "preview channels url ${{ steps.deploy_dev.outputs.urls }}"
+          echo "preview channel url ${{ steps.deploy_dev.details_url }}"
+          echo "preview channels url ${{ fromJson(steps.deploy_dev.outputs.urls) }}"
+          echo "preview channels url ${{ fromJson(steps.deploy_dev.outputs.details_url) }}"
 
       - name: Deploy to Firebase Hosting (Sandbox)
         if: ${{ github.event.pull_request.base.ref == 'sandbox' }}
