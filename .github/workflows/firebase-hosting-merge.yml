@@ -81,10 +81,6 @@ jobs:
           channelId: live
           projectId: my-account-dev-402917
 
-      - name: Get Hosting URL
-        if: ${{ env.DEPLOYMENT_ENV == 'development' }}
-        run: echo "preview channel url ${{ steps.deploy_dev.outputs.url }}"
-
       - name: Deploy to Firebase Hosting (Sandbox)
         if: ${{ env.DEPLOYMENT_ENV == 'sandbox' }}
         uses: FirebaseExtended/action-hosting-deploy@v0

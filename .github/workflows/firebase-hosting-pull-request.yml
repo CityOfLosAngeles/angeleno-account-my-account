@@ -82,6 +82,10 @@ jobs:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MY_ACCOUNT_DEV_402917   }}
           projectId: my-account-dev-402917
 
+      - name: Get Hosting URL
+        if: ${{ github.event.pull_request.base.ref == 'development' }}
+        run: echo "preview channel url ${{ steps.deploy_dev.outputs.url }}"
+
       - name: Deploy to Firebase Hosting (Sandbox)
         if: ${{ github.event.pull_request.base.ref == 'sandbox' }}
         uses: FirebaseExtended/action-hosting-deploy@v0
