@@ -190,7 +190,11 @@ export const authMethods = onRequest(async (req, res) => {
 
     const request = await axios.request(config);
 
-    const applications = await getConnectedServices(apps);
+    let applications = [];
+
+    if (apps.length) {
+      applications = await getConnectedServices(apps);
+    }
 
     const response = {
       mfaMethods: request.data,
@@ -533,6 +537,7 @@ const getConnectedServices = async (applicationIds) => {
       message = '',
     } = err.response;
 
+    // res is invalid here because this is a helper function, so we just return the error info for the calling function to handle the response
     return res.status(status).send(message);
   }
 };
