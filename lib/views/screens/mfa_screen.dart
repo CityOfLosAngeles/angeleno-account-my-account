@@ -59,7 +59,6 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
       auth0UserApi = Auth0UserApi(userProvider);
 
       _userListener = () {
-        print('hey');
         if (userProvider.user != null) {
           _triggerAuthMethods();
         }
@@ -92,7 +91,9 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
     _connectedServices = [];
     authenticators = [];
 
-    await auth0UserApi.getAuthenticationMethods(userProvider.user!.userId, userProvider.user!.consentedAppIds.join(','))
+    final consentedAppIds = userProvider.user!.consentedApps.keys.join(',');
+
+    await auth0UserApi.getAuthenticationMethods(userProvider.user!.userId, consentedAppIds)
       .then((final response) {
         final bool success = response.statusCode == HttpStatus.ok;
         if (success) {
@@ -448,9 +449,6 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
                       ]
                     ),
                 const SizedBox(height: 20),
-                _connectedServices.isEmpty ?
-                const Text('No connected services')
-                    :
                 Semantics(
                     header: true,
                     child: const Text(
@@ -459,7 +457,10 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
                         style: headerStyle
                     )
                 ),
-                ListView.builder(
+                _connectedServices.isEmpty ?
+                  const Text('No connected services')
+                    :
+                  ListView.builder(
                     shrinkWrap: true,
                     padding: const EdgeInsets.all(0),
                     itemCount: _connectedServices.length,
@@ -478,7 +479,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
                           ),
                         ) : null,
                         title: Text(service.name),
-                        subtitle: Text(service.scope),
+                        subtitle: Text(userProvider.user!.consentedApps[service.id]!),
                         trailing: TextButton(
                             // key: Key('disconnect_${service.grantId}'),
                             onPressed: () =>
@@ -489,7 +490,7 @@ class _AdvancedSecurityState extends State<AdvancedSecurityScreen> with RouteAwa
                                           title: Text(
                                               'Revoke consent for ${service
                                                   .name}?'),
-                                          content: Container(
+                                          content: SizedBox(
                                               width: MediaQuery
                                                   .of(context)
                                                   .size

@@ -11,7 +11,7 @@ class User {
   String? phone;
   Map<String, dynamic>? metadata;
   Map<String, dynamic> appMetadata = {};
-  List<String> consentedAppIds = [];
+  Map<String, String> consentedApps = {};
 
   User({
     required this.userId,
@@ -26,7 +26,7 @@ class User {
     required this.phone,
     required this.metadata,
     required this.appMetadata,
-    required this.consentedAppIds
+    required this.consentedApps
   });
 
   User.copy(final User copy) :
