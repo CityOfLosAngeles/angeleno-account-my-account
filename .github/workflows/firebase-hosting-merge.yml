@@ -72,6 +72,7 @@ jobs:
       - run: flutter build web --dart-define-from-file=.env
 
       - name: Deploy to Firebase Hosting (DEV)
+        id: deploy_dev
         if: ${{ env.DEPLOYMENT_ENV == 'development' }}
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
@@ -79,6 +80,10 @@ jobs:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MY_ACCOUNT_DEV_402917   }}
           channelId: live
           projectId: my-account-dev-402917
+
+      - name: Get Hosting URL
+        if: ${{ env.DEPLOYMENT_ENV == 'development' }}
+        run: echo "preview channel url ${{ steps.deploy_dev.outputs.url }}"
 
       - name: Deploy to Firebase Hosting (Sandbox)
         if: ${{ env.DEPLOYMENT_ENV == 'sandbox' }}
