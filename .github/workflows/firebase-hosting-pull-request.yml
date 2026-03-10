@@ -92,8 +92,8 @@ jobs:
         if: ${{ github.event.pull_request.base.ref == 'development' }}
         run: |
           echo "PREVIEW_CHANNEL_URL=$PREVIEW_CHANNEL_URL"
-          echo "Preview channel URL: ${{ $PREVIEW_CHANNEL_URL }}"
-          a="${{ $PREVIEW_CHANNEL_URL }}"
+          echo "Preview channel URL: ${{ PREVIEW_CHANNEL_URL }}"
+          a="${{ PREVIEW_CHANNEL_URL }}"
           b="${{ secrets.PREVIEW_HOSTING_URL }}"
           if [[ "$a" == "$b" ]]; then
             echo "true"
