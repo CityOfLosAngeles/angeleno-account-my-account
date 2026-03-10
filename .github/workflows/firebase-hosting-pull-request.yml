@@ -91,9 +91,8 @@ jobs:
       - name: Preview channel matches current variable value
         if: ${{ github.event.pull_request.base.ref == 'development' }}
         run: |
-          echo "Preview channel URL: ${{ PREVIEW_CHANNEL_URL }}"
           echo "Preview channel URL: ${{ $PREVIEW_CHANNEL_URL }}"
-          a="${{ PREVIEW_CHANNEL_URL }}"
+          a="${{ $PREVIEW_CHANNEL_URL }}"
           b="${{ secrets.PREVIEW_HOSTING_URL }}"
           if [[ "$a" == "$b" ]]; then
             echo "true"
