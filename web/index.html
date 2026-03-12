@@ -22,7 +22,7 @@
 
   <link rel="icon" type="images/png" href="/assets/images/los_angeles_seal.svg"/>
 
-  <title>Angeleno - My Account</title>
+  <title>Angeleno Account</title>
   <link rel="manifest" href="manifest.json">
 
   <script src="https://cdn.auth0.com/js/auth0-spa-js/2.1.2/auth0-spa-js.production.js"></script>
@@ -31,6 +31,22 @@
   <script type="text/javascript" src="https://www.datadoghq-browser-agent.com/us5/v5/datadog-rum-slim.js"></script>
   <script src="assets/packages/libphonenumber_plugin/js/libphonenumber.js"></script>
   <script src="assets/packages/libphonenumber_plugin/js/stringbuffer.js"></script>
+
+  <script>
+    window.navigation.addEventListener("navigate", (event) => {
+      const url = new URL(event.destination.url);
+      const env = window.flutterEnvironment;
+      const environment = env === 'production' ? '' : `${env} `;
+
+      if (url.pathname === "/profile") {
+        document.title = `Profile | ${environment}Angeleno Account`;
+      } else if (url.pathname === "/password-change") {
+        document.title = `Password change | ${environment}Angeleno Account`;
+      } else if (url.pathname === "/multi-factor-authentication") {
+        document.title = `Multi-factor authentication | ${environment}Angeleno Account`;
+      }
+    })
+  </script>
 
   <style>
     [id^="global_navbar_la_"] {
