@@ -52,10 +52,10 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
     child: const Text('Back'),
   );
 
-  void navigateToNextPage({final int increment = 1}) {
-    if (pageIndex <= 4) {
+  void navigateToNextPage() {
+    if (pageIndex <= dialogNext.length - 1) {
       setState(() {
-        pageIndex += increment;
+        pageIndex += 1;
       });
     } else {
       Navigator.pop(context);
@@ -140,14 +140,31 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
 
   Widget modalBody(final Widget body) => Column(
     mainAxisSize: MainAxisSize.min,
-    crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       if (_isSmallScreen) ...[
-        Expanded(child: body),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: dialogActions
+        Flexible(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Enroll $methodBeingEnrolled',
+                  textAlign: TextAlign.left,
+                  style: const TextStyle(
+                    fontSize: 22
+                  ),
+                ),
+                Expanded(
+                  child: body,
+                ),
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: dialogActions
+                )
+              ],
+            )
         )
+
       ] else ...[body]
     ],
   );
@@ -155,13 +172,13 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
   @override
   Widget build(final BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
-    final bool isSmallScreen = screenWidth < smallScreen;
+    final bool isSmallScreen = screenWidth < smallScreenWidthBreakpoint;
 
     _isSmallScreen = isSmallScreen;
 
     return isSmallScreen
         ?
-        Dialog.fullscreen(child: dialogBody)
+        Dialog.fullscreen(child: Padding(padding: const EdgeInsets.all(20), child:dialogBody))
         :
         AlertDialog(
           title: Text('Enroll $methodBeingEnrolled'),

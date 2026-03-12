@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:angeleno_project/controllers/user_provider.dart';
 import 'package:angeleno_project/models/api_exception.dart';
 import 'package:angeleno_project/models/api_response.dart';
 import 'package:angeleno_project/models/password_reset.dart';
@@ -13,6 +14,9 @@ import 'package:angeleno_project/models/user.dart';
 import '../models/mfa_response.dart';
 
 class Auth0UserApi extends Api {
+
+  final UserProvider userProvider;
+  Auth0UserApi(this.userProvider);
 
   var authToken = '';
 
@@ -93,7 +97,8 @@ class Auth0UserApi extends Api {
 
       final headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token'
+        'Authorization': 'Bearer $token',
+        'X-ACCESS-TOKEN': userProvider.getAccessToken()!
       };
 
       final body = json.encode(user);
@@ -128,7 +133,8 @@ class Auth0UserApi extends Api {
 
     final headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token'
+      'Authorization': 'Bearer $token',
+      'X-ACCESS-TOKEN': userProvider.getAccessToken()!
     };
 
     final reqBody = json.encode(body);
@@ -163,12 +169,13 @@ class Auth0UserApi extends Api {
 
     final headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token'
+      'Authorization': 'Bearer $token',
+      'X-ACCESS-TOKEN': userProvider.getAccessToken()!
     };
 
     try {
       final request = await http.get(
-          Uri.parse('/auth0/authMethods/$userId'),
+          Uri.parse('/auth0/authMethods?userId=$userId'),
           headers: headers
       ).timeout(const Duration(seconds: 5));
 
@@ -193,7 +200,8 @@ class Auth0UserApi extends Api {
 
     final headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token'
+      'Authorization': 'Bearer $token',
+      'X-ACCESS-TOKEN': userProvider.getAccessToken()!
     };
 
     final reqBody = json.encode(body);
@@ -240,7 +248,8 @@ class Auth0UserApi extends Api {
 
     final headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token'
+      'Authorization': 'Bearer $token',
+      'X-ACCESS-TOKEN': userProvider.getAccessToken()!
     };
 
     final reqBody = json.encode(body);
@@ -272,7 +281,8 @@ class Auth0UserApi extends Api {
 
     final headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token'
+      'Authorization': 'Bearer $token',
+      'X-ACCESS-TOKEN': userProvider.getAccessToken()!
     };
 
     final reqBody = json.encode(body);
@@ -303,7 +313,8 @@ class Auth0UserApi extends Api {
 
     final headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token'
+      'Authorization': 'Bearer $token',
+      'X-ACCESS-TOKEN': userProvider.getAccessToken()!
     };
 
     final reqBody = json.encode(body);
@@ -334,7 +345,8 @@ class Auth0UserApi extends Api {
 
     final headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token'
+      'Authorization': 'Bearer $token',
+      'X-ACCESS-TOKEN': userProvider.getAccessToken()!
     };
 
     final reqBody = json.encode(body);
@@ -366,7 +378,8 @@ class Auth0UserApi extends Api {
 
     final headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token'
+      'Authorization': 'Bearer $token',
+      'X-ACCESS-TOKEN': userProvider.getAccessToken()!
     };
 
     final reqBody = json.encode({

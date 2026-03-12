@@ -8,20 +8,23 @@ import '../utils/constants.dart';
 class UserProvider extends ChangeNotifier {
   final Auth0Web auth0Web = Auth0Web(auth0Domain, auth0ClientId);
   User? _user;
+  String? _accessToken;
   User? _cleanUser;
   bool _isEditing = false;
 
   UserProvider() {
     // temporary, to skip tests
     if (auth0Domain.isNotEmpty) {
-      auth0Web.onLoad().then((final credentials) async {
+      auth0Web.onLoad(audience: 'https://$auth0NonCustomDomain/api/v2/').then((final credentials) async {
         if (credentials != null
             && await auth0Web.hasValidCredentials()) {
 
           setUser(credentials.user);
+          setAccessToken(credentials.accessToken);
 
           DatadogSdk.instance.setUserInfo(
-            email: credentials.user.email
+            email: credentials.user.email,
+            id: credentials.user.sub
           );
 
           setCleanUser(_user!);
@@ -35,51 +38,46 @@ class UserProvider extends ChangeNotifier {
 
   void setUser(final UserProfile user) {
 
-    String zip = '';
-    String address = '';
-    String address2 = '';
-    String city = '';
-    String state = '';
+    Address userAddress = Address();
     String phone = '';
 
     final metadata = user.customClaims?['user_metadata']
-                                  as Map<String, dynamic>;
+                                  as Map<String, dynamic>? ?? {};
 
     if (metadata.isNotEmpty) {
-      final primaryAddress = metadata['addresses']?['primary'];
+      final addressData = metadata['addresses']
+        as Map<String, dynamic>? ?? {};
 
-      if (primaryAddress != null) {
-        address = primaryAddress['address'] != null ?
-          primaryAddress['address'] as String : '';
-        address2 = primaryAddress['address2'] != null ?
-          primaryAddress['address2'] as String : '';
-        city =  primaryAddress['city'] != null ?
-          primaryAddress['city'] as String : '';
-        state = primaryAddress['state'] != null ?
-          primaryAddress['state'] as String : '';
-        zip = primaryAddress['zip'] != null ?
-          primaryAddress['zip'] as String : '';
-      }
+      final primaryAddress = addressData['primary']
+        as Map<String, dynamic>? ?? {};
 
-      phone = metadata['phone'] as String;
+      userAddress = Address.fromJson(primaryAddress);
+
+      phone = metadata['phone'] as String? ?? '';
     }
 
     _user = User(
-        userId: user.sub,
-        email: user.email!,
-        firstName: user.givenName ?? '',
-        lastName: user.familyName ?? '',
-        zip: zip,
-        address: address,
-        address2: address2,
-        city: city,
-        state: state,
-        phone: phone,
-        metadata: metadata
+      userId: user.sub,
+      email: user.email!,
+      firstName: user.givenName ?? '',
+      lastName: user.familyName ?? '',
+      zip: userAddress.zip,
+      address: userAddress.address,
+      address2: userAddress.address2,
+      city: userAddress.city,
+      state: userAddress.state,
+      phone: phone,
+      metadata: metadata
     );
 
     notifyListeners();
   }
+
+  void setAccessToken(final String accessToken) {
+    _accessToken = accessToken;
+  }
+
+  String? getAccessToken() => _accessToken;
 
   void setCleanUser(final User user) {
     _cleanUser = User.copy(user);
@@ -92,7 +90,7 @@ class UserProvider extends ChangeNotifier {
 
   Future<void> logout() => auth0Web.logout(
       federated: false,
-      returnToUrl: 'https://sandbox.account.lacity.gov/'
+      returnToUrl: 'https://account.lacity.gov/'
   );
 
   User? get user => _user;

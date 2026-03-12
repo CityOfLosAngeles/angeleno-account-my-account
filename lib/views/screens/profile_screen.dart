@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:angeleno_project/controllers/user_provider.dart';
 import 'package:angeleno_project/utils/constants.dart';
+import 'package:datadog_flutter_plugin/datadog_flutter_plugin.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,10 +14,8 @@ import '../../controllers/overlay_provider.dart';
 import '../../models/user.dart';
 
 class ProfileScreen extends StatefulWidget {
-  final Auth0UserApi auth0UserApi;
 
   const ProfileScreen({
-    required this.auth0UserApi,
     super.key
   });
 
@@ -24,23 +23,35 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogRouteAwareMixin{
+
+  @override
+  RumViewInfo get rumViewInfo => RumViewInfo(name: 'Profile Screen');
+
+  ValueNotifier<bool> validPhoneNumberNotifier = ValueNotifier<bool>(true);
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
   late Auth0UserApi auth0UserApi;
   late OverlayProvider overlayProvider;
   late UserProvider userProvider;
   late User user;
-  late bool isFormValid;
+
+  bool isFormValid = false;
   bool validPhoneNumber = false;
   final isNotTestMode = kIsWeb ||
       !Platform.environment.containsKey('FLUTTER_TEST');
 
-
   @override
   void initState() {
     super.initState();
+  }
 
-    auth0UserApi = widget.auth0UserApi;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    overlayProvider = context.watch<OverlayProvider>();
+    userProvider = context.watch<UserProvider>();
+    auth0UserApi = Auth0UserApi(userProvider);
   }
 
   Future<void> updateUser() async {
@@ -72,8 +83,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     InputDecoration(
       labelText: label,
       border: const OutlineInputBorder(),
-      labelStyle: TextStyle(color: editMode ? null : Theme.of(context).colorScheme.onSurfaceVariant
-    ),
+      // labelStyle: TextStyle(color: editMode ? null : Theme.of(context).colorScheme.onSurfaceVariant),
     );
 
   TextStyle textStyle (final bool editMode) =>
@@ -81,12 +91,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(final BuildContext context) {
-    overlayProvider = context.watch<OverlayProvider>();
-    userProvider = context.watch<UserProvider>();
 
-    if (userProvider.user == null) {
-      return const LinearProgressIndicator();
-    } else {
+    if (userProvider.user != null) {
       user = userProvider.user!;
     }
 
@@ -96,37 +102,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
       isFormValid = formKey.currentState!.validate();
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Semantics(
-              header: true,
-              child: const Text(
-                'Profile',
-                textAlign: TextAlign.left,
-                style: headerStyle
-              )
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: FilledButton(
-                onPressed: (editMode &&
-                    ((user.phone!.isNotEmpty && !validPhoneNumber) ||
+    return Scaffold(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Semantics(
+                header: true,
+                child: const Text(
+                  'Profile',
+                  textAlign: TextAlign.left,
+                  style: headerStyle
+                )
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: !editMode ?
+                FilledButton.tonal(
+                  onPressed: () {
+                    setState(() {
+                      userProvider.toggleEditing();
+                    });
+                  },
+                  child: const Text('Edit'),
+                )
+                    :
+                ValueListenableBuilder<bool>(
+                  valueListenable: validPhoneNumberNotifier,
+                  builder: (final context, final valid, final child) => FilledButton(
+                    onPressed: ((user.phone!.isNotEmpty && !valid) ||
                         !isFormValid) && isNotTestMode
-                ) ? null : () {
-                  if (editMode) {
-                    updateUser();
-                  }
-                  setState(() {
-                    userProvider.toggleEditing();
-                  });
-                },
-                child: Text(
-                    editMode ? 'Save' : 'Edit'
-                ),
+                        ? null : () {
+                      if (editMode) {
+                        updateUser();
+                      }
+                      setState(() {
+                        userProvider.toggleEditing();
+                      });
+                    },
+                    child: const Text('Save'),
+                  )
               )
             )
           ]
@@ -146,7 +163,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 25.0),
                     TextFormField(
                       enabled: editMode,
-                      decoration: inputDecoration('First Name', editMode),
+                      decoration: inputDecoration('First name (required)', editMode),
                       style: textStyle(editMode),
                       initialValue: user.firstName,
                       maxLength: 300,
@@ -173,7 +190,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 25.0),
                     TextFormField(
                       enabled: editMode,
-                      decoration: inputDecoration('Last Name', editMode),
+                      decoration: inputDecoration('Last name (required)', editMode),
                       style: textStyle(editMode),
                       initialValue: user.lastName,
                       maxLength: 150,
@@ -215,96 +232,87 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                       onInputValidated: (final bool value) {
                         if (user.phone!.isEmpty) {
-                          setState(() {
-                            validPhoneNumber = true;
-                          });
+                          validPhoneNumberNotifier.value = true;
                         } else {
-                          if (validPhoneNumber != value) {
-                            setState(() {
-                              validPhoneNumber = value;
-                            });
+                          if (validPhoneNumberNotifier.value != value) {
+                            validPhoneNumberNotifier.value = value;
                           }
                         }
                       },
                       autoValidateMode: isNotTestMode ?
-                      AutovalidateMode.onUserInteraction
-                          : AutovalidateMode.disabled,
-                      selectorTextStyle: const TextStyle(color: Colors.black),
-                      initialValue: PhoneNumber(phoneNumber: user.phone, isoCode: 'US'),
-                      keyboardType: const TextInputType.numberWithOptions(
-                          signed: true,
-                          decimal: true
+                        AutovalidateMode.onUserInteraction
+                            : AutovalidateMode.disabled,
+                        initialValue: PhoneNumber(phoneNumber: user.phone, isoCode: 'US'),
+                        keyboardType: const TextInputType.numberWithOptions(
+                            signed: true,
+                            decimal: true
+                        ),
+                        ignoreBlank: true,
+                        inputBorder: const OutlineInputBorder(),
                       ),
-                      ignoreBlank: true,
-                      inputBorder: const OutlineInputBorder(),
-                    ),
-                    const SizedBox(height: 25.0),
-                    TextFormField(
-                      enabled: editMode,
-                      decoration: inputDecoration('Address', editMode),
-                      style: textStyle(editMode),
-                      keyboardType: TextInputType.streetAddress,
-                      initialValue: user.address,
-                      onChanged: (final val) {
-                        user.address = val;
-                      },
-                    ),
-                    const SizedBox(height: 25.0),
-                    TextFormField(
-                      enabled: editMode,
-                      decoration: inputDecoration('Address 2', editMode),
-                      style: textStyle(editMode),
-                      keyboardType: TextInputType.streetAddress,
-                      initialValue: user.address2,
-                      onChanged: (final val) {
-                        user.address2 = val;
-                      },
-                    ),
-                    const SizedBox(height: 25.0),
-                    TextFormField(
-                      enabled: editMode,
-                      decoration: inputDecoration('City', editMode),
-                      style: textStyle(editMode),
-                      keyboardType: TextInputType.streetAddress,
-                      initialValue: user.city,
-                      onChanged: (final val) {
-                        user.city = val;
-                      },
-                    ),
-                    const SizedBox(height: 25.0),
-                    TextFormField(
-                      enabled: editMode,
-                      decoration: inputDecoration('State', editMode),
-                      style: textStyle(editMode),
-                      keyboardType: TextInputType.streetAddress,
-                      initialValue: user.state,
-                      onChanged: (final val) {
-                        user.state = val;
-                      },
-                    ),
-                    const SizedBox(height: 25.0),
-                    TextFormField(
-                      enabled: editMode,
-                      decoration: inputDecoration('Zip', editMode),
-                      style: textStyle(editMode),
-                      initialValue: user.zip,
-                      onChanged: (final val) {
-                        user.zip = val;
-                      },
-                      keyboardType: TextInputType.number,
-                    ),
-                  ],
+                      const SizedBox(height: 25.0),
+                      TextFormField(
+                        enabled: editMode,
+                        decoration: inputDecoration('Address', editMode),
+                        style: textStyle(editMode),
+                        keyboardType: TextInputType.streetAddress,
+                        initialValue: user.address,
+                        onChanged: (final val) {
+                          user.address = val;
+                        },
+                      ),
+                      const SizedBox(height: 25.0),
+                      TextFormField(
+                        enabled: editMode,
+                        decoration: inputDecoration('Address 2', editMode),
+                        style: textStyle(editMode),
+                        keyboardType: TextInputType.streetAddress,
+                        initialValue: user.address2,
+                        onChanged: (final val) {
+                          user.address2 = val;
+                        },
+                      ),
+                      const SizedBox(height: 25.0),
+                      TextFormField(
+                        enabled: editMode,
+                        decoration: inputDecoration('City', editMode),
+                        style: textStyle(editMode),
+                        keyboardType: TextInputType.streetAddress,
+                        initialValue: user.city,
+                        onChanged: (final val) {
+                          user.city = val;
+                        },
+                      ),
+                      const SizedBox(height: 25.0),
+                      TextFormField(
+                        enabled: editMode,
+                        decoration: inputDecoration('State', editMode),
+                        style: textStyle(editMode),
+                        keyboardType: TextInputType.streetAddress,
+                        initialValue: user.state,
+                        onChanged: (final val) {
+                          user.state = val;
+                        },
+                      ),
+                      const SizedBox(height: 25.0),
+                      TextFormField(
+                        enabled: editMode,
+                        decoration: inputDecoration('Zip', editMode),
+                        style: textStyle(editMode),
+                        initialValue: user.zip,
+                        onChanged: (final val) {
+                          user.zip = val;
+                        },
+                        keyboardType: TextInputType.number,
+                      ),
+                    ],
+                  )
                 )
               )
             )
           )
-        )
-      ],
+        ],
+      )
     );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }

@@ -1,27 +1,33 @@
 {
   "hosting": {
-    "target": "angeleno-my-account-dev-402917",
+    "target": "HOSTING_TARGET",
     "public": "build/web",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ],
-    "redirects": [{
-      "source": "/signup",
-      "destination": "https://AUTH0_DOMAIN/authorize?response_type=code&client_id=AUTH0_CLIENT_ID&redirect_uri=https://dev.my.account.lacity.gov/&screen_hint=signup",
-      "type": 301
-    }],
-    "rewrites": [
+    "redirects": [
       {
-        "source": "/maps/**",
-        "function": "maps",
-        "region": "us-central1"
+        "source": "/signup",
+        "destination": "https://AUTH0_DOMAIN/authorize?response_type=code&client_id=AUTH0_CLIENT_ID&redirect_uri=AUTH0_REDIRECT_URI/&screen_hint=signup",
+        "type": 301
       },
+      {
+        "source": ".well-known/change-password",
+        "destination": "/password-change",
+        "type": 302
+      }
+    ],
+    "rewrites": [
       {
         "source": "/auth0/**",
         "function": "auth0",
-        "region": "us-central1"
+        "region": "us-west1"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
       }
     ]
   },
@@ -29,16 +35,6 @@
     {
       "source": "functions/auth0",
       "codebase": "auth0",
-      "ignore": [
-        "node_modules",
-        ".git",
-        "firebase-debug.log",
-        "firebase-debug.*.log"
-      ]
-    },
-    {
-      "source": "functions/maps",
-      "codebase": "maps",
       "ignore": [
         "node_modules",
         ".git",
