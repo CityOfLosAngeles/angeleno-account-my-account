@@ -126,7 +126,7 @@ export const updatePassword = onRequest(async (req, res) => {
       },
       data: {
         password: newPassword,
-        connection: 'Angeleno-Users-Default',
+        connection: 'Angeleno-Account-Users',
       },
     };
 
@@ -141,6 +141,16 @@ export const updatePassword = onRequest(async (req, res) => {
       data: {error_description, message},
     } = err?.response;
 
+    if (message.toLowerCase().includes('passwordbreachederror')) {
+      return res
+        .status(status)
+        .send(
+          `This combination of email address and password was detected in a public data breach on another site.\n` +
+          `To keep your Angeleno Account secure, please use a new, unique password. ` +
+          `For more information, visit help article <a href="https://account.lacity.gov/help/password-breach" target="_blank">Breached password on another site.</a>`
+        );
+    }
+
     res
       .status(status)
       .send(message || error_description || 'Error encountered');
@@ -148,7 +158,7 @@ export const updatePassword = onRequest(async (req, res) => {
 });
 
 export const authMethods = onRequest(async (req, res) => {
-  const userId = req.params.userId;
+  const userId = req.query.userId;
 
   if (!userId) {
     res.status(400).send('Invalid request - missing required fields.');

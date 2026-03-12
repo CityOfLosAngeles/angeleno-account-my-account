@@ -11,13 +11,7 @@ class MfaMethod {
     this.active = false,
     this.oobChannel = '',
     this.name = '',
-  }) {
-    id = id;
-    authenticatorType = authenticatorType;
-    active = active;
-    oobChannel = oobChannel;
-    name = name;
-  }
+  });
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -28,9 +22,9 @@ class MfaMethod {
   };
 
   factory MfaMethod.fromJson(final Map<String, dynamic> json) => MfaMethod(
-    id: json['id']! as String? ?? '',
-    authenticatorType: json['authenticator_type']! as String? ?? '',
-    active: json['active'] as bool,
+    id: json['id'] as String? ?? '',
+    authenticatorType: json['authenticator_type'] as String? ?? '',
+    active: json['active'] as bool? ?? false,
     oobChannel: json['oob_channel'] as String? ?? '',
     name: json['name'] as String? ?? ''
   );
