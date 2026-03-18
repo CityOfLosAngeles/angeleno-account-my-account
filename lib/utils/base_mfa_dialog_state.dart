@@ -148,6 +148,7 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const SizedBox(height: 20),
                 Text('Enroll $methodBeingEnrolled',
                   textAlign: TextAlign.left,
                   style: const TextStyle(
