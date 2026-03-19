@@ -18,11 +18,22 @@ import {
   requestMFAToken
 } from './api/auth0.js';
 
+import rateLimit from 'express-rate-limit';
+
 admin.initializeApp();
 setGlobalOptions({
   region: 'us-west1'
 })
 const app = express();
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use(limiter);
 
 const client = jwksClient({
   jwksUri: `https://${auth0Domain}/.well-known/jwks.json`
