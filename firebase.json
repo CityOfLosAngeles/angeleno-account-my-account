@@ -7,6 +7,13 @@
       "**/.*",
       "**/node_modules/**"
     ],
+    "headers": [{
+      "source": "/signup",
+      "headers": [{
+        "key": "Cache-Control",
+        "value": "max-age=0"
+      }]
+    }],
     "redirects": [
       {
         "source": "/signup",
@@ -17,6 +24,11 @@
         "source": ".well-known/change-password",
         "destination": "/password-change",
         "type": 302
+      },
+      {
+        "source": "/google",
+        "destination": "https://www.google.com",
+        "type": 301
       }
     ],
     "rewrites": [
