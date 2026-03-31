@@ -81,13 +81,13 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
     [
       OutlinedButton(
         onPressed: passwordField.text.isEmpty ? null : () {
-          enrollMobile();
+          navigateToNextPage();
         },
         child: const Text('Continue'),
       ),
       OutlinedButton(
         onPressed: !validPhoneNumber && isNotTestMode ? null : () {
-          navigateToNextPage();
+          enrollMobile();
         },
         child: const Text('Continue'),
       ),
