@@ -6,6 +6,7 @@ import 'constants.dart';
 
 abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
   final passwordField = TextEditingController();
+  final passwordFocusNode = FocusNode();
   List<Widget> get dialogNext => [];
   Widget get dialogBody;
   int pageIndex = 0;
@@ -32,6 +33,7 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
   @override
   void dispose() {
     passwordField.dispose();
+    passwordFocusNode.dispose();
     super.dispose();
   }
 
@@ -62,58 +64,68 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
     }
   }
 
-  Widget passwordPrompt(final String promptText, final VoidCallback onSubmit) => modalBody(
-    Align(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            promptText,
-            textAlign: TextAlign.center,
-            softWrap: true,
-          ),
-          const SizedBox(height: 15),
-          SizedBox(
-            key: const Key('passwordField'),
-            width: 250,
-            child: TextFormField(
-              autofocus: true,
-              controller: passwordField,
-              onFieldSubmitted: (final value) {
-                onSubmit();
-              },
-              obscureText: obscurePassword,
-              enableSuggestions: false,
-              autocorrect: false,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              validator: (final value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Password is required';
-                }
-                return null;
-              },
-              decoration: InputDecoration(
-                suffixIcon: IconButton(
-                  key: const Key('toggle_password'),
-                  onPressed: () {
-                    setState(() {
-                      obscurePassword = !obscurePassword;
-                    });
-                  },
-                  icon: Icon(
-                      obscurePassword ? Icons.visibility : Icons.visibility_off
-                  ),
-                )
+  Widget passwordPrompt(final String promptText, final VoidCallback onSubmit) {
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && !passwordFocusNode.hasFocus) {
+        passwordFocusNode.requestFocus();
+      }
+    });
+
+    return modalBody(
+      Align(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              promptText,
+              textAlign: TextAlign.center,
+              softWrap: true,
+            ),
+            const SizedBox(height: 15),
+            SizedBox(
+              key: const Key('passwordField'),
+              width: 250,
+              child: TextFormField(
+                focusNode: passwordFocusNode,
+                // autofocus: true,
+                controller: passwordField,
+                onFieldSubmitted: (final value) {
+                  onSubmit();
+                },
+                obscureText: obscurePassword,
+                enableSuggestions: false,
+                autocorrect: false,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                validator: (final value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Password is required';
+                  }
+                  return null;
+                },
+                decoration: InputDecoration(
+                  suffixIcon: IconButton(
+                    key: const Key('toggle_password'),
+                    onPressed: () {
+                      setState(() {
+                        obscurePassword = !obscurePassword;
+                      });
+                    },
+                    icon: Icon(
+                        obscurePassword ? Icons.visibility : Icons.visibility_off
+                    ),
+                  )
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 15),
-          if (errorMessage.isNotEmpty)
-            ErrorMessage(message: errorMessage)
-        ],
-      ),
-    )
-  );
+            const SizedBox(height: 15),
+            if (errorMessage.isNotEmpty)
+              ErrorMessage(message: errorMessage)
+          ],
+        ),
+      )
+    );
+  }
 
   List<Widget> get dialogActions {
 
