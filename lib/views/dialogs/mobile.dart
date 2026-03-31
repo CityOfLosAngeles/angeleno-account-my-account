@@ -456,8 +456,8 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
   }
 
   List<Widget> get screens => [
-    phonePrompt,
     passwordPromptWidget,
+    phonePrompt,
     if (requireAdditionalAuthentication) ...[
       authenticatorList,
       mfaAuthCodeScreen,
