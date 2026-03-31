@@ -80,14 +80,14 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
   List<Widget> get dialogNext =>
     [
       OutlinedButton(
-        onPressed: !validPhoneNumber && isNotTestMode ? null : () {
-          navigateToNextPage();
+        onPressed: passwordField.text.isEmpty ? null : () {
+          enrollMobile();
         },
         child: const Text('Continue'),
       ),
       OutlinedButton(
-        onPressed: passwordField.text.isEmpty ? null : () {
-          enrollMobile();
+        onPressed: !validPhoneNumber && isNotTestMode ? null : () {
+          navigateToNextPage();
         },
         child: const Text('Continue'),
       ),
