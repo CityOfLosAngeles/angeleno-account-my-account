@@ -256,7 +256,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
                 });
               },
               onFieldSubmitted: (final value) {
-                navigateToNextPage();
+                enrollMobile();
               },
               autoFocus: true,
               autoValidateMode: isNotTestMode ?
@@ -325,7 +325,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
 
   Widget get passwordPromptWidget => passwordPrompt(
     'Please enter your password:',
-    enrollMobile
+    navigateToNextPage
   );
 
   Widget get authenticatorList => modalBody(
