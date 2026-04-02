@@ -188,6 +188,7 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
     final bool isSmallScreen = screenWidth < smallScreenWidthBreakpoint;
 
     _isSmallScreen = isSmallScreen;
+    passwordFocusNode.requestFocus();
 
     return isSmallScreen
         ?
