@@ -172,7 +172,7 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
   @override
   Widget build(final BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
-    final bool isSmallScreen = screenWidth < smallScreen;
+    final bool isSmallScreen = screenWidth < smallScreenWidthBreakpoint;
 
     _isSmallScreen = isSmallScreen;
 
