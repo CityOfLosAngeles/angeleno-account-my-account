@@ -42,11 +42,7 @@ jobs:
             echo ENVIRONMENT="${{ secrets.ENVIRONMENT }}" >> .env
             echo DATADOG_CLIENT_TOKEN="${{ secrets.DATADOG_CLIENT_TOKEN }}" >> .env
             echo DATADOG_APP_ID="${{ secrets.DATADOG_APP_ID }}" >> .env
-<<<<<<< flutter-build-release-flag
-      - run: flutter build web --dart-define-from-file=.env --release
-=======
 
->>>>>>> development
       - name: Update .firebaserc
         run: |
           old_project="DEFAULT_PROJECT"
