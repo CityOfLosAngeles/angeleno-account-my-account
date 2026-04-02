@@ -49,7 +49,7 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
     authMethods = widget.authMethods;
 
     setState(() {
-      methodBeingEnrolled = 'Authenticator Application';
+      methodBeingEnrolled = 'authenticator application';
     });
   }
 

@@ -63,7 +63,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
     authMethods = widget.authMethods;
 
     setState(() {
-      methodBeingEnrolled = widget.channel == 'sms' ? 'SMS' : 'Voice';
+      methodBeingEnrolled = widget.channel == 'sms' ? 'SMS' : 'phone call';
     });
   }
 
@@ -324,8 +324,8 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
   }
 
   Widget get passwordPromptWidget => passwordPrompt(
-    'Please enter your password:',
-    navigateToNextPage
+      'Set up $methodBeingEnrolled. Continue MFA setup to add an additional layer of security when signing in to your account. \n\n Please enter your password:',
+      navigateToNextPage
   );
 
   Widget get authenticatorList => modalBody(
