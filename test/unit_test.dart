@@ -9,6 +9,7 @@ import 'package:angeleno_project/models/mfa_method.dart';
 import 'package:angeleno_project/models/mfa_response.dart';
 import 'package:angeleno_project/models/password_reset.dart';
 import 'package:angeleno_project/models/user.dart';
+import 'package:angeleno_project/utils/base_mfa_dialog_state.dart';
 import 'package:angeleno_project/utils/error_message.dart';
 import 'package:angeleno_project/utils/theme.dart';
 import 'package:angeleno_project/views/screens/password_screen.dart';
@@ -1666,5 +1667,386 @@ void main() {
   navigationButtonWidgetTests();
   passwordScreenWidgetTests();
   profileScreenWidgetTests();
+  baseDialogStateTests();
 }
 
+
+// =========================================================================
+//  CONCRETE TEST SUBCLASS FOR BaseDialogState
+// =========================================================================
+
+/// A minimal concrete implementation of BaseDialogState for testing.
+class TestMfaDialog extends StatefulWidget {
+  final String method;
+  final String initialError;
+
+  const TestMfaDialog({
+    this.method = 'TestMethod',
+    this.initialError = '',
+    super.key,
+  });
+
+  @override
+  State<TestMfaDialog> createState() => TestMfaDialogState();
+}
+
+class TestMfaDialogState extends BaseDialogState<TestMfaDialog> {
+  @override
+  void initState() {
+    super.initState();
+    methodBeingEnrolled = widget.method;
+    if (widget.initialError.isNotEmpty) {
+      errorMessage = widget.initialError;
+    }
+  }
+
+  @override
+  List<Widget> get dialogNext => [
+    OutlinedButton(
+      key: const Key('next_0'),
+      onPressed: () => navigateToNextPage(),
+      child: const Text('Continue'),
+    ),
+    // The last page button pops directly (matches real dialog behavior
+    // where confirmAuthenticator / confirmCode call Navigator.pop)
+    Builder(
+      builder: (ctx) => FilledButton(
+        key: const Key('next_1'),
+        onPressed: () => Navigator.pop(ctx),
+        child: const Text('Finish'),
+      ),
+    ),
+  ];
+
+  List<Widget> get pages => [
+    passwordPrompt('Enter your password:', () {}),
+    modalBody(const Center(child: Text('Confirmation page'))),
+  ];
+
+  @override
+  Widget get dialogBody => pages[pageIndex];
+}
+
+// ---------------------------------------------------------------------------
+// Helper: opens a TestMfaDialog via showDialog so Navigator.pop works
+// ---------------------------------------------------------------------------
+Future<void> openTestDialog(
+  WidgetTester tester, {
+  String method = 'TestMethod',
+  String initialError = '',
+}) async {
+  await tester.pumpWidget(
+    MaterialApp(
+      home: Scaffold(
+        body: Builder(
+          builder: (context) => TextButton(
+            onPressed: () => showDialog<void>(
+              context: context,
+              builder: (_) => TestMfaDialog(
+                method: method,
+                initialError: initialError,
+              ),
+            ),
+            child: const Text('Open Dialog'),
+          ),
+        ),
+      ),
+    ),
+  );
+
+  await tester.tap(find.text('Open Dialog'));
+  await tester.pumpAndSettle();
+}
+
+// =========================================================================
+//  BASE DIALOG STATE TESTS
+// =========================================================================
+void baseDialogStateTests() {
+  group('BaseDialogState', () {
+    // ------------------------------------------------------------------
+    //  Rendering
+    // ------------------------------------------------------------------
+    testWidgets('large screen renders AlertDialog with method title',
+        (WidgetTester tester) async {
+      await openTestDialog(tester, method: 'Authenticator');
+
+      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.text('Enroll Authenticator'), findsOneWidget);
+    });
+
+    testWidgets('small screen renders fullscreen Dialog',
+        (WidgetTester tester) async {
+      // Set surface to narrow width (< 575 breakpoint)
+      tester.view.physicalSize = const Size(400, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await openTestDialog(tester, method: 'SMS');
+
+      // Should NOT be a standard AlertDialog
+      expect(find.byType(AlertDialog), findsNothing);
+      // Should render as Dialog.fullscreen
+      expect(find.byType(Dialog), findsOneWidget);
+      // The title "Enroll SMS" is shown inside the body (modalBody) on small screens
+      expect(find.text('Enroll SMS'), findsOneWidget);
+    });
+
+    // ------------------------------------------------------------------
+    //  Password prompt
+    // ------------------------------------------------------------------
+    testWidgets('password prompt shows prompt text',
+        (WidgetTester tester) async {
+      await openTestDialog(tester);
+
+      expect(find.text('Enter your password:'), findsOneWidget);
+    });
+
+    testWidgets('password field is present',
+        (WidgetTester tester) async {
+      await openTestDialog(tester);
+
+      expect(find.byKey(const Key('passwordField')), findsOneWidget);
+    });
+
+    testWidgets('password field is initially obscured',
+        (WidgetTester tester) async {
+      await openTestDialog(tester);
+
+      // The visibility icon indicates the password is hidden
+      expect(find.byIcon(Icons.visibility), findsOneWidget);
+      expect(find.byIcon(Icons.visibility_off), findsNothing);
+    });
+
+    testWidgets('toggle password visibility',
+        (WidgetTester tester) async {
+      await openTestDialog(tester);
+
+      // Tap the toggle button
+      await tester.tap(find.byKey(const Key('toggle_password')));
+      await tester.pump();
+
+      // Now the eye-off icon should appear (password is visible)
+      expect(find.byIcon(Icons.visibility_off), findsOneWidget);
+      expect(find.byIcon(Icons.visibility), findsNothing);
+
+      // Tap again to re-obscure
+      await tester.tap(find.byKey(const Key('toggle_password')));
+      await tester.pump();
+
+      expect(find.byIcon(Icons.visibility), findsOneWidget);
+    });
+
+    testWidgets('password validation: empty shows error',
+        (WidgetTester tester) async {
+      await openTestDialog(tester);
+
+      // Type and clear to trigger validation
+      final pwField = find.byKey(const Key('passwordField'));
+      await tester.enterText(
+        find.descendant(of: pwField, matching: find.byType(TextFormField)),
+        'x',
+      );
+      await tester.pump();
+      await tester.enterText(
+        find.descendant(of: pwField, matching: find.byType(TextFormField)),
+        '',
+      );
+      await tester.pump();
+
+      expect(find.text('Password is required'), findsOneWidget);
+    });
+
+    testWidgets('password validation: non-empty passes',
+        (WidgetTester tester) async {
+      await openTestDialog(tester);
+
+      final pwField = find.byKey(const Key('passwordField'));
+      await tester.enterText(
+        find.descendant(of: pwField, matching: find.byType(TextFormField)),
+        'mySecretPassword',
+      );
+      await tester.pump();
+
+      expect(find.text('Password is required'), findsNothing);
+    });
+
+    // ------------------------------------------------------------------
+    //  Error message
+    // ------------------------------------------------------------------
+    testWidgets('error message displayed when non-empty',
+        (WidgetTester tester) async {
+      await openTestDialog(tester, initialError: 'Invalid credentials');
+
+      expect(find.byType(ErrorMessage), findsOneWidget);
+      expect(find.text('Invalid credentials'), findsOneWidget);
+    });
+
+    testWidgets('no error message when empty',
+        (WidgetTester tester) async {
+      await openTestDialog(tester);
+
+      expect(find.byType(ErrorMessage), findsNothing);
+    });
+
+    // ------------------------------------------------------------------
+    //  Dialog actions at page 0
+    // ------------------------------------------------------------------
+    testWidgets('page 0: Cancel and Continue buttons present, no Back',
+        (WidgetTester tester) async {
+      await openTestDialog(tester);
+
+      expect(find.text('Cancel'), findsOneWidget);
+      expect(find.text('Continue'), findsOneWidget);
+      expect(find.text('Back'), findsNothing);
+    });
+
+    testWidgets('Cancel button closes the dialog',
+        (WidgetTester tester) async {
+      await openTestDialog(tester);
+
+      // Dialog should be open
+      expect(find.byType(AlertDialog), findsOneWidget);
+
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+
+      // Dialog should be gone, back to the home scaffold
+      expect(find.byType(AlertDialog), findsNothing);
+      expect(find.text('Open Dialog'), findsOneWidget);
+    });
+
+    // ------------------------------------------------------------------
+    //  Page navigation
+    // ------------------------------------------------------------------
+    testWidgets('Continue navigates to page 1',
+        (WidgetTester tester) async {
+      await openTestDialog(tester);
+
+      // Page 0 content
+      expect(find.text('Enter your password:'), findsOneWidget);
+
+      await tester.tap(find.text('Continue'));
+      await tester.pumpAndSettle();
+
+      // Page 1 content
+      expect(find.text('Confirmation page'), findsOneWidget);
+      expect(find.text('Enter your password:'), findsNothing);
+    });
+
+    testWidgets('page 1: Back button appears alongside Finish',
+        (WidgetTester tester) async {
+      await openTestDialog(tester);
+
+      // Navigate to page 1
+      await tester.tap(find.text('Continue'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Back'), findsOneWidget);
+      expect(find.text('Finish'), findsOneWidget);
+      expect(find.text('Cancel'), findsOneWidget);
+    });
+
+    testWidgets('Back button returns to page 0',
+        (WidgetTester tester) async {
+      await openTestDialog(tester);
+
+      // Go to page 1
+      await tester.tap(find.text('Continue'));
+      await tester.pumpAndSettle();
+      expect(find.text('Confirmation page'), findsOneWidget);
+
+      // Tap Back
+      await tester.tap(find.text('Back'));
+      await tester.pumpAndSettle();
+
+      // Should be back on page 0
+      expect(find.text('Enter your password:'), findsOneWidget);
+      expect(find.text('Confirmation page'), findsNothing);
+      expect(find.text('Back'), findsNothing);
+    });
+
+    testWidgets('Finish on last page closes the dialog',
+        (WidgetTester tester) async {
+      await openTestDialog(tester);
+
+      // Go to page 1
+      await tester.tap(find.text('Continue'));
+      await tester.pumpAndSettle();
+
+      // Tap Finish (navigateToNextPage with pageIndex at end → pops)
+      await tester.tap(find.text('Finish'));
+      await tester.pumpAndSettle();
+
+      // Dialog should be closed
+      expect(find.byType(AlertDialog), findsNothing);
+      expect(find.text('Open Dialog'), findsOneWidget);
+    });
+
+    // ------------------------------------------------------------------
+    //  Full navigation flow
+    // ------------------------------------------------------------------
+    testWidgets('full flow: page 0 → page 1 → back → page 1 → finish',
+        (WidgetTester tester) async {
+      await openTestDialog(tester);
+
+      // Page 0
+      expect(find.text('Enter your password:'), findsOneWidget);
+
+      // → Page 1
+      await tester.tap(find.text('Continue'));
+      await tester.pumpAndSettle();
+      expect(find.text('Confirmation page'), findsOneWidget);
+
+      // ← Back to Page 0
+      await tester.tap(find.text('Back'));
+      await tester.pumpAndSettle();
+      expect(find.text('Enter your password:'), findsOneWidget);
+
+      // → Page 1 again
+      await tester.tap(find.text('Continue'));
+      await tester.pumpAndSettle();
+      expect(find.text('Confirmation page'), findsOneWidget);
+
+      // Finish → dialog closes
+      await tester.tap(find.text('Finish'));
+      await tester.pumpAndSettle();
+      expect(find.byType(AlertDialog), findsNothing);
+    });
+
+    // ------------------------------------------------------------------
+    //  methodBeingEnrolled in title
+    // ------------------------------------------------------------------
+    testWidgets('custom method name appears in AlertDialog title',
+        (WidgetTester tester) async {
+      await openTestDialog(tester, method: 'Voice');
+
+      expect(find.text('Enroll Voice'), findsOneWidget);
+    });
+
+    // ------------------------------------------------------------------
+    //  Small screen specifics
+    // ------------------------------------------------------------------
+    testWidgets('small screen: title, body, and actions rendered inside modalBody',
+        (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(400, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await openTestDialog(tester, method: 'SMS');
+
+      // Title inside the body
+      expect(find.text('Enroll SMS'), findsOneWidget);
+      // Password prompt
+      expect(find.text('Enter your password:'), findsOneWidget);
+      // Actions rendered inline
+      expect(find.text('Cancel'), findsOneWidget);
+      expect(find.text('Continue'), findsOneWidget);
+    });
+  });
+}
