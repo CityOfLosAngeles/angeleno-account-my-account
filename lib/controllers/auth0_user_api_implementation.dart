@@ -163,7 +163,7 @@ class Auth0UserApi extends Api {
   }
 
   @override
-  Future<ApiResponse> getAuthenticationMethods(final String userId, final String applicationIds) async {
+  Future<ApiResponse> getAuthenticationMethods(final String userId) async {
 
     final token = await getOAuthToken();
 
@@ -175,7 +175,7 @@ class Auth0UserApi extends Api {
 
     try {
       final request = await http.get(
-          Uri.parse('/auth0/authMethods?userId=$userId&apps=$applicationIds'),
+          Uri.parse('/auth0/authMethods?userId=$userId'),
           headers: headers
       ).timeout(const Duration(seconds: 5));
 
@@ -368,6 +368,36 @@ class Auth0UserApi extends Api {
       return ApiResponse(e.statusCode, e.error);
     } catch (err) {
       return ApiResponse(HttpStatus.internalServerError, 'Error Encountered.');
+    }
+  }
+
+  @override
+  Future<ApiResponse> getConnectedApps(final String userId, final String applicationIds) async {
+
+    final token = await getOAuthToken();
+
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+      'X-ACCESS-TOKEN': userProvider.getAccessToken()!
+    };
+
+    try {
+      final request = await http.get(
+          Uri.parse('/auth0/consentedApps?userId=$userId&apps=$applicationIds'),
+          headers: headers
+      ).timeout(const Duration(seconds: 5));
+
+      if (request.statusCode == HttpStatus.ok) {
+        return ApiResponse(request.statusCode, request.body);
+      } else {
+        throw ApiException(request.statusCode, request.body);
+      }
+
+    } on ApiException catch(e) {
+      return ApiResponse(e.statusCode, e.error);
+    } catch (err) {
+      return ApiResponse(HttpStatus.internalServerError, 'Error Encountered');
     }
   }
 

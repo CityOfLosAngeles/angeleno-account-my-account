@@ -1,5 +1,6 @@
 import 'package:angeleno_project/controllers/overlay_provider.dart';
 import 'package:angeleno_project/utils/constants.dart';
+import 'package:angeleno_project/views/screens/consented_apps_screen.dart';
 import 'package:angeleno_project/views/screens/mfa_screen.dart';
 import 'package:angeleno_project/views/screens/password_screen.dart';
 import 'package:angeleno_project/views/screens/profile_screen.dart';
@@ -175,24 +176,24 @@ class _MyHomePageState extends State<MyHomePage> {
       _unsavedDataDialog(index);
     } else {
       // Could use a cleaner implementation
-      if ([3, 4, 5, 6].contains(index)) {
+      if ([4, 5, 6, 7].contains(index)) {
         switch(index) {
-          case 3:
+          case 4:
             await launchUrl(
               Uri.parse('https://account.lacity.gov/')
             );
             break;
-          case 4:
+          case 5:
             await launchUrl(
               Uri.parse('https://account.lacity.gov/services')
             );
             break;
-          case 5:
+          case 6:
             await launchUrl(
               Uri.parse('https://account.lacity.gov/help')
             );
             break;
-          case 6:
+          case 7:
             userProvider.logout();
             break;
         }
@@ -207,7 +208,8 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Widget> get screens => <Widget>[
     const ProfileScreen(),
     const PasswordScreen(),
-    const AdvancedSecurityScreen()
+    const AdvancedSecurityScreen(),
+    const ConsentedAppsScreen()
   ];
 
   @override
@@ -244,7 +246,7 @@ class _MyHomePageState extends State<MyHomePage> {
               children: <Widget>[
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.all(20.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
                     child: screens[navigationShell.currentIndex]
                   )
                 )
@@ -318,6 +320,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   const NavigationDrawerDestination(
                       label: Text('Multi-factor authentication', semanticsLabel: 'Navigate to multi-factor authentication page'),
                       icon: Icon(Icons.security)
+                  ),
+                  const NavigationDrawerDestination(
+                    label: Text('Connected applications', semanticsLabel: 'Navigate to consented applications page'),
+                    icon: Icon(Icons.sync_alt)
                   ),
                   const Divider(),
                   const NavigationDrawerDestination(
@@ -410,6 +416,18 @@ class _MyHomePageState extends State<MyHomePage> {
                               _navigationSelected(2);
                             },
                             isActive: navigationShell.currentIndex == 2
+                        ),
+                        const SizedBox(height: 10),
+                        NavigationButton(
+                            icon: const Icon(Icons.sync_alt),
+                            text: const Text('Connected applications',
+                                softWrap: true,
+                                semanticsLabel: 'Navigate to connected applications page'
+                            ),
+                            onPressed: () {
+                              _navigationSelected(3);
+                            },
+                            isActive: navigationShell.currentIndex == 3
                         ),
                         const Spacer(),
                         Padding(

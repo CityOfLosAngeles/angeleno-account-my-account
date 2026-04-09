@@ -2,6 +2,7 @@ import 'package:angeleno_project/controllers/overlay_provider.dart';
 import 'package:angeleno_project/controllers/user_provider.dart';
 import 'package:angeleno_project/utils/constants.dart';
 import 'package:angeleno_project/utils/theme.dart';
+import 'package:angeleno_project/views/screens/consented_apps_screen.dart';
 import 'package:angeleno_project/views/screens/mfa_screen.dart';
 import 'package:angeleno_project/views/screens/home_screen.dart';
 import 'package:angeleno_project/views/screens/password_screen.dart';
@@ -80,6 +81,14 @@ final router = GoRouter(
               builder: (final context, final state) => const AdvancedSecurityScreen(),
             )
           ]
+        ),
+        StatefulShellBranch(
+          routes: <RouteBase>[
+            GoRoute(
+              path: '/consented-applications',
+              builder: (final context, final state) => const ConsentedAppsScreen(),
+            ),
+          ],
         )
       ]
     )

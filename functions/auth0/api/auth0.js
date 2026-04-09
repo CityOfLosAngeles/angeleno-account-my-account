@@ -28,7 +28,6 @@ export const updateUser = onRequest(async (req, res) => {
       return res.status(400).send(err.message);
     }
 
-    
 
     if (user.firstName) {
       updatedUserObject['given_name'] = user.firstName;
@@ -77,6 +76,7 @@ export const updateUser = onRequest(async (req, res) => {
     user.metadata['phone'] = user.phone;
 
     updatedUserObject['user_metadata'] = user.metadata;
+  
   }
 
   const updateUserUrl = `https://${auth0Domain}/api/v2/users/${user.userId}`;
@@ -168,7 +168,6 @@ export const updatePassword = onRequest(async (req, res) => {
 
 export const authMethods = onRequest(async (req, res) => {
   const userId = req.query.userId;
-  const apps = req.query.apps || '';
 
   if (!userId) {
     res.status(400).send('Invalid request - missing required fields.');
@@ -190,15 +189,8 @@ export const authMethods = onRequest(async (req, res) => {
 
     const request = await axios.request(config);
 
-    let applications = [];
-
-    if (apps.length) {
-      applications = await getConnectedServices(apps);
-    }
-
     const response = {
-      mfaMethods: request.data,
-      services: applications.filter((e) => e !== null)
+      mfaMethods: request.data
     }
 
     res.status(200).send(response);
@@ -490,6 +482,19 @@ export const requestMFAToken = onRequest(async (req, res) => {
 
 });
 
+export const getConsentedApps = onRequest(async (req, res) => {
+  const apps = req.query.apps || '';
+
+  let applications = [];
+
+  applications = apps.length ? await getConnectedServices(apps) : [];  
+
+  res.status(200).send({
+    services: applications.filter((e) => e !== null)
+  });
+
+});
+
 const getConnectedServices = async (applicationIds) => {
 
   try {
@@ -498,7 +503,6 @@ const getConnectedServices = async (applicationIds) => {
     const thirdPartyApps = applicationIds.split(',');
 
     return await Promise.all(thirdPartyApps.map(async (appId) => {
-
 
       const clientConfig = {
         method: 'get',
