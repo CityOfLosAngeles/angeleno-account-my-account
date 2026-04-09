@@ -279,6 +279,7 @@ class _MyHomePageState extends State<MyHomePage> {
             rum: DatadogSdk.instance.rum,
             child: Scaffold(
               key: scaffoldKey,
+              resizeToAvoidBottomInset: false,
               appBar: isSmallScreen ? AppBar(
                 leadingWidth: 100,
                 leading: Padding(
