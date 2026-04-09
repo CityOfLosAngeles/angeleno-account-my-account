@@ -42,10 +42,14 @@ function getKey(header, callback){
 app.use((req, res, next) => {
 
   const accessTokenHeader = req.headers['X-ACCESS-TOKEN'] || req.headers['x-access-token'];
-  const userId = req.body.userId || req.query.userId;
+  const userId = req.body?.userId || req.query?.userId;
 
   if (!accessTokenHeader) {
     return res.status(401).send('Unauthorized: No token provided');
+  }
+
+  if (!userId) {
+    return res.status(400).send('Bad Request: No user ID provided');
   }
 
   jwt.verify(accessTokenHeader, getKey, (err, decoded) => {
