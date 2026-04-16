@@ -1,6 +1,6 @@
 import 'package:angeleno_project/controllers/overlay_provider.dart';
 import 'package:angeleno_project/utils/constants.dart';
-import 'package:angeleno_project/views/screens/consented_apps_screen.dart';
+import 'package:angeleno_project/views/screens/connected_partner_services.dart';
 import 'package:angeleno_project/views/screens/mfa_screen.dart';
 import 'package:angeleno_project/views/screens/password_screen.dart';
 import 'package:angeleno_project/views/screens/profile_screen.dart';
@@ -209,7 +209,7 @@ class _MyHomePageState extends State<MyHomePage> {
     const ProfileScreen(),
     const PasswordScreen(),
     const AdvancedSecurityScreen(),
-    const ConsentedAppsScreen()
+    const ConnectedPartnerServices()
   ];
 
   @override
@@ -310,21 +310,21 @@ class _MyHomePageState extends State<MyHomePage> {
                       ],
                     ),
                   ),
-                  const NavigationDrawerDestination(
-                      label: Text('Profile', semanticsLabel: 'Navigate to profile page'),
-                      icon: Icon(Icons.person)
+                  NavigationDrawerDestination(
+                      label: Text(NavigationItem.profile.value, semanticsLabel: 'Navigate to profile page'),
+                      icon: const Icon(Icons.person)
                   ),
-                  const NavigationDrawerDestination(
-                      label: Text('Password', semanticsLabel: 'Navigate to password page'),
-                      icon: Icon(Icons.password)
+                  NavigationDrawerDestination(
+                      label: Text(NavigationItem.password.value, semanticsLabel: 'Navigate to password page'),
+                      icon: const Icon(Icons.password)
                   ),
-                  const NavigationDrawerDestination(
-                      label: Text('Multi-factor authentication', semanticsLabel: 'Navigate to multi-factor authentication page'),
-                      icon: Icon(Icons.security)
+                  NavigationDrawerDestination(
+                      label: Text(NavigationItem.mfa.value, semanticsLabel: 'Navigate to multi-factor authentication page'),
+                      icon: const Icon(Icons.security)
                   ),
-                  const NavigationDrawerDestination(
-                    label: Text('Connected applications', semanticsLabel: 'Navigate to consented applications page'),
-                    icon: Icon(Icons.sync_alt)
+                  NavigationDrawerDestination(
+                    label: Text(NavigationItem.connectedApps.value, semanticsLabel: 'Navigate to your connected partner services page'),
+                    icon: const Icon(Icons.sync_alt)
                   ),
                   const Divider(),
                   const NavigationDrawerDestination(
@@ -391,7 +391,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         const SizedBox(height: 20),
                         NavigationButton(
                             icon: const Icon(Icons.person),
-                            text: const Text('Profile', semanticsLabel: 'Navigate to profile page'),
+                            text: Text(NavigationItem.profile.value, semanticsLabel: 'Navigate to profile page'),
                             onPressed: () {
                               _navigationSelected(0);
                             },
@@ -400,7 +400,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         const SizedBox(height: 10),
                         NavigationButton(
                           icon: const Icon(Icons.password),
-                          text: const Text('Password', semanticsLabel: 'Navigate to password page'),
+                          text: Text(NavigationItem.password.value, semanticsLabel: 'Navigate to password page'),
                           onPressed: () {
                             _navigationSelected(1);
                           },
@@ -409,7 +409,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         const SizedBox(height: 10),
                         NavigationButton(
                             icon: const Icon(Icons.security),
-                            text: const Text('Multi-factor authentication',
+                            text: Text(NavigationItem.mfa.value,
                                 softWrap: true,
                                 semanticsLabel: 'Navigate to MFA page'
                             ),
@@ -421,8 +421,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         const SizedBox(height: 10),
                         NavigationButton(
                             icon: const Icon(Icons.sync_alt),
-                            text: const Text('Connected applications',
+                            text: Text(NavigationItem.connectedApps.value,
                                 softWrap: true,
+                                maxLines: 2,
                                 semanticsLabel: 'Navigate to connected applications page'
                             ),
                             onPressed: () {

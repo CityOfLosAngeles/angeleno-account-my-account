@@ -11,7 +11,7 @@ class User {
   String? phone;
   Map<String, dynamic>? metadata;
   Map<String, dynamic> appMetadata = {};
-  Map<String, String> consentedApps = {};
+  Map<String, dynamic> consentedApps = {};
 
   User({
     required this.userId,

@@ -41,3 +41,26 @@ const headerStyle = TextStyle(
     fontSize: 20,
     fontWeight: FontWeight.bold
 );
+
+/* Navigation ENUM */
+enum NavigationItem {
+    profile('Profile'),
+    password('Password Change'),
+    mfa('Multi-factor authentication'),
+    connectedApps('Your connected partner\nservices');
+
+    const NavigationItem(this.value);
+    final String value;
+}
+
+/* Utility Class */
+class Constants {
+  static String formatDate(dynamic timestamp) {
+    if (timestamp == null || timestamp == 0) return 'Unknown';
+    final ms = timestamp is int ? timestamp : int.tryParse(timestamp.toString()) ?? 0;
+    if (ms == 0) return 'Unknown';
+    final date = DateTime.fromMillisecondsSinceEpoch(ms);
+    final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return '${months[date.month - 1]} ${date.day}, ${date.year}';
+  }
+}

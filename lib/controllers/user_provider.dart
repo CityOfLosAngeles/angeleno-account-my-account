@@ -40,7 +40,7 @@ class UserProvider extends ChangeNotifier {
 
     Address userAddress = Address();
     String phone = '';
-    final consentedApps = <String, String>{};
+    final consentedApps = <String, dynamic>{};
 
     final metadata = user.customClaims?['user_metadata']
                                   as Map<String, dynamic>? ?? {};
@@ -68,7 +68,10 @@ class UserProvider extends ChangeNotifier {
         consentedApplications.forEach((final key, final value) {
           final appDetails = value as Map<String, dynamic>;
           final scopes = appDetails['scopes'] as String? ?? '';
-          consentedApps[key] = scopes;
+          consentedApps[key] = {
+            'scopes': scopes,
+            'date': appDetails['datetime'] as int? ?? ''
+          };
         });
       }
     }

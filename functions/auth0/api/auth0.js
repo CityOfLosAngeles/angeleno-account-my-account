@@ -521,8 +521,8 @@ const getConnectedServices = async (applicationIds) => {
         client_id:clientId,
         logo_uri = '',
         client_metadata: {
-          scopes
-        }
+          scopes = ''
+        } = {}
       } = clientRequest.data
 
       return {
