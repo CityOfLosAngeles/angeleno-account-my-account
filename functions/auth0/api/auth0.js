@@ -520,6 +520,7 @@ const getConnectedServices = async (applicationIds) => {
         name,
         client_id:clientId,
         logo_uri = '',
+        initiate_login_uri = '',
         client_metadata: {
           scopes = ''
         } = {}
@@ -529,7 +530,8 @@ const getConnectedServices = async (applicationIds) => {
         name,
         logo_uri,
         clientId,
-        scopes
+        scopes,
+        loginUri: initiate_login_uri
       }
     }));
 

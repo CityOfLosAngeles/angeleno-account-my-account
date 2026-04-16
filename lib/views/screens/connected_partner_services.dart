@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../controllers/auth0_user_api_implementation.dart';
 import '../../controllers/user_provider.dart';
@@ -200,7 +201,19 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                        Text(service.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                          service.loginUri.isNotEmpty ?
+                                              InkWell(
+                                                onTap: () => launchUrl(Uri.parse(service.loginUri)),
+                                                child: Text(
+                                                  service.name,
+                                                  style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Theme.of(context).colorScheme.primary,
+                                                  ),
+                                                ),
+                                              ) :
+                                            Text(service.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                                         const SizedBox(height: 8),
                                         Text(
                                           'Connected on: ${Constants.formatDate(userProvider.user!.consentedApps[service.id]?['date'] ?? 0)}',
@@ -249,8 +262,6 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
                                               child: Column(
                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
-                                                  const Text('Permissions granted:', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                                                  const SizedBox(height: 8),
                                                   ...(userProvider.user?.consentedApps[service.id]?['scopes'] as String?)
                                                       ?.split(',')
                                                       .map((scope) => Padding(
