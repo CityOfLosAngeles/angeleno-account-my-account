@@ -140,8 +140,13 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
   @override
   Widget build(final BuildContext context) {
     // This isn't right
-    if (_connectedApps.isEmpty) {
+
+    if (_isFetching && _connectedApps.isEmpty) {
       return const Center(child: LinearProgressIndicator());
+    }
+
+    if (_connectedApps.isEmpty && _hasFetched) {
+      return const Center(child: Text('No connected partner services found.'));
     }
 
     print('Rebuilding from connected partner services');
@@ -271,7 +276,60 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
                                         SizedBox(
                                           width: double.infinity,
                                           child: FilledButton.tonal(
-                                              onPressed: () => removeConnection(service.id),
+                                              onPressed: () =>
+                                                  showDialog<int>(
+                                                      context: context,
+                                                      builder: (final BuildContext context) =>
+                                                          AlertDialog(
+                                                            title: Text('Revoke consent for ${service.name}?'),
+                                                            content: SizedBox(
+                                                                width: MediaQuery.of(context).size.width * 0.4,
+                                                                child: SingleChildScrollView(
+                                                                    child: ListBody(
+                                                                      children: <Widget>[
+                                                                        // ignore: avoid_escaping_inner_quotes
+                                                                        // ignore: lines_longer_than_80_chars
+                                                                        Text(
+                                                                            'Your Angeleno Account information will no longer be shared with ${service
+                                                                                .name}.',
+                                                                            style: const TextStyle(
+                                                                                fontWeight: FontWeight
+                                                                                    .bold)),
+                                                                        const SizedBox(
+                                                                            height: 10),
+                                                                        // ignore: lines_longer_than_80_chars
+                                                                        Text(
+                                                                            'The information you already shared with ${service
+                                                                                .name} will not be deleted. If you want to delete the information you shared with ${service
+                                                                                .name}, you will need to contact ${service
+                                                                                .name}.'),
+                                                                        const SizedBox(
+                                                                            height: 10),
+                                                                        // ignore: lines_longer_than_80_chars
+                                                                        Text('To access ${service
+                                                                            .name} again in the future, you will need to give your consent to share your Angeleno Account information again. You can give consent again by going to the ${service
+                                                                            .name} site and logging in.')
+                                                                      ],
+                                                                    )
+                                                                )
+                                                            ),
+                                                            actions: <Widget>[
+                                                              TextButton(
+                                                                child: const Text('Cancel'),
+                                                                onPressed: () {
+                                                                  Navigator.pop(context);
+                                                                },
+                                                              ),
+                                                              TextButton(
+                                                                child: const Text('Ok'),
+                                                                onPressed: () {
+                                                                  removeConnection(service.id);
+                                                                  print('Not implemented');
+                                                                },
+                                                              )
+                                                            ],
+                                                          )
+                                                  ),
                                               child: const Text('Disconnect')
                                           )
                                         )
