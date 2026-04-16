@@ -1,6 +1,7 @@
 import 'package:datadog_flutter_plugin/datadog_flutter_plugin.dart';
 import 'package:datadog_tracking_http_client/datadog_tracking_http_client.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 /* Environment variables */
 const auth0ClientId = String.fromEnvironment('CLIENT_ID');
@@ -53,14 +54,4 @@ enum NavigationItem {
     final String value;
 }
 
-/* Utility Class */
-class Constants {
-  static String formatDate(dynamic timestamp) {
-    if (timestamp == null || timestamp == 0) return 'Unknown';
-    final ms = timestamp is int ? timestamp : int.tryParse(timestamp.toString()) ?? 0;
-    if (ms == 0) return 'Unknown';
-    final date = DateTime.fromMillisecondsSinceEpoch(ms);
-    final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    return '${months[date.month - 1]} ${date.day}, ${date.year}';
-  }
-}
+var formatter = DateFormat('MMMM d, yyyy h:mm a');

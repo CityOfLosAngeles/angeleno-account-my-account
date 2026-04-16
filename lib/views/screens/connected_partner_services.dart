@@ -184,7 +184,7 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
                     return Wrap(
                         spacing: spacing, // horizontal spacing between cards
                         runSpacing: spacing, // vertical spacing between rows
-                        children: _connectedApps.map((service) => Card.outlined(
+                        children: _connectedApps.map((service) => Card.filled(
                               margin: EdgeInsets.zero,
                               color: Theme.of(context).colorScheme.surfaceContainer,
                               child: AnimatedContainer(
@@ -210,13 +210,16 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
                                                     fontSize: 18,
                                                     fontWeight: FontWeight.bold,
                                                     color: Theme.of(context).colorScheme.primary,
+                                                    decoration: TextDecoration.underline,
                                                   ),
                                                 ),
                                               ) :
                                             Text(service.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                                         const SizedBox(height: 8),
                                         Text(
-                                          'Connected on: ${Constants.formatDate(userProvider.user!.consentedApps[service.id]?['date'] ?? 0)}',
+                                          'Connected ${formatter.format(
+                                              DateTime.fromMillisecondsSinceEpoch(userProvider.user!.consentedApps[service.id]?['date'] as int)
+                                          )}',
                                         ),
                                         // Toggle button for scopes
                                         InkWell(
