@@ -6,7 +6,6 @@ import 'constants.dart';
 
 abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
   final passwordField = TextEditingController();
-  final passwordFocusNode = FocusNode();
   List<Widget> get dialogNext => [];
   Widget get dialogBody;
   int pageIndex = 0;
@@ -33,7 +32,6 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
   @override
   void dispose() {
     passwordField.dispose();
-    passwordFocusNode.dispose();
     super.dispose();
   }
 
@@ -64,68 +62,57 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
     }
   }
 
-  Widget passwordPrompt(final String promptText, final VoidCallback onSubmit) {
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && !passwordFocusNode.hasFocus) {
-        passwordFocusNode.requestFocus();
-      }
-    });
-
-    return modalBody(
-      Align(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              promptText,
-              textAlign: TextAlign.center,
-              softWrap: true,
-            ),
-            const SizedBox(height: 15),
-            SizedBox(
-              key: const Key('passwordField'),
-              width: 250,
-              child: TextFormField(
-                focusNode: passwordFocusNode,
-                // autofocus: true,
-                controller: passwordField,
-                onFieldSubmitted: (final value) {
-                  onSubmit();
-                },
-                obscureText: obscurePassword,
-                enableSuggestions: false,
-                autocorrect: false,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                validator: (final value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Password is required';
-                  }
-                  return null;
-                },
-                decoration: InputDecoration(
-                  suffixIcon: IconButton(
-                    key: const Key('toggle_password'),
-                    onPressed: () {
-                      setState(() {
-                        obscurePassword = !obscurePassword;
-                      });
-                    },
-                    icon: Icon(
-                        obscurePassword ? Icons.visibility : Icons.visibility_off
-                    ),
-                  )
-                ),
+  Widget passwordPrompt(final String promptText, final VoidCallback onSubmit) => modalBody(
+    Align(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            promptText,
+            textAlign: TextAlign.center,
+            softWrap: true,
+          ),
+          const SizedBox(height: 15),
+          SizedBox(
+            key: const Key('passwordField'),
+            width: 250,
+            child: TextFormField(
+              controller: passwordField,
+              onFieldSubmitted: (final value) {
+                onSubmit();
+              },
+              obscureText: obscurePassword,
+              enableSuggestions: false,
+              autocorrect: false,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: (final value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Password is required';
+                }
+                return null;
+              },
+              decoration: InputDecoration(
+                suffixIcon: IconButton(
+                  key: const Key('toggle_password'),
+                  onPressed: () {
+                    setState(() {
+                      obscurePassword = !obscurePassword;
+                    });
+                  },
+                  icon: Icon(
+                      obscurePassword ? Icons.visibility : Icons.visibility_off
+                  ),
+                )
               ),
             ),
-            const SizedBox(height: 15),
-            if (errorMessage.isNotEmpty)
-              ErrorMessage(message: errorMessage)
-          ],
-        ),
-      )
+          ),
+          const SizedBox(height: 15),
+          if (errorMessage.isNotEmpty)
+            ErrorMessage(message: errorMessage)
+        ],
+      ),
+    )
     );
-  }
 
   List<Widget> get dialogActions {
 
@@ -155,27 +142,27 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
     children: [
       if (_isSmallScreen) ...[
         Flexible(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 20),
-                Text('Enroll $methodBeingEnrolled',
-                  textAlign: TextAlign.left,
-                  style: const TextStyle(
-                    fontSize: 22
-                  ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20),
+              Text('Enroll $methodBeingEnrolled',
+                textAlign: TextAlign.left,
+                style: const TextStyle(
+                  fontSize: 22
                 ),
-                Expanded(
-                  child: body,
-                ),
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: dialogActions
-                )
-              ],
-            )
+              ),
+              Expanded(
+                child: body,
+              ),
+              Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: dialogActions
+              )
+            ],
+          )
         )
 
       ] else ...[body]
@@ -188,18 +175,16 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
     final bool isSmallScreen = screenWidth < smallScreenWidthBreakpoint;
 
     _isSmallScreen = isSmallScreen;
-    passwordFocusNode.requestFocus();
 
-    return isSmallScreen
-        ?
-        Dialog.fullscreen(child: Padding(padding: const EdgeInsets.all(20), child:dialogBody))
-        :
-        AlertDialog(
-          title: Text('Enroll $methodBeingEnrolled'),
-          content: dialogBody,
-          actionsAlignment: MainAxisAlignment.spaceBetween,
-          actions: dialogActions
+    return isSmallScreen ?
+      Dialog.fullscreen(child: Padding(padding: const EdgeInsets.all(20), child:dialogBody))
+      :
+      AlertDialog(
+        title: Text('Enroll $methodBeingEnrolled'),
+        content: dialogBody,
+        actionsAlignment: MainAxisAlignment.spaceBetween,
+        actions: dialogActions
 
-        );
+      );
   }
 }

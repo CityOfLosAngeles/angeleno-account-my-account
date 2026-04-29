@@ -33,9 +33,6 @@ class MobileDialog extends StatefulWidget {
 class _MobileDialogState extends BaseDialogState<MobileDialog> {
 
   final phoneField = TextEditingController();
-  final phoneFocusNode = FocusNode();
-  final codeFocusNode = FocusNode();
-  final mfaCodeFocusNode = FocusNode();
 
   late UserProvider userProvider;
   late Auth0UserApi api;
@@ -70,9 +67,6 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
   @override
   void dispose() {
     phoneField.dispose();
-    phoneFocusNode.dispose();
-    codeFocusNode.dispose();
-    mfaCodeFocusNode.dispose();
     super.dispose();
   }
 
@@ -219,15 +213,8 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
 
   }
 
-  Widget get phonePrompt {
-    // Request focus after the frame is rendered to ensure keyboard appears
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && !phoneFocusNode.hasFocus) {
-        phoneFocusNode.requestFocus();
-      }
-    });
-
-    return modalBody(Align(
+  Widget get phonePrompt => modalBody(
+    Align(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -246,7 +233,6 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
                 leadingPadding: 20.0
               ),
               key: const Key('phoneField'),
-              focusNode: phoneFocusNode,
               onInputChanged: (final PhoneNumber number) {
                 phoneNumber = number.phoneNumber!;
               },
@@ -258,7 +244,6 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
               onFieldSubmitted: (final value) {
                 enrollMobile();
               },
-              autoFocus: true,
               autoValidateMode: isNotTestMode ?
                 AutovalidateMode.onUserInteraction
                 : AutovalidateMode.disabled,
@@ -274,17 +259,9 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
         ],
       ),
     ));
-  }
 
-  Widget get codeScreen {
-    // Request focus after the frame is rendered to ensure keyboard appears
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && !codeFocusNode.hasFocus) {
-        codeFocusNode.requestFocus();
-      }
-    });
-
-    return modalBody(Align(
+  Widget get codeScreen => modalBody(
+    Align(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -293,8 +270,6 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
             width: 250,
             child: TextFormField(
               key: const Key('phoneCode'),
-              focusNode: codeFocusNode,
-              autofocus: true,
               keyboardType: TextInputType.number,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (final value) {
@@ -321,7 +296,6 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
         ],
       ),
     ));
-  }
 
   Widget get passwordPromptWidget => passwordPrompt(
       'Set up $methodBeingEnrolled. Continue MFA setup to add an additional layer of security when signing in to your account. \n\n Please enter your password:',
@@ -400,60 +374,49 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
     )
   );
 
-  Widget get mfaAuthCodeScreen {
-    // Request focus after the frame is rendered to ensure keyboard appears
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && !mfaCodeFocusNode.hasFocus) {
-        mfaCodeFocusNode.requestFocus();
-      }
-    });
-
-    return modalBody(
-      Align(
-        child: Column(
-          children: [
-            Text('Enter the code provided by your ${useAuthenticatorSecondFactor ? 'Authenticator' : 'Phone'}:',
-              style: const TextStyle(
-                decoration: TextDecoration.none,
-                fontSize: 16.0,
-                fontWeight: FontWeight.normal
-              ),
+  Widget get mfaAuthCodeScreen => modalBody(
+    Align(
+      child: Column(
+        children: [
+          Text('Enter the code provided by your ${useAuthenticatorSecondFactor ? 'Authenticator' : 'Phone'}:',
+            style: const TextStyle(
+              decoration: TextDecoration.none,
+              fontSize: 16.0,
+              fontWeight: FontWeight.normal
             ),
-            const SizedBox(height: 15),
-            SizedBox(
-              width: 250,
-              child: TextFormField(
-                key: const Key('additionalMfaCode'),
-                focusNode: mfaCodeFocusNode,
-                autofocus: true,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                keyboardType: TextInputType.number,
-                onFieldSubmitted: (final value) => getMfaToken,
-                validator: (final value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Code is required';
+          ),
+          const SizedBox(height: 15),
+          SizedBox(
+            width: 250,
+            child: TextFormField(
+              key: const Key('additionalMfaCode'),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              keyboardType: TextInputType.number,
+              onFieldSubmitted: (final value) => getMfaToken,
+              validator: (final value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Code is required';
+                }
+                return null;
+              },
+              onChanged: (final val) {
+                setState(() {
+                  if (useAuthenticatorSecondFactor) {
+                    oobCode = val;
+                  } else {
+                    mfaCode = val;
                   }
-                  return null;
-                },
-                onChanged: (final val) {
-                  setState(() {
-                    if (useAuthenticatorSecondFactor) {
-                      oobCode = val;
-                    } else {
-                      mfaCode = val;
-                    }
-                  });
-                },
-              )
-            ),
-            const SizedBox(height: 15),
-            if (errorMessage.isNotEmpty)
-              ErrorMessage(message: errorMessage)
-          ],
-        )
+                });
+              },
+            )
+          ),
+          const SizedBox(height: 15),
+          if (errorMessage.isNotEmpty)
+            ErrorMessage(message: errorMessage)
+        ],
       )
-    );
-  }
+    )
+  );
 
   List<Widget> get screens => [
     passwordPromptWidget,

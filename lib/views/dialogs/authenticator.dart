@@ -33,9 +33,6 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
   late Auth0UserApi auth0UserApi;
   late List<MfaMethod> authMethods;
 
-  final confirmationFocusNode = FocusNode();
-  final mfaCodeFocusNode = FocusNode();
-
   String authenticatorQrCode = '';
   String qrCodeAltString = '';
   String authenticatorCode = '';
@@ -55,8 +52,6 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
 
   @override
   void dispose() {
-    confirmationFocusNode.dispose();
-    mfaCodeFocusNode.dispose();
     super.dispose();
   }
 
@@ -243,55 +238,44 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
     ),
   );
 
-  Widget get confirmationScreen {
-    // Request focus after the frame is rendered to ensure keyboard appears
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && !confirmationFocusNode.hasFocus) {
-        confirmationFocusNode.requestFocus();
-      }
-    });
-
-    return modalBody(
-      Align(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('Enter the code displayed from your application:',
-                textAlign: TextAlign.center,
-                softWrap: true
-            ),
-            SizedBox(
-                width: 250,
-                child: TextFormField(
-                  key: const Key('totpCode'),
-                  focusNode: confirmationFocusNode,
-                  autofocus: true,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  keyboardType: TextInputType.number,
-                  onFieldSubmitted: (final value) {
-                    confirmAuthenticator();
-                  },
-                  validator: (final value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Code is required';
-                    }
-                    return null;
-                  },
-                  onChanged: (final val) {
-                    setState(() {
-                      authenticatorCode = val;
-                    });
-                  },
-                )
-            ),
-            const SizedBox(height: 15),
-            if (errorMessage.isNotEmpty)
-              ErrorMessage(message: errorMessage)
-          ],
-        )
+  Widget get confirmationScreen => modalBody(
+    Align(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text('Enter the code displayed from your application:',
+            textAlign: TextAlign.center,
+            softWrap: true
+          ),
+          SizedBox(
+            width: 250,
+            child: TextFormField(
+              key: const Key('totpCode'),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              keyboardType: TextInputType.number,
+              onFieldSubmitted: (final value) {
+                confirmAuthenticator();
+              },
+              validator: (final value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Code is required';
+                }
+                return null;
+              },
+              onChanged: (final val) {
+                setState(() {
+                  authenticatorCode = val;
+                });
+              },
+            )
+          ),
+          const SizedBox(height: 15),
+          if (errorMessage.isNotEmpty)
+            ErrorMessage(message: errorMessage)
+        ],
       )
+    )
     );
-  }
 
   Widget get authenticatorList => modalBody(
     Align(
@@ -357,57 +341,46 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
     )
   );
 
-  Widget get mfaAuthCodeScreen {
-    // Request focus after the frame is rendered to ensure keyboard appears
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && !mfaCodeFocusNode.hasFocus) {
-        mfaCodeFocusNode.requestFocus();
-      }
-    });
-
-    return modalBody(
-      Align(
-        child: Column(
-          children: [
-            const Text('Enter the code sent to your phone:',
-              style: TextStyle(
-                decoration: TextDecoration.none,
-                color: Colors.black,
-                fontSize: 16.0,
-                fontWeight: FontWeight.normal
-              ),
+  Widget get mfaAuthCodeScreen => modalBody(
+    Align(
+      child: Column(
+        children: [
+          const Text('Enter the code sent to your phone:',
+            style: TextStyle(
+              decoration: TextDecoration.none,
+              color: Colors.black,
+              fontSize: 16.0,
+              fontWeight: FontWeight.normal
             ),
-            const SizedBox(height: 15),
-            SizedBox(
-              width: 250,
-              child: TextFormField(
-                key: const Key('additionalMfaCode'),
-                focusNode: mfaCodeFocusNode,
-                autofocus: true,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                keyboardType: TextInputType.number,
-                onFieldSubmitted: (final value) => getMfaToken,
-                validator: (final value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Code is required';
-                  }
-                  return null;
-                },
-                onChanged: (final val) {
-                  setState(() {
-                    mfaCode = val;
-                  });
-                },
-              )
-            ),
-            const SizedBox(height: 15),
-            if (errorMessage.isNotEmpty)
-              ErrorMessage(message: errorMessage)
-          ],
-        )
+          ),
+          const SizedBox(height: 15),
+          SizedBox(
+            width: 250,
+            child: TextFormField(
+              key: const Key('additionalMfaCode'),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              keyboardType: TextInputType.number,
+              onFieldSubmitted: (final value) => getMfaToken,
+              validator: (final value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Code is required';
+                }
+                return null;
+              },
+              onChanged: (final val) {
+                setState(() {
+                  mfaCode = val;
+                });
+              },
+            )
+          ),
+          const SizedBox(height: 15),
+          if (errorMessage.isNotEmpty)
+            ErrorMessage(message: errorMessage)
+        ],
       )
+    )
     );
-  }
 
   List<Widget> get screens => [
     passwordPromptWidget,
