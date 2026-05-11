@@ -1,5 +1,6 @@
 {
     "name": "Angeleno Account",
+    "short_name": "Angeleno Account",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#f5fbf7",
