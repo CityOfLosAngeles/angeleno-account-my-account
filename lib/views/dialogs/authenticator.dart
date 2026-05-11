@@ -46,8 +46,13 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
     authMethods = widget.authMethods;
 
     setState(() {
-      methodBeingEnrolled = 'Authenticator Application';
+      methodBeingEnrolled = 'authenticator application';
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
@@ -234,35 +239,35 @@ class _AuthenticatorDialogState extends BaseDialogState<AuthenticatorDialog> {
   );
 
   Widget get confirmationScreen => modalBody(
-Align(
-      child:  Column(
+    Align(
+      child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Text('Enter the code displayed from your application:',
-              textAlign: TextAlign.center,
-              softWrap: true
+            textAlign: TextAlign.center,
+            softWrap: true
           ),
           SizedBox(
-              width: 250,
-              child: TextFormField(
-                key: const Key('totpCode'),
-                autofocus: true,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                onFieldSubmitted: (final value) {
-                  confirmAuthenticator();
-                },
-                validator: (final value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Code is required';
-                  }
-                  return null;
-                },
-                onChanged: (final val) {
-                  setState(() {
-                    authenticatorCode = val;
-                  });
-                },
-              )
+            width: 250,
+            child: TextFormField(
+              key: const Key('totpCode'),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              keyboardType: TextInputType.number,
+              onFieldSubmitted: (final value) {
+                confirmAuthenticator();
+              },
+              validator: (final value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Code is required';
+                }
+                return null;
+              },
+              onChanged: (final val) {
+                setState(() {
+                  authenticatorCode = val;
+                });
+              },
+            )
           ),
           const SizedBox(height: 15),
           if (errorMessage.isNotEmpty)
@@ -270,7 +275,7 @@ Align(
         ],
       )
     )
-  );
+    );
 
   Widget get authenticatorList => modalBody(
     Align(
@@ -353,8 +358,8 @@ Align(
             width: 250,
             child: TextFormField(
               key: const Key('additionalMfaCode'),
-              autofocus: true,
               autovalidateMode: AutovalidateMode.onUserInteraction,
+              keyboardType: TextInputType.number,
               onFieldSubmitted: (final value) => getMfaToken,
               validator: (final value) {
                 if (value == null || value.trim().isEmpty) {
@@ -375,7 +380,7 @@ Align(
         ],
       )
     )
-  );
+    );
 
   List<Widget> get screens => [
     passwordPromptWidget,
