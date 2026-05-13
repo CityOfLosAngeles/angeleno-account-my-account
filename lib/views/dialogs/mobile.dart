@@ -60,7 +60,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
     authMethods = widget.authMethods;
 
     setState(() {
-      methodBeingEnrolled = widget.channel == 'sms' ? 'SMS' : 'Voice';
+      methodBeingEnrolled = widget.channel == 'sms' ? 'SMS' : 'phone call';
     });
   }
 
@@ -74,13 +74,13 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
   List<Widget> get dialogNext =>
     [
       OutlinedButton(
-        onPressed: !validPhoneNumber && isNotTestMode ? null : () {
+        onPressed: passwordField.text.isEmpty ? null : () {
           navigateToNextPage();
         },
         child: const Text('Continue'),
       ),
       OutlinedButton(
-        onPressed: passwordField.text.isEmpty ? null : () {
+        onPressed: !validPhoneNumber && isNotTestMode ? null : () {
           enrollMobile();
         },
         child: const Text('Continue'),
@@ -213,8 +213,8 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
 
   }
 
-  Widget get phonePrompt =>
-    modalBody(Align(
+  Widget get phonePrompt => modalBody(
+    Align(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -242,9 +242,8 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
                 });
               },
               onFieldSubmitted: (final value) {
-                navigateToNextPage();
+                enrollMobile();
               },
-              autoFocus: true,
               autoValidateMode: isNotTestMode ?
                 AutovalidateMode.onUserInteraction
                 : AutovalidateMode.disabled,
@@ -261,8 +260,8 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
       ),
     ));
 
-  Widget get codeScreen =>
-    modalBody(Align(
+  Widget get codeScreen => modalBody(
+    Align(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -271,7 +270,7 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
             width: 250,
             child: TextFormField(
               key: const Key('phoneCode'),
-              autofocus: true,
+              keyboardType: TextInputType.number,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (final value) {
                 if (value == null || value
@@ -299,8 +298,8 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
     ));
 
   Widget get passwordPromptWidget => passwordPrompt(
-    'Please enter your password:',
-    enrollMobile
+      'Set up $methodBeingEnrolled. Continue MFA setup to add an additional layer of security when signing in to your account. \n\n Please enter your password:',
+      navigateToNextPage
   );
 
   Widget get authenticatorList => modalBody(
@@ -391,8 +390,8 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
             width: 250,
             child: TextFormField(
               key: const Key('additionalMfaCode'),
-              autofocus: true,
               autovalidateMode: AutovalidateMode.onUserInteraction,
+              keyboardType: TextInputType.number,
               onFieldSubmitted: (final value) => getMfaToken,
               validator: (final value) {
                 if (value == null || value.trim().isEmpty) {
@@ -420,8 +419,8 @@ class _MobileDialogState extends BaseDialogState<MobileDialog> {
   );
 
   List<Widget> get screens => [
-    phonePrompt,
     passwordPromptWidget,
+    phonePrompt,
     if (requireAdditionalAuthentication) ...[
       authenticatorList,
       mfaAuthCodeScreen,
