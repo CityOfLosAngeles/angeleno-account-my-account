@@ -33,19 +33,41 @@
   <script src="assets/packages/libphonenumber_plugin/js/stringbuffer.js"></script>
 
   <script>
-    window.navigation.addEventListener("navigate", (event) => {
-      const url = new URL(event.destination.url);
-      const env = window.flutterEnvironment;
-      const environment = env === 'production' ? '' : `${env} `;
+    (function() {
+      function updateTitleFromUrl(urlString) {
+        try {
+          var url = new URL(urlString);
+          var env = window.flutterEnvironment;
+          var environment = env === 'production' ? '' : (env ? env + ' ' : '');
+          var pathname = url.pathname;
 
-      if (url.pathname === "/profile") {
-        document.title = `Profile | ${environment}Angeleno Account`;
-      } else if (url.pathname === "/password-change") {
-        document.title = `Password change | ${environment}Angeleno Account`;
-      } else if (url.pathname === "/multi-factor-authentication") {
-        document.title = `Multi-factor authentication | ${environment}Angeleno Account`;
+          if (pathname === "/profile") {
+            document.title = "Profile | " + environment + "Angeleno Account";
+          } else if (pathname === "/password-change") {
+            document.title = "Password change | " + environment + "Angeleno Account";
+          } else if (pathname === "/multi-factor-authentication") {
+            document.title = "Multi-factor authentication | " + environment + "Angeleno Account";
+          }
+        } catch (e) {
+          // Ignore URL parsing errors to avoid breaking app startup.
+        }
       }
-    })
+
+      if (window.navigation && typeof window.navigation.addEventListener === "function") {
+        window.navigation.addEventListener("navigate", function(event) {
+          if (event && event.destination && event.destination.url) {
+            updateTitleFromUrl(event.destination.url);
+          }
+        });
+      } else {
+        window.addEventListener("popstate", function() {
+          updateTitleFromUrl(window.location.href);
+        });
+        window.addEventListener("hashchange", function() {
+          updateTitleFromUrl(window.location.href);
+        });
+      }
+    })();
   </script>
 
   <style>
