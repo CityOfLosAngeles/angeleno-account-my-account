@@ -361,7 +361,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                               'Navigate to multi-factor authentication page'),
                                           icon: Icon(Icons.security)),
                                       const NavigationDrawerDestination(
-                                          label: Text('Connected applications', semanticsLabel: 'Navigate to consented applications page'),
+                                          label: Text('Your connected\npartner services', semanticsLabel: 'Navigate to consented applications page'),
                                           icon: Icon(Icons.sync_alt)
                                       ),
                                       const Divider(),
@@ -479,9 +479,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                             const SizedBox(height: 10),
                                             NavigationButton(
                                                 icon: const Icon(Icons.sync_alt),
-                                                text: const Text('Connected applications',
+                                                text: const Text('Your connected\npartner services',
                                                     softWrap: true,
-                                                    semanticsLabel: 'Navigate to connected applications page'
+                                                    semanticsLabel: 'Navigate to connected partner services page'
                                                 ),
                                                 onPressed: () {
                                                   _navigationSelected(3);
