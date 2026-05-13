@@ -360,6 +360,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                               semanticsLabel:
                                               'Navigate to multi-factor authentication page'),
                                           icon: Icon(Icons.security)),
+                                      const NavigationDrawerDestination(
+                                          label: Text('Connected applications', semanticsLabel: 'Navigate to consented applications page'),
+                                          icon: Icon(Icons.sync_alt)
+                                      ),
                                       const Divider(),
                                       const NavigationDrawerDestination(
                                           label: Text('Home',
@@ -472,6 +476,18 @@ class _MyHomePageState extends State<MyHomePage> {
                                                 isActive: navigationShell
                                                     .currentIndex ==
                                                     2),
+                                            const SizedBox(height: 10),
+                                            NavigationButton(
+                                                icon: const Icon(Icons.sync_alt),
+                                                text: const Text('Connected applications',
+                                                    softWrap: true,
+                                                    semanticsLabel: 'Navigate to connected applications page'
+                                                ),
+                                                onPressed: () {
+                                                  _navigationSelected(3);
+                                                },
+                                                isActive: navigationShell.currentIndex == 3
+                                            ),
                                             const Spacer(),
                                             Padding(
                                               padding:
