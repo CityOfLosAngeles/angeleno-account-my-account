@@ -99,8 +99,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) => MaterialApp.router(
-    // title: 'Profile | '
-    //     '${environment == 'production' ? '' : ' $environment'} Angeleno Account',
+    title: 'Angeleno Account',
     debugShowCheckedModeBanner: false,
     theme: MaterialTheme(Theme.of(context).textTheme)
         .theme(MaterialTheme.lightScheme()),
