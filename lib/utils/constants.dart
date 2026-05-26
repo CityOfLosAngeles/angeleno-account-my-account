@@ -1,6 +1,7 @@
 import 'package:datadog_flutter_plugin/datadog_flutter_plugin.dart';
 import 'package:datadog_tracking_http_client/datadog_tracking_http_client.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 /* Environment variables */
 const auth0ClientId = String.fromEnvironment('CLIENT_ID');
@@ -41,3 +42,16 @@ const headerStyle = TextStyle(
     fontSize: 20,
     fontWeight: FontWeight.bold
 );
+
+/* Navigation ENUM */
+enum NavigationItem {
+    profile('Profile'),
+    password('Password Change'),
+    mfa('Multi-factor authentication'),
+    connectedApps('Your connected partner\nservices');
+
+    const NavigationItem(this.value);
+    final String value;
+}
+
+var formatter = DateFormat('MMMM d, yyyy h:mm a');

@@ -372,7 +372,37 @@ class Auth0UserApi extends Api {
   }
 
   @override
-  Future<ApiResponse> removeConnection(final String connectionId) async {
+  Future<ApiResponse> getConnectedApps(final String userId, final String applicationIds) async {
+
+    final token = await getOAuthToken();
+
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+      'X-ACCESS-TOKEN': userProvider.getAccessToken()!
+    };
+
+    try {
+      final request = await http.get(
+          Uri.parse('/auth0/consentedApps?userId=$userId&apps=$applicationIds'),
+          headers: headers
+      ).timeout(const Duration(seconds: 5));
+
+      if (request.statusCode == HttpStatus.ok) {
+        return ApiResponse(request.statusCode, request.body);
+      } else {
+        throw ApiException(request.statusCode, request.body);
+      }
+
+    } on ApiException catch(e) {
+      return ApiResponse(e.statusCode, e.error);
+    } catch (err) {
+      return ApiResponse(HttpStatus.internalServerError, 'Error Encountered');
+    }
+  }
+
+  @override
+  Future<ApiResponse> removeConnection(final String userId, final Map<String, dynamic> body) async {
 
     final token = await getOAuthToken();
 
@@ -383,12 +413,12 @@ class Auth0UserApi extends Api {
     };
 
     final reqBody = json.encode({
-      'connectionId': connectionId
+      'app_metadata': body,
     });
 
     try {
       final request = await http.post(
-          Uri.parse('/auth0/removeConnection'),
+          Uri.parse('/auth0/updateUser?userId=$userId'),
           headers: headers,
           body: reqBody
       ).timeout(const Duration(seconds: 5));

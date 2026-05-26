@@ -13,9 +13,9 @@ import {
   confirmMFA,
   authMethods,
   unenrollMFA,
-  removeConnection,
   challengeMfa,
-  requestMFAToken
+  requestMFAToken,
+  getConsentedApps
 } from './api/auth0.js';
 
 admin.initializeApp();
@@ -30,6 +30,10 @@ const client = jwksClient({
 
 function getKey(header, callback){
   client.getSigningKey(header.kid, function(err, key) {
+    if (err) {
+      console.error('Error getting signing key:', err);
+      return callback(err);
+    }
     var signingKey = key.publicKey || key.rsaPublicKey;
     callback(null, signingKey);
   });
@@ -38,10 +42,14 @@ function getKey(header, callback){
 app.use((req, res, next) => {
 
   const accessTokenHeader = req.headers['X-ACCESS-TOKEN'] || req.headers['x-access-token'];
-  const userId = req.body.userId || req.query.userId;
+  const userId = req.body?.userId || req.query?.userId;
 
   if (!accessTokenHeader) {
     return res.status(401).send('Unauthorized: No token provided');
+  }
+
+  if (!userId) {
+    return res.status(400).send('Bad Request: No user ID provided');
   }
 
   jwt.verify(accessTokenHeader, getKey, (err, decoded) => {
@@ -61,12 +69,12 @@ app.use((req, res, next) => {
 app.use(express.json());
 
 app.get('/auth0/authMethods', authMethods);
+app.get('/auth0/consentedApps', getConsentedApps);
 app.post('/auth0/updateUser', updateUser);
 app.post('/auth0/updatePassword', updatePassword);
 app.post('/auth0/enrollMFA', enrollMFA);
 app.post('/auth0/confirmMFA', confirmMFA);
 app.post('/auth0/unenrollMFA', unenrollMFA);
-app.post('/auth0/removeConnection', removeConnection);
 app.post('/auth0/challengeMfa', challengeMfa);
 app.post('/auth0/requestMFAToken', requestMFAToken);
 

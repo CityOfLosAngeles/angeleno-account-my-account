@@ -18,5 +18,7 @@ abstract class Api {
 
   void unenrollMFA(final Map<String, String> body);
 
-  void removeConnection(final String connectionId);
+  void getConnectedApps(final String userId, final String applicationIds);
+
+  void removeConnection(final String userId, final Map<String, dynamic> body);
 }

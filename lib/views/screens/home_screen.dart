@@ -1,5 +1,6 @@
 import 'package:angeleno_project/controllers/overlay_provider.dart';
 import 'package:angeleno_project/utils/constants.dart';
+import 'package:angeleno_project/views/screens/connected_partner_services.dart';
 import 'package:angeleno_project/views/screens/mfa_screen.dart';
 import 'package:angeleno_project/views/screens/password_screen.dart';
 import 'package:angeleno_project/views/screens/profile_screen.dart';
@@ -176,18 +177,24 @@ class _MyHomePageState extends State<MyHomePage> {
       _unsavedDataDialog(index);
     } else {
       // Could use a cleaner implementation
-      if ([3, 4, 5, 6].contains(index)) {
-        switch (index) {
-          case 3:
-            await launchUrl(Uri.parse('https://account.lacity.gov/'));
-            break;
+      if ([4, 5, 6, 7].contains(index)) {
+        switch(index) {
           case 4:
-            await launchUrl(Uri.parse('https://account.lacity.gov/services'));
+            await launchUrl(
+              Uri.parse('https://account.lacity.gov/')
+            );
             break;
           case 5:
-            await launchUrl(Uri.parse('https://account.lacity.gov/help'));
+            await launchUrl(
+              Uri.parse('https://account.lacity.gov/services')
+            );
             break;
           case 6:
+            await launchUrl(
+              Uri.parse('https://account.lacity.gov/help')
+            );
+            break;
+          case 7:
             userProvider.logout();
             break;
         }
@@ -200,10 +207,12 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   List<Widget> get screens => <Widget>[
-        const ProfileScreen(),
-        const PasswordScreen(),
-        const AdvancedSecurityScreen()
-      ];
+    const ProfileScreen(),
+    const PasswordScreen(),
+    const AdvancedSecurityScreen(),
+    const ConnectedPartnerServices()
+  ];
+
 
   @override
   Widget build(final BuildContext context) {
@@ -239,11 +248,15 @@ class _MyHomePageState extends State<MyHomePage> {
             children: <Widget>[
               Expanded(
                   child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: screens[navigationShell.currentIndex]))
-            ],
-          ),
-        )),
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
+                    child: screens[navigationShell.currentIndex]
+                  )
+                )
+              ],
+            ),
+          )
+        ),
+
         if (overlayProvider.isLoading)
           Center(
               child: Container(
@@ -347,6 +360,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                               semanticsLabel:
                                               'Navigate to multi-factor authentication page'),
                                           icon: Icon(Icons.security)),
+                                      const NavigationDrawerDestination(
+                                          label: Text('Your connected\npartner services', semanticsLabel: 'Navigate to consented applications page'),
+                                          icon: Icon(Icons.sync_alt)
+                                      ),
                                       const Divider(),
                                       const NavigationDrawerDestination(
                                           label: Text('Home',
@@ -459,6 +476,18 @@ class _MyHomePageState extends State<MyHomePage> {
                                                 isActive: navigationShell
                                                     .currentIndex ==
                                                     2),
+                                            const SizedBox(height: 10),
+                                            NavigationButton(
+                                                icon: const Icon(Icons.sync_alt),
+                                                text: const Text('Your connected\npartner services',
+                                                    softWrap: true,
+                                                    semanticsLabel: 'Navigate to connected partner services page'
+                                                ),
+                                                onPressed: () {
+                                                  _navigationSelected(3);
+                                                },
+                                                isActive: navigationShell.currentIndex == 3
+                                            ),
                                             const Spacer(),
                                             Padding(
                                               padding:
