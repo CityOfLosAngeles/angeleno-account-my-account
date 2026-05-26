@@ -25,7 +25,7 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
   bool _isFetching = false;
   bool _hasFetched = false;
   List<Service> _connectedApps = [];
-  final Set<String> _expandedServices = {}; // Track which services have expanded scopes
+  final Set<String> _expandedServices = {};
 
   late Auth0UserApi auth0UserApi;
   late UserProvider userProvider;
@@ -45,14 +45,12 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    print('didChangeDependencies called in ConnectedPartnerServices');
     if (!_isInitialized) {
       userProvider = Provider.of(context, listen: false);
       auth0UserApi = Auth0UserApi(userProvider);
 
       _userListener = () {
         if (mounted && !_hasFetched && !_isFetching && userProvider.user != null) {
-          print('Hello');
           _fetchConsentedApps();
         }
       };
@@ -61,7 +59,6 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
       userProvider.addListener(_userListener);
 
       if (userProvider.user != null && !_hasFetched && !_isFetching) {
-        print('Howdy');
         _fetchConsentedApps();
       }
       _isInitialized = true;
@@ -140,7 +137,6 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
 
   @override
   Widget build(final BuildContext context) {
-    // This isn't right
 
     if (_isFetching && _connectedApps.isEmpty) {
       return const Center(child: LinearProgressIndicator());
@@ -182,178 +178,158 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
                     final double cardWidth = (availableWidth - (spacing * (actualCardsPerRow - 1))) / actualCardsPerRow;
 
                     return Wrap(
-                        spacing: spacing, // horizontal spacing between cards
-                        runSpacing: spacing, // vertical spacing between rows
-                        children: _connectedApps.map((service) => Card.filled(
-                              margin: EdgeInsets.zero,
-                              color: Theme.of(context).colorScheme.surfaceContainer,
-                              child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 300),
-                                  curve: Curves.easeInOut,
-                                  width: cardWidth,
-                                  height: _expandedServices.contains(service.id) ? 400 : 180, // Smaller when collapsed
-                                  child: ClipRRect(
-                                    child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                                    child: SingleChildScrollView(
-                                      child: Column(
-                                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          service.loginUri.isNotEmpty ?
-                                              InkWell(
-                                                onTap: () => launchUrl(Uri.parse(service.loginUri)),
-                                                child: Text(
-                                                  service.name,
-                                                  style: TextStyle(
-                                                    fontSize: 18,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Theme.of(context).colorScheme.primary,
-                                                    decoration: TextDecoration.underline,
-                                                  ),
-                                                ),
-                                              ) :
-                                            Text(service.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          'Connected ${formatter.format(
-                                              DateTime.fromMillisecondsSinceEpoch(userProvider.user!.consentedApps[service.id]?['date'] as int)
-                                          )}',
+                      spacing: spacing, // horizontal spacing between cards
+                      runSpacing: spacing, // vertical spacing between rows
+                      children: _connectedApps.map((service) => Card.filled(
+                        margin: EdgeInsets.zero,
+                        color: Theme.of(context).colorScheme.surfaceContainer,
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                            width: cardWidth,
+                            height: _expandedServices.contains(service.id) ? 400 : 180,
+                            child: ClipRRect(
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    service.loginUri.isNotEmpty
+                                        ? InkWell(
+                                      onTap: () => launchUrl(Uri.parse(service.loginUri)),
+                                      child: Text(
+                                        service.name,
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: Theme.of(context).colorScheme.primary,
+                                          decoration: TextDecoration.underline,
                                         ),
-                                        // Toggle button for scopes
-                                        InkWell(
-                                          onTap: () {
-                                            setState(() {
-                                              if (_expandedServices.contains(service.id)) {
-                                                _expandedServices.remove(service.id);
-                                              } else {
-                                                _expandedServices.add(service.id);
-                                              }
-                                            });
-                                          },
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                            child: Row(
-                                              children: [
-                                                Icon(
-                                                  _expandedServices.contains(service.id)
-                                                    ? Icons.expand_less
-                                                    : Icons.expand_more,
-                                                  size: 20,
+                                      ),
+                                    )
+                                        : Text(service.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Connected ${formatter.format(DateTime.fromMillisecondsSinceEpoch(userProvider.user!.consentedApps[service.id]?['date'] as int))}',
+                                    ),
+                                    Expanded(
+                                      child: SingleChildScrollView(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            InkWell(
+                                              onTap: () {
+                                                setState(() {
+                                                  if (_expandedServices.contains(service.id)) {
+                                                    _expandedServices.remove(service.id);
+                                                  } else {
+                                                    _expandedServices.add(service.id);
+                                                  }
+                                                });
+                                              },
+                                              child: Padding(
+                                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      _expandedServices.contains(service.id) ? Icons.expand_less : Icons.expand_more,
+                                                      size: 20,
+                                                    ),
+                                                    const SizedBox(width: 8),
+                                                    const Expanded(
+                                                      child: Text('See what access you\'ve given to this partner service'),
+                                                    ),
+                                                  ],
                                                 ),
-                                                const SizedBox(width: 8),
-                                                const Expanded(
-
-                                                  child: Text(
-                                                    'See what access you\'ve given to this partner service',
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-
-                                        // Collapsible scopes list
-                                        if (_expandedServices.contains(service.id)) ...[
-                                          const SizedBox(height: 8),
-                                          Container(
-                                            constraints: const BoxConstraints(
-                                              maxHeight: 200, // Limit height to prevent card overflow
-                                            ),
-                                            child: SingleChildScrollView(
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  ...(userProvider.user?.consentedApps[service.id]?['scopes'] as String?)
-                                                      ?.split(',')
-                                                      .map((scope) => Padding(
-                                                            padding: const EdgeInsets.only(left: 8.0, top: 4.0, bottom: 2.0),
-                                                            child: Row(
-                                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                                              children: [
-                                                                const Text('• ', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                                Expanded(
-                                                                  child: Text(scope.trim())
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          )) ?? [],
-                                                ],
                                               ),
                                             ),
-                                          ),
-                                        ],
-                                        
-                                        // Add some spacing before button
-                                        const SizedBox(height: 20),
-                                        SizedBox(
-                                          width: double.infinity,
-                                          child: FilledButton.tonal(
-                                              onPressed: () =>
-                                                  showDialog<int>(
-                                                      context: context,
-                                                      builder: (final BuildContext context) =>
-                                                          AlertDialog(
-                                                            title: Text('Revoke consent for ${service.name}?'),
-                                                            content: SizedBox(
-                                                                width: MediaQuery.of(context).size.width * 0.4,
-                                                                child: SingleChildScrollView(
-                                                                    child: ListBody(
-                                                                      children: <Widget>[
-                                                                        // ignore: avoid_escaping_inner_quotes
-                                                                        // ignore: lines_longer_than_80_chars
-                                                                        Text(
-                                                                            'Your Angeleno Account information will no longer be shared with ${service
-                                                                                .name}.',
-                                                                            style: const TextStyle(
-                                                                                fontWeight: FontWeight
-                                                                                    .bold)),
-                                                                        const SizedBox(
-                                                                            height: 10),
-                                                                        // ignore: lines_longer_than_80_chars
-                                                                        Text(
-                                                                            'The information you already shared with ${service
-                                                                                .name} will not be deleted. If you want to delete the information you shared with ${service
-                                                                                .name}, you will need to contact ${service
-                                                                                .name}.'),
-                                                                        const SizedBox(
-                                                                            height: 10),
-                                                                        // ignore: lines_longer_than_80_chars
-                                                                        Text('To access ${service
-                                                                            .name} again in the future, you will need to give your consent to share your Angeleno Account information again. You can give consent again by going to the ${service
-                                                                            .name} site and logging in.')
-                                                                      ],
-                                                                    )
-                                                                )
-                                                            ),
-                                                            actions: <Widget>[
-                                                              TextButton(
-                                                                child: const Text('Cancel'),
-                                                                onPressed: () {
-                                                                  Navigator.pop(context);
-                                                                },
-                                                              ),
-                                                              TextButton(
-                                                                child: const Text('Ok'),
-                                                                onPressed: () {
-                                                                  removeConnection(service.id);
-                                                                  print('Not implemented');
-                                                                },
-                                                              )
+                                            // Collapsible scopes list
+                                            if (_expandedServices.contains(service.id)) ...[
+                                              const SizedBox(height: 8),
+                                              ...(userProvider.user?.consentedApps[service.id]?['scopes'] as String?)
+                                                  ?.split(',')
+                                                  .map((scope) => Padding(
+                                                padding: const EdgeInsets.only(left: 8.0, top: 4.0, bottom: 2.0),
+                                                child: Row(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    const Text('• ', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                    Expanded(child: Text(scope.trim())),
+                                                  ],
+                                                ),
+                                              )) ??
+                                                  [],
+                                            ],
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: FilledButton.tonal(
+                                        onPressed: () => showDialog<int>(
+                                            context: context,
+                                            builder: (final BuildContext context) =>
+                                                AlertDialog(
+                                                  title: Text('Revoke consent for ${service.name}?'),
+                                                  content: SizedBox(
+                                                      width: MediaQuery.of(context).size.width * 0.4,
+                                                      child: SingleChildScrollView(
+                                                          child: ListBody(
+                                                            children: <Widget>[
+                                                              // ignore: avoid_escaping_inner_quotes
+                                                              // ignore: lines_longer_than_80_chars
+                                                              Text(
+                                                                  'Your Angeleno Account information will no longer be shared with ${service
+                                                                      .name}.',
+                                                                  style: const TextStyle(
+                                                                      fontWeight: FontWeight
+                                                                          .bold)),
+                                                              const SizedBox(
+                                                                  height: 10),
+                                                              // ignore: lines_longer_than_80_chars
+                                                              Text(
+                                                                  'The information you already shared with ${service
+                                                                      .name} will not be deleted. If you want to delete the information you shared with ${service
+                                                                      .name}, you will need to contact ${service
+                                                                      .name}.'),
+                                                              const SizedBox(
+                                                                  height: 10),
+                                                              // ignore: lines_longer_than_80_chars
+                                                              Text('To access ${service
+                                                                  .name} again in the future, you will need to give your consent to share your Angeleno Account information again. You can give consent again by going to the ${service
+                                                                  .name} site and logging in.')
                                                             ],
                                                           )
+                                                      )
                                                   ),
-                                              child: const Text('Disconnect')
-                                          )
-                                        )
-                                      ],
+                                                  actions: <Widget>[
+                                                    TextButton(
+                                                      child: const Text('Cancel'),
+                                                      onPressed: () {
+                                                        Navigator.pop(context);
+                                                      },
+                                                    ),
+                                                    TextButton(
+                                                      child: const Text('Ok'),
+                                                      onPressed: () {
+                                                        removeConnection(service.id);
+                                                      },
+                                                    )
+                                                  ],
+                                                )
+                                      
+                                        ),
+                                        child: const Text('Disconnect'),
+                                      ),
                                     ),
-                                  )
-                                  )
-                              )
-                              )
-                          )).toList()
+                                  ],
+                                ),
+                              ),
+                            ),
+                          )
+                      )).toList()
                     );
                   }
                 )
