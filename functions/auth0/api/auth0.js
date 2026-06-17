@@ -138,8 +138,8 @@ export const updatePassword = onRequest(async (req, res) => {
 
     const {
       status = 500,
-      data: {error_description, message},
-    } = err?.response;
+      data: {error_description, message} = {},
+    } = err?.response ?? {};
 
     if (message && message.toLowerCase().includes('passwordbreachederror')) {
       return res
