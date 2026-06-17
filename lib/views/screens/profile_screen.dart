@@ -231,7 +231,7 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
                         }
                       },
                       onInputValidated: (final bool value) {
-                        if (user.phone!.isEmpty) {
+                        if (user.phone?.isEmpty ?? true) {
                           validPhoneNumberNotifier.value = true;
                         } else {
                           if (validPhoneNumberNotifier.value != value) {
