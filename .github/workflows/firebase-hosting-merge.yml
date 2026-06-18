@@ -69,7 +69,7 @@ jobs:
         run: |
           sed -i 's|https://account.lacity.gov|https://sandbox.account.lacity.gov|g' lib/controllers/user_provider.dart lib/views/screens/home_screen.dart
 
-      - run: flutter build web --dart-define-from-file=.env --release
+      - run: flutter build web --dart-define-from-file=.env --pwa-strategy none --release 
 
       - name: Deploy to Firebase Hosting (DEV)
         if: ${{ env.DEPLOYMENT_ENV == 'development' }}
