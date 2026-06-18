@@ -7,6 +7,17 @@
       "**/.*",
       "**/node_modules/**"
     ],
+    "headers": [
+      {
+        "source": "/assets/packages/libphonenumber_plugin/js/*.js",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "application/javascript"
+          }
+        ]
+      }
+    ],
     "redirects": [
       {
         "source": "/signup",
@@ -24,10 +35,6 @@
         "source": "/auth0/**",
         "function": "auth0",
         "region": "us-west1"
-      },
-      {
-        "source": "**",
-        "destination": "/index.html"
       }
     ]
   },
