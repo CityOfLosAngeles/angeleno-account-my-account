@@ -132,7 +132,7 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
                 ValueListenableBuilder<bool>(
                   valueListenable: validPhoneNumberNotifier,
                   builder: (final context, final valid, final child) => FilledButton(
-                    onPressed: ((user.phone!.isNotEmpty && !valid) ||
+                    onPressed: ((user.phone?.isNotEmpty == true && !valid) ||
                         !isFormValid) && isNotTestMode
                         ? null : () {
                       if (editMode) {
@@ -155,7 +155,7 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
               child: Form(
                 key: formKey,
                 onChanged: () {
-                  formKey.currentState!.save();
+                  formKey.currentState?.save();
                 },
                 autovalidateMode: AutovalidateMode.disabled,
                 child: Column(
@@ -225,13 +225,13 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
                       key: const Key('phoneField'),
                       onInputChanged: (final PhoneNumber number) {
                         if (number.parseNumber().isNotEmpty) {
-                          user.phone = number.phoneNumber!;
+                          user.phone = number.phoneNumber ?? '';
                         } else {
                           user.phone = '';
                         }
                       },
                       onInputValidated: (final bool value) {
-                        if (user.phone!.isEmpty) {
+                        if (user.phone?.isEmpty ?? true) {
                           validPhoneNumberNotifier.value = true;
                         } else {
                           if (validPhoneNumberNotifier.value != value) {
