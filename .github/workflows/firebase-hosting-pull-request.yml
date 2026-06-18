@@ -75,12 +75,31 @@ jobs:
       - run: flutter build web --dart-define-from-file=.env
 
       - name: Deploy to Firebase Hosting (DEV)
+        id: deploy_dev
         if: ${{ github.event.pull_request.base.ref == 'development' }}
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MY_ACCOUNT_DEV_402917   }}
           projectId: my-account-dev-402917
+
+      - name: Get Hosting URL
+        if: ${{ github.event.pull_request.base.ref == 'development' }}
+        run: |
+          echo "PREVIEW_CHANNEL_URL=${{ steps.deploy_dev.outputs.details_url }}" >> "$GITHUB_ENV"
+
+      - name: Preview channel matches current variable value
+        if: ${{ github.event.pull_request.base.ref == 'development' }}
+        run: |
+          echo "${{ env.PREVIEW_CHANNEL_URL }}"
+          echo "Preview channel URL: ${{ env.PREVIEW_CHANNEL_URL }}"
+          a="${{ env.PREVIEW_CHANNEL_URL }}"
+          b="${{ secrets.PREVIEW_HOSTING_URL }}"
+          if [[ "$a" == "$b" ]]; then
+            echo "true"
+          else
+            echo "false"
+          fi
 
       - name: Deploy to Firebase Hosting (Sandbox)
         if: ${{ github.event.pull_request.base.ref == 'sandbox' }}
