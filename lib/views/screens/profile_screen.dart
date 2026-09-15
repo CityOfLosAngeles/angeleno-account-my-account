@@ -102,217 +102,215 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
       isFormValid = formKey.currentState!.validate();
     }
 
-    return Scaffold(
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Semantics(
-                header: true,
-                child: const Text(
-                  'Profile',
-                  textAlign: TextAlign.left,
-                  style: headerStyle
-                )
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                child: !editMode ?
-                FilledButton.tonal(
-                  onPressed: () {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Semantics(
+              header: true,
+              child: const Text(
+                'Profile',
+                textAlign: TextAlign.left,
+                style: headerStyle
+              )
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: !editMode ?
+              FilledButton.tonal(
+                onPressed: () {
+                  setState(() {
+                    userProvider.toggleEditing();
+                  });
+                },
+                child: const Text('Edit'),
+              )
+                  :
+              ValueListenableBuilder<bool>(
+                valueListenable: validPhoneNumberNotifier,
+                builder: (final context, final valid, final child) => FilledButton(
+                  onPressed: ((user.phone!.isNotEmpty && !valid) ||
+                      !isFormValid) && isNotTestMode
+                      ? null : () {
+                    if (editMode) {
+                      updateUser();
+                    }
                     setState(() {
                       userProvider.toggleEditing();
                     });
                   },
-                  child: const Text('Edit'),
+                  child: const Text('Save'),
                 )
-                    :
-                ValueListenableBuilder<bool>(
-                  valueListenable: validPhoneNumberNotifier,
-                  builder: (final context, final valid, final child) => FilledButton(
-                    onPressed: ((user.phone!.isNotEmpty && !valid) ||
-                        !isFormValid) && isNotTestMode
-                        ? null : () {
-                      if (editMode) {
-                        updateUser();
+            )
+          )
+        ]
+      ),
+      Expanded(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.only(right: 15.0),
+            child: Form(
+              key: formKey,
+              onChanged: () {
+                formKey.currentState!.save();
+              },
+              autovalidateMode: AutovalidateMode.disabled,
+              child: Column(
+                children: [
+                  const SizedBox(height: 25.0),
+                  TextFormField(
+                    enabled: editMode,
+                    decoration: inputDecoration('First name (required)', editMode),
+                    style: textStyle(editMode),
+                    initialValue: user.firstName,
+                    maxLength: 300,
+                    maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                    keyboardType: TextInputType.name,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    validator: (final val) {
+                      if (val == null || val.trim().isEmpty) {
+                        return 'Please enter a first name';
                       }
+
+                      if (!nameRegEx.hasMatch(val)) {
+                        return 'Invalid characters in first name';
+                      }
+
+                      return null;
+                    },
+                    onChanged: (final val) {
                       setState(() {
-                        userProvider.toggleEditing();
+                        user.firstName = val;
                       });
                     },
-                    child: const Text('Save'),
-                  )
-              )
-            )
-          ]
-        ),
-        Expanded(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.only(right: 15.0),
-              child: Form(
-                key: formKey,
-                onChanged: () {
-                  formKey.currentState!.save();
-                },
-                autovalidateMode: AutovalidateMode.disabled,
-                child: Column(
-                  children: [
+                  ),
+                  const SizedBox(height: 25.0),
+                  TextFormField(
+                    enabled: editMode,
+                    decoration: inputDecoration('Last name (required)', editMode),
+                    style: textStyle(editMode),
+                    initialValue: user.lastName,
+                    maxLength: 150,
+                    maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                    keyboardType: TextInputType.name,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    validator: (final val) {
+                      if (val == null || val.trim().isEmpty) {
+                        return 'Please enter a last name';
+                      }
+
+                      if (!nameRegEx.hasMatch(val)) {
+                        return 'Invalid characters in last name';
+                      }
+
+                      return null;
+                    },
+                    onChanged: (final val) {
+                      setState(() {
+                        user.lastName = val;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 25.0),
+                  InternationalPhoneNumberInput(
+                    selectorConfig: const SelectorConfig(
+                      selectorType: PhoneInputSelectorType.DIALOG,
+                      setSelectorButtonAsPrefixIcon: true,
+                      leadingPadding: 20.0,
+                    ),
+                    isEnabled: editMode,
+                    key: const Key('phoneField'),
+                    onInputChanged: (final PhoneNumber number) {
+                      if (number.parseNumber().isNotEmpty) {
+                        user.phone = number.phoneNumber!;
+                      } else {
+                        user.phone = '';
+                      }
+                    },
+                    onInputValidated: (final bool value) {
+                      if (user.phone!.isEmpty) {
+                        validPhoneNumberNotifier.value = true;
+                      } else {
+                        if (validPhoneNumberNotifier.value != value) {
+                          validPhoneNumberNotifier.value = value;
+                        }
+                      }
+                    },
+                    autoValidateMode: isNotTestMode ?
+                      AutovalidateMode.onUserInteraction
+                          : AutovalidateMode.disabled,
+                      initialValue: PhoneNumber(phoneNumber: user.phone, isoCode: 'US'),
+                      keyboardType: const TextInputType.numberWithOptions(
+                          signed: true,
+                          decimal: true
+                      ),
+                      ignoreBlank: true,
+                      inputBorder: const OutlineInputBorder(),
+                    ),
                     const SizedBox(height: 25.0),
                     TextFormField(
                       enabled: editMode,
-                      decoration: inputDecoration('First name (required)', editMode),
+                      decoration: inputDecoration('Address', editMode),
                       style: textStyle(editMode),
-                      initialValue: user.firstName,
-                      maxLength: 300,
-                      maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                      keyboardType: TextInputType.name,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      validator: (final val) {
-                        if (val == null || val.trim().isEmpty) {
-                          return 'Please enter a first name';
-                        }
-
-                        if (!nameRegEx.hasMatch(val)) {
-                          return 'Invalid characters in first name';
-                        }
-
-                        return null;
-                      },
+                      keyboardType: TextInputType.streetAddress,
+                      initialValue: user.address,
                       onChanged: (final val) {
-                        setState(() {
-                          user.firstName = val;
-                        });
+                        user.address = val;
                       },
                     ),
                     const SizedBox(height: 25.0),
                     TextFormField(
                       enabled: editMode,
-                      decoration: inputDecoration('Last name (required)', editMode),
+                      decoration: inputDecoration('Address 2', editMode),
                       style: textStyle(editMode),
-                      initialValue: user.lastName,
-                      maxLength: 150,
-                      maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                      keyboardType: TextInputType.name,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      validator: (final val) {
-                        if (val == null || val.trim().isEmpty) {
-                          return 'Please enter a last name';
-                        }
-
-                        if (!nameRegEx.hasMatch(val)) {
-                          return 'Invalid characters in last name';
-                        }
-
-                        return null;
-                      },
+                      keyboardType: TextInputType.streetAddress,
+                      initialValue: user.address2,
                       onChanged: (final val) {
-                        setState(() {
-                          user.lastName = val;
-                        });
+                        user.address2 = val;
                       },
                     ),
                     const SizedBox(height: 25.0),
-                    InternationalPhoneNumberInput(
-                      selectorConfig: const SelectorConfig(
-                        selectorType: PhoneInputSelectorType.DIALOG,
-                        setSelectorButtonAsPrefixIcon: true,
-                        leadingPadding: 20.0,
-                      ),
-                      isEnabled: editMode,
-                      key: const Key('phoneField'),
-                      onInputChanged: (final PhoneNumber number) {
-                        if (number.parseNumber().isNotEmpty) {
-                          user.phone = number.phoneNumber!;
-                        } else {
-                          user.phone = '';
-                        }
+                    TextFormField(
+                      enabled: editMode,
+                      decoration: inputDecoration('City', editMode),
+                      style: textStyle(editMode),
+                      keyboardType: TextInputType.streetAddress,
+                      initialValue: user.city,
+                      onChanged: (final val) {
+                        user.city = val;
                       },
-                      onInputValidated: (final bool value) {
-                        if (user.phone!.isEmpty) {
-                          validPhoneNumberNotifier.value = true;
-                        } else {
-                          if (validPhoneNumberNotifier.value != value) {
-                            validPhoneNumberNotifier.value = value;
-                          }
-                        }
+                    ),
+                    const SizedBox(height: 25.0),
+                    TextFormField(
+                      enabled: editMode,
+                      decoration: inputDecoration('State', editMode),
+                      style: textStyle(editMode),
+                      keyboardType: TextInputType.streetAddress,
+                      initialValue: user.state,
+                      onChanged: (final val) {
+                        user.state = val;
                       },
-                      autoValidateMode: isNotTestMode ?
-                        AutovalidateMode.onUserInteraction
-                            : AutovalidateMode.disabled,
-                        initialValue: PhoneNumber(phoneNumber: user.phone, isoCode: 'US'),
-                        keyboardType: const TextInputType.numberWithOptions(
-                            signed: true,
-                            decimal: true
-                        ),
-                        ignoreBlank: true,
-                        inputBorder: const OutlineInputBorder(),
-                      ),
-                      const SizedBox(height: 25.0),
-                      TextFormField(
-                        enabled: editMode,
-                        decoration: inputDecoration('Address', editMode),
-                        style: textStyle(editMode),
-                        keyboardType: TextInputType.streetAddress,
-                        initialValue: user.address,
-                        onChanged: (final val) {
-                          user.address = val;
-                        },
-                      ),
-                      const SizedBox(height: 25.0),
-                      TextFormField(
-                        enabled: editMode,
-                        decoration: inputDecoration('Address 2', editMode),
-                        style: textStyle(editMode),
-                        keyboardType: TextInputType.streetAddress,
-                        initialValue: user.address2,
-                        onChanged: (final val) {
-                          user.address2 = val;
-                        },
-                      ),
-                      const SizedBox(height: 25.0),
-                      TextFormField(
-                        enabled: editMode,
-                        decoration: inputDecoration('City', editMode),
-                        style: textStyle(editMode),
-                        keyboardType: TextInputType.streetAddress,
-                        initialValue: user.city,
-                        onChanged: (final val) {
-                          user.city = val;
-                        },
-                      ),
-                      const SizedBox(height: 25.0),
-                      TextFormField(
-                        enabled: editMode,
-                        decoration: inputDecoration('State', editMode),
-                        style: textStyle(editMode),
-                        keyboardType: TextInputType.streetAddress,
-                        initialValue: user.state,
-                        onChanged: (final val) {
-                          user.state = val;
-                        },
-                      ),
-                      const SizedBox(height: 25.0),
-                      TextFormField(
-                        enabled: editMode,
-                        decoration: inputDecoration('Zip', editMode),
-                        style: textStyle(editMode),
-                        initialValue: user.zip,
-                        onChanged: (final val) {
-                          user.zip = val;
-                        },
-                        keyboardType: TextInputType.number,
-                      ),
-                    ],
-                  )
+                    ),
+                    const SizedBox(height: 25.0),
+                    TextFormField(
+                      enabled: editMode,
+                      decoration: inputDecoration('Zip', editMode),
+                      style: textStyle(editMode),
+                      initialValue: user.zip,
+                      onChanged: (final val) {
+                        user.zip = val;
+                      },
+                      keyboardType: TextInputType.number,
+                    ),
+                  ],
                 )
               )
             )
           )
-        ],
-      )
+        )
+      ],
     );
   }
 }

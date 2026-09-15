@@ -19,21 +19,21 @@ export class User {
     this.email = email;
     
     if (firstName.trim().length > 300 || firstName.trim().length === 0) {
-      throw new Error('First name must be between 1 and 300 characters');
+      throw new Error('First name must be between 1 and 300 characters, userId: ' + userId);
     }
 
     if (lastName.trim().length > 150 || lastName.trim().length === 0) {
-      throw new Error('Last name must be between 1 and 150 characters');
+      throw new Error('Last name must be between 1 and 150 characters, userId: ' + userId);
     }
 
     if (nameRegex.test(firstName) === false || nameRegex.test(lastName) === false) {
-      throw new Error('Invalid name submitted. ');
+      throw new Error('Invalid name submitted, userId: ' + userId);
     }
 
     phone = phone.replaceAll(' ', '');
     // We accept empty phone numbers, so enforce restrictions only if a phone number is provided
     if (phone.length > 0 && (phone.length > 15 || phoneRegex.test(phone) === false)) {
-      throw new Error('Phone must be less than 15 characters and include valid characters');
+      throw new Error('Phone must be less than 15 characters and include valid characters, userId: ' + userId);
     }
 
     this.lastName = lastName;

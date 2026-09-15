@@ -11,64 +11,73 @@ import {
 import {getAccessToken, authorizeUser} from '../utils/auth0.js';
 
 export const updateUser = onRequest(async (req, res) => {
+
   let user;
+  let updatedUserObject = {};
 
-  try {
-    user = new User(req.body);
-  } catch (err) {
-    console.error(err);
-    return res.status(400).send(err.message);
-  }
-
-  const updatedUserObject = {};
-
-  if (user.firstName) {
-    updatedUserObject['given_name'] = user.firstName;
-    updatedUserObject['name'] = user.firstName;
-  }
-
-  if (user.lastName) {
-    updatedUserObject['family_name'] = user.lastName;
-    updatedUserObject['name'] += ` ${user.lastName}`;
-  }
-
-  const primaryAddress = {};
-  
-  if (user.zip) {
-    primaryAddress['zip'] = user.zip;
-  }
-
-  if (user.address) {
-    primaryAddress['address'] = user.address;
-  }
-
-  if (user.address2) {
-    primaryAddress['address2'] = user.address2;
-  }
-
-  if (user.state) {
-    primaryAddress['state'] = user.state;
-  }
-
-  if (user.city) {
-    primaryAddress['city'] = user.city;
-  }
-
-  const metaAddresses = user.metadata['addresses'];
-
-  if (metaAddresses) {
-    metaAddresses['primary'] = primaryAddress;
+  if (req.body.app_metadata) {
+    user = {};
+    user['userId'] = req.query.userId;
+    updatedUserObject = req.body;
   } else {
-    user.metadata = {
-      addresses: {
-        primary: primaryAddress,
-      },
-    };
+    
+    try {
+      user = new User(req.body);
+    } catch (err) {
+      console.error(err);
+      return res.status(400).send(err.message);
+    }
+
+
+    if (user.firstName) {
+      updatedUserObject['given_name'] = user.firstName;
+      updatedUserObject['name'] = user.firstName;
+    }
+
+    if (user.lastName) {
+      updatedUserObject['family_name'] = user.lastName;
+      updatedUserObject['name'] += ` ${user.lastName}`;
+    }
+
+    const primaryAddress = {};
+    
+    if (user.zip) {
+      primaryAddress['zip'] = user.zip;
+    }
+
+    if (user.address) {
+      primaryAddress['address'] = user.address;
+    }
+
+    if (user.address2) {
+      primaryAddress['address2'] = user.address2;
+    }
+
+    if (user.state) {
+      primaryAddress['state'] = user.state;
+    }
+
+    if (user.city) {
+      primaryAddress['city'] = user.city;
+    }
+
+    const metaAddresses = user.metadata['addresses'];
+
+    if (metaAddresses) {
+      metaAddresses['primary'] = primaryAddress;
+    } else {
+      user.metadata = {
+        addresses: {
+          primary: primaryAddress,
+        },
+      };
+    }
+
+    user.metadata['phone'] = user.phone;
+
+    updatedUserObject['user_metadata'] = user.metadata;
+  
   }
-
-  user.metadata['phone'] = user.phone;
-
-  updatedUserObject['user_metadata'] = user.metadata;
 
   const updateUserUrl = `https://${auth0Domain}/api/v2/users/${user.userId}`;
   const token = await getAccessToken();
@@ -180,12 +189,8 @@ export const authMethods = onRequest(async (req, res) => {
 
     const request = await axios.request(config);
 
-
-//   const applications = await getConnectedServices(userId);
-
     const response = {
       mfaMethods: request.data
-//      services: applications.filter((e) => e !== null)
     }
 
     res.status(200).send(response);
@@ -383,40 +388,6 @@ export const unenrollMFA = onRequest(async (req, res) => {
   }
 });
 
-export const removeConnection = onRequest(async (req, res) => {
-  try {
-    const {
-      connectionId
-    } = req.body;
-
-    if (!connectionId) {
-      res.status(400).send('Invalid request - missing required fields.');
-      return;
-    }
-  
-    const config = {
-      method: 'delete',
-      maxBodyLength: Infinity,
-      url: `https://${auth0Domain}/api/v2/grants/${connectionId}`,
-      headers: {
-        'Authorization': `Bearer ${await getAccessToken()}`
-      }
-    };
-    
-    await axios.request(config)
-    res.status(200).send();
-  } catch (error) {
-    console.log(error);
-
-    const {
-      status = 500,
-      message = '',
-    } = error.response;
-
-    return res.status(status).send(message);
-  }
-});
-
 export const challengeMfa = onRequest(async (req, res) => {
 
   try {
@@ -511,42 +482,32 @@ export const requestMFAToken = onRequest(async (req, res) => {
 
 });
 
-const getConnectedServices = async (userId) => {
+export const getConsentedApps = onRequest(async (req, res) => {
+  const apps = req.query.apps || '';
 
-  if (!userId) {
-    res.status(400).send('Invalid request - missing required fields.');
-    return;
-  }
+  let applications = [];
+
+  applications = apps.length ? await getConnectedServices(apps) : [];  
+
+  res.status(200).send({
+    services: applications.filter((e) => e !== null)
+  });
+
+});
+
+const getConnectedServices = async (applicationIds) => {
 
   try {
     const auth0Token = await getAccessToken();
 
-    const grantConfig = {
-      method: 'get',
-      maxBodyLength: Infinity,
-      url: `https://${auth0Domain}/api/v2/grants?user_id=${userId}`,
-      headers: {
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${auth0Token}`,
-      },
-    };
+    const thirdPartyApps = applicationIds.split(',');
 
-    const grantRequest = await axios.request(grantConfig);
-
-    const thirdPartyApps = grantRequest.data.filter((grant) => grant.clientID !== auth0ClientId);
-
-    return await Promise.all(thirdPartyApps.map(async (grant) => {
-
-      const {
-        clientID:clientId,
-        scope,
-        id: grantId
-      } = grant;
+    return await Promise.all(thirdPartyApps.map(async (appId) => {
 
       const clientConfig = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: `https://${auth0Domain}/api/v2/clients/${clientId}`,
+        url: `https://${auth0Domain}/api/v2/clients/${appId}`,
         headers: {
           'Accept': 'application/json',
           'Authorization': `Bearer ${auth0Token}`,
@@ -557,20 +518,20 @@ const getConnectedServices = async (userId) => {
 
       const {
         name,
-        logo_uri,
-        is_first_party:isFirstParty
+        client_id:clientId,
+        logo_uri = '',
+        initiate_login_uri = '',
+        client_metadata: {
+          scopes = ''
+        } = {}
       } = clientRequest.data
-
-      if (isFirstParty) {
-        return null;
-      }
 
       return {
         name,
         logo_uri,
         clientId,
-        scope,
-        grantId
+        scopes,
+        loginUri: initiate_login_uri
       }
     }));
 
@@ -582,6 +543,7 @@ const getConnectedServices = async (userId) => {
       message = '',
     } = err.response;
 
+    // res is invalid here because this is a helper function, so we just return the error info for the calling function to handle the response
     return res.status(status).send(message);
   }
 };

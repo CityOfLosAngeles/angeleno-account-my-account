@@ -4,6 +4,7 @@ import 'package:angeleno_project/utils/flutter_environment_stub.dart'
     if (dart.library.js_interop) 'package:angeleno_project/utils/flutter_environment_web.dart';
 import 'package:angeleno_project/utils/constants.dart';
 import 'package:angeleno_project/utils/theme.dart';
+import 'package:angeleno_project/views/screens/connected_partner_services.dart';
 import 'package:angeleno_project/views/screens/mfa_screen.dart';
 import 'package:angeleno_project/views/screens/home_screen.dart';
 import 'package:angeleno_project/views/screens/password_screen.dart';
@@ -85,6 +86,14 @@ final router = GoRouter(
               builder: (final context, final state) => const AdvancedSecurityScreen(),
             )
           ]
+        ),
+        StatefulShellBranch(
+          routes: <RouteBase>[
+            GoRoute(
+              path: '/consented-applications',
+              builder: (final context, final state) => const ConnectedPartnerServices(),
+            ),
+          ],
         )
       ]
     )
