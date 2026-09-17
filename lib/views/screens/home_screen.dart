@@ -199,11 +199,11 @@ class _MyHomePageState extends State<MyHomePage> {
     scaffoldKey.currentState!.closeDrawer();
   }
 
-  List<Widget> get screens => <Widget>[
-        const ProfileScreen(),
-        const PasswordScreen(),
-        const AdvancedSecurityScreen()
-      ];
+  final List<Widget> screens = const <Widget>[
+    ProfileScreen(),
+    PasswordScreen(),
+    AdvancedSecurityScreen()
+  ];
 
   @override
   Widget build(final BuildContext context) {

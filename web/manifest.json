@@ -1,11 +1,11 @@
 {
-    "name": "angeleno_project",
-    "short_name": "angeleno_project",
+    "name": "Angeleno Account",
+    "short_name": "Angeleno Account",
     "start_url": ".",
-    "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "display": "browser",
+    "background_color": "#f5fbf7",
+    "theme_color": "#0C6B59",
+    "description": "Use one account for secure access to participating City of Los Angeles government services.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
