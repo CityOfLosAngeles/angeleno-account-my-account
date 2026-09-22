@@ -35,14 +35,21 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
   late User user;
   late PhoneNumber _initialPhone;
 
-  PhoneNumber? _currentNumber;
   String? ISOCode;
   String? dialCode;
 
-  bool isFormValid = false;
   bool validPhoneNumber = false;
   final isNotTestMode =
       kIsWeb || !Platform.environment.containsKey('FLUTTER_TEST');
+
+  bool get _namesValid {
+    final first = user.firstName ?? '';
+    final last = user.lastName ?? '';
+    if (first.trim().isEmpty || last.trim().isEmpty) {
+      return false;
+    }
+    return nameRegEx.hasMatch(first) && nameRegEx.hasMatch(last);
+  }
 
   @override
   void initState() {
@@ -54,24 +61,33 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
 
   Future<void> _resolveIsoCode(final String phone) async {
     try {
-      final PhoneNumber number =
-          await PhoneNumber.getRegionInfoFromPhoneNumber(phone);
-      if (!mounted) return;
+      if (phone.isNotEmpty) {
+        final PhoneNumber number =
+        await PhoneNumber.getRegionInfoFromPhoneNumber(phone);
+        if (!mounted) return;
 
-      final newIso = number.isoCode;
-      final newDial = number.dialCode;
-      final iso = newIso ?? ISOCode;
-      final dial = newDial ?? dialCode;
+        final newIso = number.isoCode;
+        final newDial = number.dialCode;
+        final iso = newIso ?? ISOCode;
+        final dial = newDial ?? dialCode;
 
-      if (iso != ISOCode || dial != dialCode) {
+        if (iso != ISOCode || dial != dialCode) {
         setState(() {
           ISOCode = iso;
           dialCode = dial;
-          _currentNumber = number;
           _initialPhone = number;
-          _phoneController.text = _currentNumber?.phoneNumber ?? '';
         });
+        }
+      } else {
+        if (ISOCode != 'US' || dialCode != '+1') {
+          setState(() {
+            ISOCode = 'US';
+            dialCode = '+1';
+            _initialPhone = PhoneNumber(isoCode: 'US');
+          });
+        }
       }
+
     } catch (_) {
       print('Failed to resolve ISO code for phone number: $phone');
     }
@@ -135,10 +151,6 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
 
     final editMode = userProvider.isEditing;
 
-    if (formKey.currentState != null) {
-      isFormValid = formKey.currentState!.validate();
-    }
-
     return Scaffold(
         body: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -167,19 +179,22 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
                 :
                 ValueListenableBuilder<bool>(
                   valueListenable: validPhoneNumberNotifier,
-                  builder: (final context, final valid, final child) => FilledButton(
-                    onPressed: ((user.phone!.isNotEmpty && !valid) ||
-                      !isFormValid) && isNotTestMode
-                      ? null : () {
+                  builder: (final context, final valid, final child) {
+                    final phoneOk = user.phone!.isEmpty || valid;
+                    final canSave = _namesValid && phoneOk;
+                    return  FilledButton(
+                      onPressed: (!canSave && isNotTestMode)
+                          ? null : () {
                         if (editMode) {
                           updateUser();
                         }
                         setState(() {
                           userProvider.toggleEditing();
                         });
-                        },
-                    child: const Text('Save'),
-                    )
+                      },
+                      child: const Text('Save'),
+                    );
+                  }
                 )
             )
           ]
@@ -252,7 +267,7 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
                             ),
                             const SizedBox(height: 25.0),
                             InternationalPhoneNumberInput(
-                              key: Key('phoneField'),
+                              key: Key('phoneField-${ISOCode ?? ''}-${dialCode ?? ''}'),
                               selectorConfig: const SelectorConfig(
                                 selectorType: PhoneInputSelectorType.DIALOG,
                                 setSelectorButtonAsPrefixIcon: true,
@@ -264,15 +279,18 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
                                   user.phone = number.phoneNumber!;
                                 } else {
                                   user.phone = '';
+                                  if (!validPhoneNumberNotifier.value) {
+                                    validPhoneNumberNotifier.value = true;
+                                  }
                                 }
                               },
                               onInputValidated: (final bool value) {
                                 if (user.phone!.isEmpty) {
-                                  validPhoneNumberNotifier.value = true;
-                                } else {
-                                  if (validPhoneNumberNotifier.value != value) {
-                                    validPhoneNumberNotifier.value = value;
+                                  if (!validPhoneNumberNotifier.value) {
+                                    validPhoneNumberNotifier.value = true;
                                   }
+                                } else if (validPhoneNumberNotifier.value != value) {
+                                  validPhoneNumberNotifier.value = value;
                                 }
                               },
                               autoValidateMode: isNotTestMode ?
