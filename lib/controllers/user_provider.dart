@@ -83,6 +83,14 @@ class UserProvider extends ChangeNotifier {
     _cleanUser = User.copy(user);
   }
 
+  void discardChanges() {
+    if (_cleanUser != null) {
+      _user = User.copy(_cleanUser!);
+    }
+    _isEditing = false;
+    notifyListeners();
+  }
+
   void toggleEditing() {
     _isEditing = !_isEditing;
     notifyListeners();
