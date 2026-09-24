@@ -102,6 +102,8 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
       if (!validPhoneNumberNotifier.value) {
         validPhoneNumberNotifier.value = true;
       }
+    } else if (validPhoneNumberNotifier.value) {
+      validPhoneNumberNotifier.value = false;
     }
   }
 
@@ -208,8 +210,7 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
                 ValueListenableBuilder<bool>(
                   valueListenable: validPhoneNumberNotifier,
                   builder: (final context, final valid, final child) {
-                    final phoneOk = user.phone!.isEmpty || valid;
-                    final canSave = _namesValid && phoneOk;
+                    final canSave = _namesValid && valid;
                     return  FilledButton(
                       onPressed: (!canSave && isNotTestMode)
                           ? null : () {
