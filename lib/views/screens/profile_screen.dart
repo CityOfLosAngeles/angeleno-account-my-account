@@ -34,6 +34,7 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
   late UserProvider userProvider;
   late User user;
   late PhoneNumber _initialPhone;
+  PhoneNumber? _pendingPhoneNumber;
 
   String? ISOCode;
   String? dialCode;
@@ -63,7 +64,8 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
     try {
       if (phone.isNotEmpty) {
         final PhoneNumber number =
-        await PhoneNumber.getRegionInfoFromPhoneNumber(phone);
+          await PhoneNumber.getRegionInfoFromPhoneNumber(phone);
+
         if (!mounted) return;
 
         final newIso = number.isoCode;
@@ -90,6 +92,32 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
 
     } catch (_) {
       print('Failed to resolve ISO code for phone number: $phone');
+    }
+  }
+
+  void _handlePhoneInputChanged(final PhoneNumber number) {
+    _pendingPhoneNumber = number;
+    if (_phoneController.text.trim().isEmpty) {
+      user.phone = '';
+      if (!validPhoneNumberNotifier.value) {
+        validPhoneNumberNotifier.value = true;
+      }
+    }
+  }
+
+  void _handlePhoneInputValidated(final bool value) {
+    if (_phoneController.text.trim().isEmpty) {
+      user.phone = '';
+      if (!validPhoneNumberNotifier.value) {
+        validPhoneNumberNotifier.value = true;
+      }
+    } else {
+      if (value) {
+        user.phone = _pendingPhoneNumber?.phoneNumber ?? user.phone;
+      }
+      if (validPhoneNumberNotifier.value != value) {
+        validPhoneNumberNotifier.value = value;
+      }
     }
   }
 
@@ -274,25 +302,8 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
                                 leadingPadding: 20.0,
                               ),
                               isEnabled: editMode,
-                              onInputChanged: (final PhoneNumber number) {
-                                if (number.parseNumber().isNotEmpty) {
-                                  user.phone = number.phoneNumber!;
-                                } else {
-                                  user.phone = '';
-                                  if (!validPhoneNumberNotifier.value) {
-                                    validPhoneNumberNotifier.value = true;
-                                  }
-                                }
-                              },
-                              onInputValidated: (final bool value) {
-                                if (user.phone!.isEmpty) {
-                                  if (!validPhoneNumberNotifier.value) {
-                                    validPhoneNumberNotifier.value = true;
-                                  }
-                                } else if (validPhoneNumberNotifier.value != value) {
-                                  validPhoneNumberNotifier.value = value;
-                                }
-                              },
+                              onInputChanged: _handlePhoneInputChanged,
+                              onInputValidated: _handlePhoneInputValidated,
                               autoValidateMode: isNotTestMode ?
                                 AutovalidateMode.onUserInteraction
                                 : AutovalidateMode.disabled,

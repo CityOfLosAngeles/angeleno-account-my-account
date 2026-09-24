@@ -163,7 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: const Text('Ok'),
               onPressed: () {
                 Navigator.of(context).pop();
-                userProvider.toggleEditing();
+                userProvider.discardChanges();
                 _navigationSelected(futureIndex);
               },
             ),
