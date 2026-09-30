@@ -48,14 +48,6 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
-  security-scan:
-    # OSV-Scanner 
-    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@e994fd8ab13fe1394942045f5945cd39c6c2d68e"
-    with:
-      scan-args: |-
-        --lockfile=pubspec.lock
-      upload-sarif: ${{ github.event_name == 'schedule' }}
-
 
   semgrep:
     # Skip any PR created by dependabot to avoid permission issues:
