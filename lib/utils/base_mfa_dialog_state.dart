@@ -77,7 +77,6 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
             key: const Key('passwordField'),
             width: 250,
             child: TextFormField(
-              autofocus: true,
               controller: passwordField,
               onFieldSubmitted: (final value) {
                 onSubmit();
@@ -113,7 +112,7 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
         ],
       ),
     )
-  );
+    );
 
   List<Widget> get dialogActions {
 
@@ -143,26 +142,27 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
     children: [
       if (_isSmallScreen) ...[
         Flexible(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Enroll $methodBeingEnrolled',
-                  textAlign: TextAlign.left,
-                  style: const TextStyle(
-                    fontSize: 22
-                  ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20),
+              Text('Enroll $methodBeingEnrolled',
+                textAlign: TextAlign.left,
+                style: const TextStyle(
+                  fontSize: 22
                 ),
-                Expanded(
-                  child: body,
-                ),
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: dialogActions
-                )
-              ],
-            )
+              ),
+              Expanded(
+                child: body,
+              ),
+              Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: dialogActions
+              )
+            ],
+          )
         )
 
       ] else ...[body]
@@ -176,16 +176,15 @@ abstract class BaseDialogState<T extends StatefulWidget> extends State<T> {
 
     _isSmallScreen = isSmallScreen;
 
-    return isSmallScreen
-        ?
-        Dialog.fullscreen(child: Padding(padding: const EdgeInsets.all(20), child:dialogBody))
-        :
-        AlertDialog(
-          title: Text('Enroll $methodBeingEnrolled'),
-          content: dialogBody,
-          actionsAlignment: MainAxisAlignment.spaceBetween,
-          actions: dialogActions
+    return isSmallScreen ?
+      Dialog.fullscreen(child: Padding(padding: const EdgeInsets.all(20), child:dialogBody))
+      :
+      AlertDialog(
+        title: Text('Enroll $methodBeingEnrolled'),
+        content: dialogBody,
+        actionsAlignment: MainAxisAlignment.spaceBetween,
+        actions: dialogActions
 
-        );
+      );
   }
 }
