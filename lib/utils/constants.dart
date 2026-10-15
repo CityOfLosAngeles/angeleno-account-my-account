@@ -7,10 +7,6 @@ const auth0ClientId = String.fromEnvironment('CLIENT_ID');
 const auth0Domain = String.fromEnvironment('AUTH0_DOMAIN');
 const auth0NonCustomDomain = String.fromEnvironment('AUTH0_NON_CUSTOM_DOMAIN');
 const redirectUri = String.fromEnvironment('REDIRECT_URI');
-const cloudFunctionURL =
-    String.fromEnvironment('CLOUD_FUNCTIONS_URL');
-const serviceAccountSecret = String.fromEnvironment('SA_SECRET_KEY');
-const serviceAccountEmail = String.fromEnvironment('SA_EMAIL');
 const environment = String.fromEnvironment('ENVIRONMENT');
 
 /* Datadog */
@@ -23,10 +19,8 @@ final datadogConfig = DatadogConfiguration(
     nativeCrashReportEnabled: true,
     loggingConfiguration: DatadogLoggingConfiguration(),
     rumConfiguration: DatadogRumConfiguration(
-      applicationId: dataDogApplicationId,
-      reportFlutterPerformance: true
-    )
-)..enableHttpTracking();
+        applicationId: dataDogApplicationId, reportFlutterPerformance: true))
+  ..enableHttpTracking();
 final logConfiguration = DatadogLoggerConfiguration();
 final logger = DatadogSdk.instance.logs?.createLogger(logConfiguration);
 
@@ -37,7 +31,4 @@ final RegExp nameRegEx = RegExp(r"^[a-zA-ZÀ-ÿ\s'\-\d]*$");
 const double smallScreenWidthBreakpoint = 575;
 
 /* Text Styles */
-const headerStyle = TextStyle(
-    fontSize: 20,
-    fontWeight: FontWeight.bold
-);
+const headerStyle = TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
