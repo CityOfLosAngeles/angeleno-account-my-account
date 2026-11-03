@@ -25,6 +25,7 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
   bool _isFetching = false;
   bool _hasFetched = false;
   List<Service> _connectedApps = [];
+  int maxScopeLength = 0;
   final Set<String> _expandedServices = {};
 
   late Auth0UserApi auth0UserApi;
@@ -82,6 +83,8 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
         if (success) {
           final String jsonString = response.body;
           final json = jsonDecode(jsonString) as Map<String, dynamic>;
+
+          maxScopeLength = json['maxScopeLength'] as int? ?? 0;
 
           final List<Service> services = (json['services'] as List<dynamic>)
               .map((final serviceJson) => Service.fromJson(serviceJson as Map<String, dynamic>))
@@ -187,7 +190,7 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
                             duration: const Duration(milliseconds: 300),
                             curve: Curves.easeInOut,
                             width: cardWidth,
-                            height: _expandedServices.contains(service.id) ? 400 : 180,
+                            height: _expandedServices.contains(service.id) ? (maxScopeLength * 42.5) : 180,
                             child: ClipRRect(
                               child: Padding(
                                 padding: const EdgeInsets.all(16),
@@ -209,9 +212,14 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
                                     )
                                         : Text(service.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                                     const SizedBox(height: 8),
-                                    Text(
+                                    userProvider.user!.consentedApps[service.id]?['date'] is int
+                                        ? Text(
                                       'Connected ${formatter.format(DateTime.fromMillisecondsSinceEpoch(userProvider.user!.consentedApps[service.id]?['date'] as int))}',
-                                    ),
+                                    )
+                                        : const Text('Connected date not available'),
+                                    // Text(
+                                    //   'Connected ${formatter.format(DateTime.fromMillisecondsSinceEpoch(userProvider.user!.consentedApps[service.id]?['date'] as int))}',
+                                    // ),
                                     Expanded(
                                       child: SingleChildScrollView(
                                         child: Column(
@@ -249,15 +257,15 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
                                               ...(userProvider.user?.consentedApps[service.id]?['scopes'] as String?)
                                                   ?.split(',')
                                                   .map((scope) => Padding(
-                                                padding: const EdgeInsets.only(left: 8.0, top: 4.0, bottom: 2.0),
-                                                child: Row(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    const Text('• ', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                    Expanded(child: Text(scope.trim())),
-                                                  ],
-                                                ),
-                                              )) ??
+                                                    padding: const EdgeInsets.only(left: 8.0, top: 4.0, bottom: 2.0),
+                                                    child: Row(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        const Text('• ', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                        Expanded(child: Text(scope.trim())),
+                                                      ],
+                                                    ),
+                                                  )) ??
                                                   [],
                                             ],
                                           ],

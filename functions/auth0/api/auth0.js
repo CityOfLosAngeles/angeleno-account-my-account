@@ -487,10 +487,11 @@ export const getConsentedApps = onRequest(async (req, res) => {
 
   let applications = [];
 
-  applications = apps.length ? await getConnectedServices(apps) : [];  
+  applications = apps.length ? await getConnectedServices(apps) : [];
 
   res.status(200).send({
-    services: applications.filter((e) => e !== null)
+    services: applications.filter((e) => e !== null),
+    maxScopeLength: Math.max(...applications.map(app => app?.scopesLength || 0))
   });
 
 });
@@ -531,6 +532,7 @@ const getConnectedServices = async (applicationIds) => {
         logo_uri,
         clientId,
         scopes,
+        scopesLength: scopes.split(',').length,
         loginUri: initiate_login_uri
       }
     }));
