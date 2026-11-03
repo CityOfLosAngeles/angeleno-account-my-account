@@ -503,7 +503,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                 children: [
                                                   TextButton(
                                                       onPressed: () {
-                                                        _navigationSelected(3);
+                                                        _navigationSelected(4);
                                                       },
                                                       child: const Column(
                                                         children: [
@@ -521,7 +521,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                   const SizedBox(height: 5),
                                                   TextButton(
                                                       onPressed: () {
-                                                        _navigationSelected(4);
+                                                        _navigationSelected(5);
                                                       },
                                                       child: const Column(
                                                         children: [
@@ -543,7 +543,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                   const SizedBox(height: 5),
                                                   TextButton(
                                                       onPressed: () {
-                                                        _navigationSelected(5);
+                                                        _navigationSelected(6);
                                                       },
                                                       child: const Column(
                                                         children: [
@@ -561,7 +561,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                   const SizedBox(height: 5),
                                                   OutlinedButton(
                                                       onPressed: () {
-                                                        _navigationSelected(6);
+                                                        _navigationSelected(7);
                                                       },
                                                       child: const Column(
                                                         children: [
