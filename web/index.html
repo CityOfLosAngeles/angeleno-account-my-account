@@ -22,7 +22,7 @@
 
   <link rel="icon" type="images/png" href="/assets/images/los_angeles_seal.svg"/>
 
-  <title>Angeleno - My Account</title>
+  <title>Angeleno Account</title>
   <link rel="manifest" href="manifest.json">
 
   <script src="https://cdn.auth0.com/js/auth0-spa-js/2.1.2/auth0-spa-js.production.js"></script>
@@ -31,6 +31,92 @@
   <script type="text/javascript" src="https://www.datadoghq-browser-agent.com/us5/v5/datadog-rum-slim.js"></script>
   <script src="assets/packages/libphonenumber_plugin/js/libphonenumber.js"></script>
   <script src="assets/packages/libphonenumber_plugin/js/stringbuffer.js"></script>
+
+  <script>
+    (function() {
+      function getBasePathname() {
+        var baseUrl = new URL(document.baseURI || window.location.origin, window.location.origin);
+        var basePathname = baseUrl.pathname || "/";
+
+        if (basePathname.length > 1 && basePathname.endsWith("/")) {
+          basePathname = basePathname.slice(0, -1);
+        }
+
+        return basePathname;
+      }
+
+      function normalizeRoutePath(pathname) {
+        var basePathname = getBasePathname();
+
+        if (basePathname !== "/" && pathname.indexOf(basePathname + "/") === 0) {
+          pathname = pathname.slice(basePathname.length);
+        } else if (pathname === basePathname) {
+          pathname = "/";
+        }
+
+        return pathname || "/";
+      }
+
+      function updateTitleFromUrl(urlString) {
+        try {
+          var url = new URL(urlString, document.baseURI || window.location.origin);
+          var env = window.flutterEnvironment;
+          var environment = env === 'production' ? '' : (env ? env + ' ' : '');
+          var pathname = normalizeRoutePath(url.pathname);
+
+          if (pathname === "/profile") {
+            document.title = "Profile | " + environment + "Angeleno Account";
+          } else if (pathname === "/password-change") {
+            document.title = "Password change | " + environment + "Angeleno Account";
+          } else if (pathname === "/multi-factor-authentication") {
+            document.title = "Multi-factor authentication | " + environment + "Angeleno Account";
+          } else {
+            document.title = environment + "Angeleno Account";
+          }
+        } catch (e) {
+          // Ignore URL parsing errors to avoid breaking app startup.
+        }
+      }
+
+      function updateCurrentTitle() {
+        updateTitleFromUrl(window.location.href);
+      }
+
+      function patchHistoryMethod(methodName) {
+        var originalMethod = window.history[methodName];
+
+        if (typeof originalMethod !== "function") {
+          return;
+        }
+
+        window.history[methodName] = function() {
+          var result = originalMethod.apply(this, arguments);
+          updateCurrentTitle();
+          return result;
+        };
+      }
+
+      window.addEventListener("load", updateCurrentTitle);
+      window.addEventListener("flutter-first-frame", updateCurrentTitle);
+
+      if (window.navigation && typeof window.navigation.addEventListener === "function") {
+        window.navigation.addEventListener("navigate", function(event) {
+          if (event && event.destination && event.destination.url) {
+            updateTitleFromUrl(event.destination.url);
+          }
+        });
+      } else {
+        patchHistoryMethod("pushState");
+        patchHistoryMethod("replaceState");
+        window.addEventListener("popstate", function() {
+          updateTitleFromUrl(window.location.href);
+        });
+        window.addEventListener("hashchange", function() {
+          updateTitleFromUrl(window.location.href);
+        });
+      }
+    })();
+  </script>
 
   <style>
     [id^="global_navbar_la_"] {

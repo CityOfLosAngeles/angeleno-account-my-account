@@ -164,7 +164,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: const Text('Ok'),
               onPressed: () {
                 Navigator.of(context).pop();
-                userProvider.toggleEditing();
+                userProvider.discardChanges();
                 _navigationSelected(futureIndex);
               },
             ),
@@ -173,9 +173,13 @@ class _MyHomePageState extends State<MyHomePage> {
       );
 
   Future<void> _navigationSelected(final int index) async {
-    if (userProvider.isEditing && index != 0) {
+    if (userProvider.isEditing && index != 0
+          && !(user == userProvider.cleanUser)) {
       _unsavedDataDialog(index);
     } else {
+      if (userProvider.isEditing) {
+        userProvider.toggleEditing();
+      }
       // Could use a cleaner implementation
       if ([4, 5, 6, 7].contains(index)) {
         switch(index) {
