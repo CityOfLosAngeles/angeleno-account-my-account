@@ -67,7 +67,7 @@ class UserProvider extends ChangeNotifier {
       if (consentedApplications.isNotEmpty) {
         consentedApplications.forEach((final key, final value) {
           final appDetails = value as Map<String, dynamic>;
-          final scopes = appDetails['scopes'] as String? ?? '';
+          final scopes = appDetails['scopes_labels'] as String? ?? '';
           consentedApps[key] = {
             'scopes': scopes,
             'date': appDetails['datetime'] as int? ?? ''
