@@ -8,6 +8,7 @@ import { auth0Domain } from './utils/constants.js';
 
 import {
   updateUser,
+  updateAppMetadata,
   updatePassword,
   enrollMFA,
   confirmMFA,
@@ -71,6 +72,7 @@ app.use(express.json());
 app.get('/auth0/authMethods', authMethods);
 app.get('/auth0/consentedApps', getConsentedApps);
 app.post('/auth0/updateUser', updateUser);
+app.post('/auth0/updateAppMetadata', updateAppMetadata);
 app.post('/auth0/updatePassword', updatePassword);
 app.post('/auth0/enrollMFA', enrollMFA);
 app.post('/auth0/confirmMFA', confirmMFA);

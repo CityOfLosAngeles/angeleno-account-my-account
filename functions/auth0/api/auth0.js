@@ -13,73 +13,79 @@ import {getAccessToken, authorizeUser} from '../utils/auth0.js';
 export const updateUser = onRequest(async (req, res) => {
 
   let user;
-  let updatedUserObject = {};
+  const updatedUserObject = {};
 
-  if (req.body.app_metadata) {
-    user = {};
-    user['userId'] = req.query.userId;
-    updatedUserObject = req.body;
-  } else {
-    
-    try {
-      user = new User(req.body);
-    } catch (err) {
-      console.error(err);
-      return res.status(400).send(err.message);
-    }
-
-
-    if (user.firstName) {
-      updatedUserObject['given_name'] = user.firstName;
-      updatedUserObject['name'] = user.firstName;
-    }
-
-    if (user.lastName) {
-      updatedUserObject['family_name'] = user.lastName;
-      updatedUserObject['name'] += ` ${user.lastName}`;
-    }
-
-    const primaryAddress = {};
-    
-    if (user.zip) {
-      primaryAddress['zip'] = user.zip;
-    }
-
-    if (user.address) {
-      primaryAddress['address'] = user.address;
-    }
-
-    if (user.address2) {
-      primaryAddress['address2'] = user.address2;
-    }
-
-    if (user.state) {
-      primaryAddress['state'] = user.state;
-    }
-
-    if (user.city) {
-      primaryAddress['city'] = user.city;
-    }
-
-    const metaAddresses = user.metadata['addresses'];
-
-    if (metaAddresses) {
-      metaAddresses['primary'] = primaryAddress;
-    } else {
-      user.metadata = {
-        addresses: {
-          primary: primaryAddress,
-        },
-      };
-    }
-
-    user.metadata['phone'] = user.phone;
-
-    updatedUserObject['user_metadata'] = user.metadata;
-  
+  try {
+    user = new User(req.body);
+  } catch (err) {
+    console.error(err);
+    return res.status(400).send(err.message);
   }
 
-  const updateUserUrl = `https://${auth0Domain}/api/v2/users/${user.userId}`;
+  if (user.firstName) {
+    updatedUserObject['given_name'] = user.firstName;
+    updatedUserObject['name'] = user.firstName;
+  }
+
+  if (user.lastName) {
+    updatedUserObject['family_name'] = user.lastName;
+    updatedUserObject['name'] += ` ${user.lastName}`;
+  }
+
+  const primaryAddress = {};
+
+  if (user.zip) {
+    primaryAddress['zip'] = user.zip;
+  }
+
+  if (user.address) {
+    primaryAddress['address'] = user.address;
+  }
+
+  if (user.address2) {
+    primaryAddress['address2'] = user.address2;
+  }
+
+  if (user.state) {
+    primaryAddress['state'] = user.state;
+  }
+
+  if (user.city) {
+    primaryAddress['city'] = user.city;
+  }
+
+  const metaAddresses = user.metadata['addresses'];
+
+  if (metaAddresses) {
+    metaAddresses['primary'] = primaryAddress;
+  } else {
+    user.metadata = {
+      addresses: {
+        primary: primaryAddress,
+      },
+    };
+  }
+
+  user.metadata['phone'] = user.phone;
+
+  updatedUserObject['user_metadata'] = user.metadata;
+
+  return updateAuth0User(user.userId, updatedUserObject, res);
+});
+
+export const updateAppMetadata = onRequest(async (req, res) => {
+  const {app_metadata: appMetadata} = req.body;
+  const {userId} = req.query;
+
+  if (!appMetadata) {
+    return res.status(400).send('Invalid request - missing app_metadata.');
+  }
+
+  return updateAuth0User(userId, {app_metadata: appMetadata}, res);
+});
+
+const updateAuth0User = async (userId, updatedUserObject, res) => {
+  const updateUserUrl = `https://${auth0Domain}/api/v2/users/${userId}`;
   const token = await getAccessToken();
   const headers = {
     'Content-Type': 'application/json',
@@ -95,7 +101,7 @@ export const updateUser = onRequest(async (req, res) => {
     return res.status(200).send();
   } catch (err) {
     console.error(err);
-    
+
     const {
       status = 500,
       message = '',
@@ -104,7 +110,7 @@ export const updateUser = onRequest(async (req, res) => {
 
     return res.status(status).send(message || error_description);
   }
-});
+};
 
 export const updatePassword = onRequest(async (req, res) => {
   const body = req.body;

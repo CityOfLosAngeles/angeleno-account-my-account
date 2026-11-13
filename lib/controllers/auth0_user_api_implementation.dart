@@ -418,7 +418,7 @@ class Auth0UserApi extends Api {
 
     try {
       final request = await http.post(
-          Uri.parse('/auth0/updateUser?userId=$userId'),
+          Uri.parse('/auth0/updateAppMetadata?userId=$userId'),
           headers: headers,
           body: reqBody
       ).timeout(const Duration(seconds: 5));
