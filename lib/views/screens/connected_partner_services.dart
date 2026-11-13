@@ -27,6 +27,7 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
   List<Service> _connectedApps = [];
   int maxScopeLength = 0;
   final Set<String> _expandedServices = {};
+  final Set<String> _removingConnections = {};
 
   late Auth0UserApi auth0UserApi;
   late UserProvider userProvider;
@@ -115,29 +116,37 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
 
   }
 
-  Future<void> removeConnection(final String id) async {
-    final user = userProvider.user!;
-    final appMetadataCopy = Map<String, dynamic>.from(user.appMetadata);
+  Future<void> removeConnection(final String id, final BuildContext dialogContext) async {
+    if (!_removingConnections.add(id)) return;
 
-    final connectedApplicationsData = Map<String, dynamic>.from(appMetadataCopy['consent'] as Map<String, dynamic>? ?? {});
-    connectedApplicationsData.remove(id);
+    try {
+      final user = userProvider.user!;
+      final appMetadataCopy = Map<String, dynamic>.from(user.appMetadata);
 
-    appMetadataCopy['consent'] = connectedApplicationsData;
+      final connectedApplicationsData = Map<String, dynamic>.from(appMetadataCopy['consent'] as Map<String, dynamic>? ?? {});
+      connectedApplicationsData.remove(id);
 
-    final response = await auth0UserApi.removeConnection(user.userId, appMetadataCopy);
+      appMetadataCopy['consent'] = connectedApplicationsData;
 
-    if (response.statusCode == HttpStatus.ok) {
-      if (mounted) {
-        Navigator.pop(context, response.statusCode);
-        setState(() {
-          _connectedApps.removeWhere((final service) => service.id == id);
-        });
-        ScaffoldMessenger.of(context).showSnackBar( const SnackBar(
-            behavior: SnackBarBehavior.floating,
-            width: 280.0,
-            content: Text('Service has been disconnected.')
-        ));
+      final response = await auth0UserApi.removeConnection(user.userId, appMetadataCopy);
+
+      if (response.statusCode == HttpStatus.ok) {
+        if (mounted) {
+          if (dialogContext.mounted) {
+            Navigator.pop(dialogContext, response.statusCode);
+          }
+          setState(() {
+            _connectedApps.removeWhere((final service) => service.id == id);
+          });
+          ScaffoldMessenger.of(context).showSnackBar( const SnackBar(
+              behavior: SnackBarBehavior.floating,
+              width: 280.0,
+              content: Text('Service has been disconnected.')
+          ));
+        }
       }
+    } finally {
+      _removingConnections.remove(id);
     }
   }
 
@@ -283,7 +292,7 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
                                       child: FilledButton.tonal(
                                         onPressed: () => showDialog<int>(
                                             context: context,
-                                            builder: (final BuildContext context) =>
+                                            builder: (final BuildContext dialogContext) =>
                                                 AlertDialog(
                                                   title: Text('Revoke consent for ${service.name}?'),
                                                   content: SizedBox(
@@ -321,18 +330,17 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
                                                     TextButton(
                                                       child: const Text('Cancel'),
                                                       onPressed: () {
-                                                        Navigator.pop(context);
+                                                        Navigator.pop(dialogContext);
                                                       },
                                                     ),
                                                     TextButton(
                                                       child: const Text('Ok'),
                                                       onPressed: () {
-                                                        removeConnection(service.id);
+                                                        removeConnection(service.id, dialogContext);
                                                       },
                                                     )
                                                   ],
                                                 )
-                                      
                                         ),
                                         child: const Text('Disconnect'),
                                       ),
