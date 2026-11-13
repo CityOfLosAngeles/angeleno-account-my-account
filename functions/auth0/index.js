@@ -16,7 +16,7 @@ import {
   unenrollMFA,
   challengeMfa,
   requestMFAToken,
-  getConsentedApps
+  getConnectedApplications
 } from './api/auth0.js';
 
 admin.initializeApp();
@@ -70,7 +70,7 @@ app.use((req, res, next) => {
 app.use(express.json());
 
 app.get('/auth0/authMethods', authMethods);
-app.get('/auth0/consentedApps', getConsentedApps);
+app.get('/auth0/connectedApplications', getConnectedApplications);
 app.post('/auth0/updateUser', updateUser);
 app.post('/auth0/updateAppMetadata', updateAppMetadata);
 app.post('/auth0/updatePassword', updatePassword);

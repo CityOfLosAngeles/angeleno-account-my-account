@@ -52,7 +52,7 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
 
       _userListener = () {
         if (mounted && !_hasFetched && !_isFetching && userProvider.user != null) {
-          _fetchConsentedApps();
+          _fetchConnectedApplications();
         }
       };
 
@@ -60,23 +60,23 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
       userProvider.addListener(_userListener);
 
       if (userProvider.user != null && !_hasFetched && !_isFetching) {
-        _fetchConsentedApps();
+        _fetchConnectedApplications();
       }
       _isInitialized = true;
     }
 
   }
 
-  Future<void> _fetchConsentedApps() async {
+  Future<void> _fetchConnectedApplications() async {
     if (_isFetching || _hasFetched) return;
 
     // setState(() {
       _isFetching = true;
     // });
 
-    final consentedAppIds = userProvider.user!.consentedApps.keys.join(',');
+    final connectedAppIds = userProvider.user!.connectedApplications.keys.join(',');
 
-    await auth0UserApi.getConnectedApps(userProvider.user!.userId, consentedAppIds)
+    await auth0UserApi.getConnectedApps(userProvider.user!.userId, connectedAppIds)
       .then((final response) {
         final bool success = response.statusCode == HttpStatus.ok;
 
@@ -116,12 +116,15 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
   }
 
   Future<void> removeConnection(final String id) async {
-    final consentData = userProvider.user!.appMetadata.remove('consent') as Map<String, dynamic>? ?? {};
-    final appMetadataCopy = Map<String, dynamic>.from(consentData);
-    appMetadataCopy.remove(id);
-    userProvider.user!.appMetadata.addAll({'consent': appMetadataCopy});
+    final user = userProvider.user!;
+    final appMetadataCopy = Map<String, dynamic>.from(user.appMetadata);
 
-    final response = await auth0UserApi.removeConnection(userProvider.user!.userId, userProvider.user!.appMetadata);
+    final connectedApplicationsData = Map<String, dynamic>.from(appMetadataCopy['consent'] as Map<String, dynamic>? ?? {});
+    connectedApplicationsData.remove(id);
+
+    appMetadataCopy['consent'] = connectedApplicationsData;
+
+    final response = await auth0UserApi.removeConnection(user.userId, appMetadataCopy);
 
     if (response.statusCode == HttpStatus.ok) {
       if (mounted) {
@@ -138,6 +141,16 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
     }
   }
 
+  Text connectedApplicationTitle(final String text, {final TextStyle? style}) => Text(
+    text,
+    maxLines: 2,
+    overflow: TextOverflow.ellipsis,
+    style: (style ?? const TextStyle()).copyWith(
+      fontSize: 18,
+      fontWeight: FontWeight.bold,
+    ),
+  );
+
   @override
   Widget build(final BuildContext context) {
 
@@ -148,8 +161,6 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
     if (_connectedApps.isEmpty && _hasFetched) {
       return const Center(child: Text('No connected partner services found.'));
     }
-
-    print('Rebuilding from connected partner services');
 
     return SizedBox(
       width: double.infinity,
@@ -190,7 +201,7 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
                             duration: const Duration(milliseconds: 300),
                             curve: Curves.easeInOut,
                             width: cardWidth,
-                            height: _expandedServices.contains(service.id) ? (maxScopeLength * 42.5) : 180,
+                            height: _expandedServices.contains(service.id) ? (maxScopeLength * 42.5) : 200,
                             child: ClipRRect(
                               child: Padding(
                                 padding: const EdgeInsets.all(16),
@@ -198,23 +209,17 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     service.loginUri.isNotEmpty
-                                        ? InkWell(
-                                      onTap: () => launchUrl(Uri.parse(service.loginUri)),
-                                      child: Text(
-                                        service.name,
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
+                                      ? InkWell(
+                                        onTap: () => launchUrl(Uri.parse(service.loginUri)),
+                                        child: connectedApplicationTitle(service.name, style: TextStyle(
                                           color: Theme.of(context).colorScheme.primary,
-                                          decoration: TextDecoration.underline,
-                                        ),
-                                      ),
-                                    )
-                                        : Text(service.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                          decoration: TextDecoration.underline
+                                        ))
+                                      ) : connectedApplicationTitle(service.name),
                                     const SizedBox(height: 8),
-                                    userProvider.user!.consentedApps[service.id]?['date'] is int
+                                    userProvider.user!.connectedApplications[service.id]?['date'] is int
                                         ? Text(
-                                      'Connected ${formatter.format(DateTime.fromMillisecondsSinceEpoch(userProvider.user!.consentedApps[service.id]?['date'] as int))}',
+                                      'Connected ${formatter.format(DateTime.fromMillisecondsSinceEpoch(userProvider.user!.connectedApplications[service.id]?['date'] as int))}',
                                     )
                                         : const Text('Connected date not available'),
                                     // Text(
@@ -254,7 +259,7 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
                                             // Collapsible scopes list
                                             if (_expandedServices.contains(service.id)) ...[
                                               const SizedBox(height: 8),
-                                              ...(userProvider.user?.consentedApps[service.id]?['scopes'] as String?)
+                                              ...(userProvider.user?.connectedApplications[service.id]?['scopes'] as String?)
                                                   ?.split(',')
                                                   .map((scope) => Padding(
                                                     padding: const EdgeInsets.only(left: 8.0, top: 4.0, bottom: 2.0),

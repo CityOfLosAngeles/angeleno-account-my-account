@@ -90,7 +90,7 @@ final router = GoRouter(
         StatefulShellBranch(
           routes: <RouteBase>[
             GoRoute(
-              path: '/consented-applications',
+              path: '/connected-applications',
               builder: (final context, final state) => const ConnectedPartnerServices(),
             ),
           ],

@@ -488,17 +488,27 @@ export const requestMFAToken = onRequest(async (req, res) => {
 
 });
 
-export const getConsentedApps = onRequest(async (req, res) => {
+export const getConnectedApplications = onRequest(async (req, res) => {
   const apps = req.query.apps || '';
 
   let applications = [];
 
   applications = apps.length ? await getConnectedServices(apps) : [];
 
-  res.status(200).send({
-    services: applications.filter((e) => e !== null),
-    maxScopeLength: Math.max(...applications.map(app => app?.scopesLength || 0))
-  });
+  if (applications.length >= 0) {
+    res.status(200).send({
+      services: applications.filter((e) => e !== null),
+      maxScopeLength: Math.max(...applications.map(app => app?.scopesLength || 0))
+    });
+  } else {
+    res.status(applications?.status || 500).send({
+      services: [],
+      maxScopeLength: 0,
+      message: applications?.message || 'Error encountered'
+    });
+  }
+
+
 
 });
 
@@ -551,7 +561,9 @@ const getConnectedServices = async (applicationIds) => {
       message = '',
     } = err.response;
 
-    // res is invalid here because this is a helper function, so we just return the error info for the calling function to handle the response
-    return res.status(status).send(message);
+    return {
+      status,
+      message
+    };
   }
 };
