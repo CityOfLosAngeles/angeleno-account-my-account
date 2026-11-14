@@ -501,7 +501,7 @@ export const getConnectedApplications = onRequest(async (req, res) => {
 
   if (applications.length >= 0) {
     res.status(200).send({
-      services: applications.filter((e) => e !== null),
+      services: applications.filter((e) => e !== null).sort((a, b) => a.name.localeCompare(b.name)),
       maxScopeLength: Math.max(...applications.map(app => app?.scopesLength || 0))
     });
   } else {
