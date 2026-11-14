@@ -117,7 +117,7 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
   }
 
   Future<void> removeConnection(final String id, final BuildContext dialogContext) async {
-    if (!_removingConnections.add(id)) return;
+    if (_removingConnections.isNotEmpty || !_removingConnections.add(id)) return;
 
     try {
       final user = userProvider.user!;

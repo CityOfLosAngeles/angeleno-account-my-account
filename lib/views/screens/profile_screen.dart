@@ -205,7 +205,7 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
                       userProvider.toggleEditing();
                     });
                   },
-                  child: const Text('Save'),
+                  child: const Text('Edit'),
                 )
                 :
                 ValueListenableBuilder<bool>(

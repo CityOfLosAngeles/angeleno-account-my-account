@@ -77,6 +77,10 @@ export const updateAppMetadata = onRequest(async (req, res) => {
   const {app_metadata: appMetadata} = req.body;
   const {userId} = req.query;
 
+  if (req.body?.userId && req.body.userId !== userId) {
+    return res.status(400).send('Invalid request - conflicting user IDs.');
+  }
+
   if (!appMetadata) {
     return res.status(400).send('Invalid request - missing app_metadata.');
   }
