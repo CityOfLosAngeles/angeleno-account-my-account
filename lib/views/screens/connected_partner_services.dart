@@ -131,6 +131,7 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
       final response = await auth0UserApi.removeConnection(user.userId, appMetadataCopy);
 
       if (response.statusCode == HttpStatus.ok) {
+        userProvider.updateConsentAfterRevocation(user.userId, id, appMetadataCopy);
         if (mounted) {
           if (dialogContext.mounted) {
             Navigator.pop(dialogContext, response.statusCode);

@@ -105,6 +105,20 @@ class UserProvider extends ChangeNotifier {
     _cleanUser = User.copy(user);
   }
 
+  void updateConsentAfterRevocation(
+    final String userId,
+    final String applicationId,
+    final Map<String, dynamic> appMetadata
+  ) {
+    final user = _user;
+    if (user == null || user.userId != userId) return;
+
+    user.appMetadata = Map<String, dynamic>.from(appMetadata);
+    user.connectedApplications.remove(applicationId);
+    setCleanUser(user);
+    notifyListeners();
+  }
+
   void discardChanges() {
     if (_cleanUser != null) {
       _user = User.copy(_cleanUser!);
