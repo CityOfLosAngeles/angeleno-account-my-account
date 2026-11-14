@@ -116,7 +116,7 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
 
   }
 
-  Future<void> removeConnection(final String id, final BuildContext dialogContext) async {
+  Future<void> removeConnection(final String id, final BuildContext dialogContext, final String serviceName) async {
     if (_removingConnections.isNotEmpty || !_removingConnections.add(id)) return;
 
     try {
@@ -139,10 +139,10 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
           setState(() {
             _connectedApps.removeWhere((final service) => service.id == id);
           });
-          ScaffoldMessenger.of(context).showSnackBar( const SnackBar(
+          ScaffoldMessenger.of(context).showSnackBar( SnackBar(
               behavior: SnackBarBehavior.floating,
               width: 280.0,
-              content: Text('Service has been disconnected.')
+              content: Text('$serviceName has been disconnected.')
           ));
         }
       }
@@ -337,7 +337,7 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
                                                     TextButton(
                                                       child: const Text('Ok'),
                                                       onPressed: () {
-                                                        removeConnection(service.id, dialogContext);
+                                                        removeConnection(service.id, dialogContext, service.name);
                                                       },
                                                     )
                                                   ],
