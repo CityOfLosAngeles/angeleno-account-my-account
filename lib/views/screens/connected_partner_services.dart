@@ -211,7 +211,7 @@ class _ConnectedPartnerServicesState extends State<ConnectedPartnerServices> {
                             duration: const Duration(milliseconds: 300),
                             curve: Curves.easeInOut,
                             width: cardWidth,
-                            height: _expandedServices.contains(service.id) ? (maxScopeLength * 42.5) : 200,
+                            height: _expandedServices.contains(service.id) ? 200 + (maxScopeLength * 26) : 200,
                             child: ClipRRect(
                               child: Padding(
                                 padding: const EdgeInsets.all(16),
