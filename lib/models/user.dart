@@ -10,6 +10,8 @@ class User {
   String? state;
   String? phone;
   Map<String, dynamic>? metadata;
+  Map<String, dynamic> appMetadata = {};
+  Map<String, dynamic> connectedApplications = {};
 
   User({
     required this.userId,
@@ -22,7 +24,9 @@ class User {
     required this.state,
     required this.zip,
     required this.phone,
-    required this.metadata
+    required this.metadata,
+    required this.appMetadata,
+    required this.connectedApplications
   });
 
   User.copy(final User copy) :
@@ -36,7 +40,9 @@ class User {
     state = copy.state,
     zip = copy.zip,
     phone = copy.phone,
-    metadata = copy.metadata;
+    metadata = copy.metadata,
+    appMetadata = Map<String, dynamic>.from(copy.appMetadata),
+    connectedApplications = Map<String, dynamic>.from(copy.connectedApplications);
 
   @override
   bool operator ==(final Object other) => other is User &&

@@ -11,7 +11,9 @@ import {
 import {getAccessToken, authorizeUser} from '../utils/auth0.js';
 
 export const updateUser = onRequest(async (req, res) => {
+
   let user;
+  const updatedUserObject = {};
 
   try {
     user = new User(req.body);
@@ -19,8 +21,6 @@ export const updateUser = onRequest(async (req, res) => {
     console.error(err);
     return res.status(400).send(err.message);
   }
-
-  const updatedUserObject = {};
 
   if (user.firstName) {
     updatedUserObject['given_name'] = user.firstName;
@@ -33,7 +33,7 @@ export const updateUser = onRequest(async (req, res) => {
   }
 
   const primaryAddress = {};
-  
+
   if (user.zip) {
     primaryAddress['zip'] = user.zip;
   }
@@ -70,7 +70,26 @@ export const updateUser = onRequest(async (req, res) => {
 
   updatedUserObject['user_metadata'] = user.metadata;
 
-  const updateUserUrl = `https://${auth0Domain}/api/v2/users/${user.userId}`;
+  return updateAuth0User(user.userId, updatedUserObject, res);
+});
+
+export const updateAppMetadata = onRequest(async (req, res) => {
+  const {app_metadata: appMetadata} = req.body;
+  const {userId} = req.query;
+
+  if (req.body?.userId && req.body.userId !== userId) {
+    return res.status(400).send('Invalid request - conflicting user IDs.');
+  }
+
+  if (!appMetadata) {
+    return res.status(400).send('Invalid request - missing app_metadata.');
+  }
+
+  return updateAuth0User(userId, {app_metadata: appMetadata}, res);
+});
+
+const updateAuth0User = async (userId, updatedUserObject, res) => {
+  const updateUserUrl = `https://${auth0Domain}/api/v2/users/${userId}`;
   const token = await getAccessToken();
   const headers = {
     'Content-Type': 'application/json',
@@ -86,7 +105,7 @@ export const updateUser = onRequest(async (req, res) => {
     return res.status(200).send();
   } catch (err) {
     console.error(err);
-    
+
     const {
       status = 500,
       message = '',
@@ -95,7 +114,7 @@ export const updateUser = onRequest(async (req, res) => {
 
     return res.status(status).send(message || error_description);
   }
-});
+};
 
 export const updatePassword = onRequest(async (req, res) => {
   const body = req.body;
@@ -180,12 +199,8 @@ export const authMethods = onRequest(async (req, res) => {
 
     const request = await axios.request(config);
 
-
-//   const applications = await getConnectedServices(userId);
-
     const response = {
       mfaMethods: request.data
-//      services: applications.filter((e) => e !== null)
     }
 
     res.status(200).send(response);
@@ -383,40 +398,6 @@ export const unenrollMFA = onRequest(async (req, res) => {
   }
 });
 
-export const removeConnection = onRequest(async (req, res) => {
-  try {
-    const {
-      connectionId
-    } = req.body;
-
-    if (!connectionId) {
-      res.status(400).send('Invalid request - missing required fields.');
-      return;
-    }
-  
-    const config = {
-      method: 'delete',
-      maxBodyLength: Infinity,
-      url: `https://${auth0Domain}/api/v2/grants/${connectionId}`,
-      headers: {
-        'Authorization': `Bearer ${await getAccessToken()}`
-      }
-    };
-    
-    await axios.request(config)
-    res.status(200).send();
-  } catch (error) {
-    console.log(error);
-
-    const {
-      status = 500,
-      message = '',
-    } = error.response;
-
-    return res.status(status).send(message);
-  }
-});
-
 export const challengeMfa = onRequest(async (req, res) => {
 
   try {
@@ -511,42 +492,43 @@ export const requestMFAToken = onRequest(async (req, res) => {
 
 });
 
-const getConnectedServices = async (userId) => {
+export const getConnectedApplications = onRequest(async (req, res) => {
+  const apps = req.query.apps || '';
 
-  if (!userId) {
-    res.status(400).send('Invalid request - missing required fields.');
-    return;
+  let applications = [];
+
+  applications = apps.length ? await getConnectedServices(apps) : [];
+
+  if (applications.length >= 0) {
+    res.status(200).send({
+      services: applications.filter((e) => e !== null).sort((a, b) => a.name.localeCompare(b.name)),
+      maxScopeLength: Math.max(...applications.map(app => app?.scopesLength || 0))
+    });
+  } else {
+    res.status(applications?.status || 500).send({
+      services: [],
+      maxScopeLength: 0,
+      message: applications?.message || 'Error encountered'
+    });
   }
+
+
+
+});
+
+const getConnectedServices = async (applicationIds) => {
 
   try {
     const auth0Token = await getAccessToken();
 
-    const grantConfig = {
-      method: 'get',
-      maxBodyLength: Infinity,
-      url: `https://${auth0Domain}/api/v2/grants?user_id=${userId}`,
-      headers: {
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${auth0Token}`,
-      },
-    };
+    const thirdPartyApps = applicationIds.split(',');
 
-    const grantRequest = await axios.request(grantConfig);
-
-    const thirdPartyApps = grantRequest.data.filter((grant) => grant.clientID !== auth0ClientId);
-
-    return await Promise.all(thirdPartyApps.map(async (grant) => {
-
-      const {
-        clientID:clientId,
-        scope,
-        id: grantId
-      } = grant;
+    return await Promise.all(thirdPartyApps.map(async (appId) => {
 
       const clientConfig = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: `https://${auth0Domain}/api/v2/clients/${clientId}`,
+        url: `https://${auth0Domain}/api/v2/clients/${appId}`,
         headers: {
           'Accept': 'application/json',
           'Authorization': `Bearer ${auth0Token}`,
@@ -557,20 +539,21 @@ const getConnectedServices = async (userId) => {
 
       const {
         name,
-        logo_uri,
-        is_first_party:isFirstParty
+        client_id:clientId,
+        logo_uri = '',
+        initiate_login_uri = '',
+        client_metadata: {
+          scopes = ''
+        } = {}
       } = clientRequest.data
-
-      if (isFirstParty) {
-        return null;
-      }
 
       return {
         name,
         logo_uri,
         clientId,
-        scope,
-        grantId
+        scopes,
+        scopesLength: scopes.split(',').length,
+        loginUri: initiate_login_uri
       }
     }));
 
@@ -582,6 +565,9 @@ const getConnectedServices = async (userId) => {
       message = '',
     } = err.response;
 
-    return res.status(status).send(message);
+    return {
+      status,
+      message
+    };
   }
 };
