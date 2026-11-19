@@ -40,9 +40,13 @@ class UserProvider extends ChangeNotifier {
 
     Address userAddress = Address();
     String phone = '';
+    final connectedApps = <String, dynamic>{};
 
     final metadata = user.customClaims?['user_metadata']
                                   as Map<String, dynamic>? ?? {};
+
+    final appData = user.customClaims?['app_metadata']
+          as Map<String, dynamic>? ?? {};
 
     if (metadata.isNotEmpty) {
       final addressData = metadata['addresses']
@@ -56,6 +60,22 @@ class UserProvider extends ChangeNotifier {
       phone = metadata['phone'] as String? ?? '';
     }
 
+    if (appData.isNotEmpty) {
+      final connectedApplications = appData['consent']
+        as Map<String, dynamic>? ?? {};
+
+      if (connectedApplications.isNotEmpty) {
+        connectedApplications.forEach((final key, final value) {
+          final appDetails = value as Map<String, dynamic>;
+          final scopes = appDetails['scope_labels'] as String? ?? '';
+          connectedApps[key] = {
+            'scopes': scopes,
+            'date': appDetails['datetime'] as int? ?? ''
+          };
+        });
+      }
+    }
+
     _user = User(
       userId: user.sub,
       email: user.email!,
@@ -67,7 +87,9 @@ class UserProvider extends ChangeNotifier {
       city: userAddress.city,
       state: userAddress.state,
       phone: phone,
-      metadata: metadata
+      metadata: metadata,
+      appMetadata: appData,
+      connectedApplications: connectedApps
     );
 
     notifyListeners();
@@ -81,6 +103,20 @@ class UserProvider extends ChangeNotifier {
 
   void setCleanUser(final User user) {
     _cleanUser = User.copy(user);
+  }
+
+  void updateConsentAfterRevocation(
+    final String userId,
+    final String applicationId,
+    final Map<String, dynamic> appMetadata
+  ) {
+    final user = _user;
+    if (user == null || user.userId != userId) return;
+
+    user.appMetadata = Map<String, dynamic>.from(appMetadata);
+    user.connectedApplications.remove(applicationId);
+    setCleanUser(user);
+    notifyListeners();
   }
 
   void discardChanges() {

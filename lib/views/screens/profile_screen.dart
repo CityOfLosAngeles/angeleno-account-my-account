@@ -181,6 +181,7 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
 
     final editMode = userProvider.isEditing;
 
+
     return Scaffold(
         body: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -378,8 +379,7 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware, DatadogR
                 )
             )
           )
-        ],
-      )
+        ]),
     );
   }
 }
