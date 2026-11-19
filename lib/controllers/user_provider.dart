@@ -15,7 +15,11 @@ class UserProvider extends ChangeNotifier {
   UserProvider() {
     // temporary, to skip tests
     if (auth0Domain.isNotEmpty) {
-      auth0Web.onLoad(audience: 'https://$auth0NonCustomDomain/api/v2/').then((final credentials) async {
+      auth0Web.onLoad(
+        audience: 'https://$auth0NonCustomDomain/api/v2/',
+        useRefreshTokens: true,
+        cacheLocation: CacheLocation.localStorage
+      ).then((final credentials) async {
         if (credentials != null
             && await auth0Web.hasValidCredentials()) {
 
